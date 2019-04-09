@@ -1,0 +1,49 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^3.9.3",
+    "@material-ui/icons": "^3.0.1",
+    "@material-ui/lab": "^3.0.0-alpha.30",
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "lodash": "^4.17.11",
+    "match-sorter": "^2.3.0",
+    "moment": "^2.22.2",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-dropzone": "^10.0.5",
+    "react-export-excel": "^0.5.3",
+    "react-https-redirect": "^1.1.0",
+    "react-loadable": "^5.5.0",
+    "react-redux": "^5.0.7",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "^2.1.8",
+    "react-table": "^6.8.6",
+    "redux": "^4.0.1",
+    "redux-form": "^7.4.2",
+    "redux-thunk": "^2.3.0",
+    "serve": "^10.1.1",
+    "socket.io-client": "^2.2.0",
+    "webfontloader": "^1.6.28"
+  },
+  "scripts": {
+    "build": "react-scripts build",
+    "dev": "concurrently \"npm run start-dev\" \"npm run localtunnel\"",
+    "heroku-postbuild": "npm run build",
+    "localtunnel": "lt --port 3000 --subdomain delanobgt",
+    "start": "serve -s build",
+    "start-dev": "react-scripts start"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "concurrently": "^4.1.0",
+    "localtunnel": "^1.9.1"
+  }
+}
