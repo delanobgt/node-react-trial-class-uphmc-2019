@@ -44,13 +44,7 @@ class CreateUserDialog extends React.Component {
   };
 
   onSubmit = async formProps => {
-    const {
-      createUser,
-      successSnackbar,
-      errorSnackbar,
-      toggleDialog,
-      name
-    } = this.props;
+    const { createUser, successSnackbar, errorSnackbar } = this.props;
 
     try {
       this.setState({ submitStatus: SUBMITTING });

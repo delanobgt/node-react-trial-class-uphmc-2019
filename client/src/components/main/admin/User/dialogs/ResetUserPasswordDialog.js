@@ -36,7 +36,6 @@ class ResetPasswordDialog extends React.Component {
       resetUserPasswordById,
       successSnackbar,
       errorSnackbar,
-      toggleDialog,
       state,
       name
     } = this.props;

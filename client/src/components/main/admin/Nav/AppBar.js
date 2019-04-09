@@ -66,7 +66,7 @@ class MyAppBar extends Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="h5" color="inherit" className={classes.grow}>
-              HRIS UPH Medan Campus
+              Voting System
             </Typography>
 
             <Hidden xsDown>

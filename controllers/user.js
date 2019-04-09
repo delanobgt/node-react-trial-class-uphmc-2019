@@ -36,6 +36,12 @@ exports.updateSelfEmail = async (req, res) => {
   const userId = req.user._id;
   const { email } = req.body;
   try {
+    const duplicateUser = await db.User.findOne({ email });
+    if (duplicateUser)
+      return res
+        .status(422)
+        .json({ error: { msg: "Email is already in use!" } });
+
     const user = await db.User.findById(userId);
     user.email = email;
     await user.save();

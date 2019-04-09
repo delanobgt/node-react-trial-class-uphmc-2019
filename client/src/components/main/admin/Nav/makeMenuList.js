@@ -1,31 +1,21 @@
 import _ from "lodash";
 import React from "react";
 import {
-  AccessTime as AccessTimeIcon,
-  AttachMoney as AttachMoneyIcon,
-  CloudUpload as CloudUploadIcon,
   Dashboard as DashboardIcon,
   ExitToApp as ExitToAppIcon,
-  EventNote as EventNoteIcon,
-  FindInPage as FindInPageIcon,
-  LibraryBooks as LibraryBooksIcon,
   People as PeopleIcon,
-  Person as PersonIcon,
-  Settings as SettingsIcon,
-  AccessibilityNew as AccessibilityNewIcon,
-  DirectionsRun as DirectionsRunIcon,
-  LocalHospital as LocalHospitalIcon
+  Person as PersonIcon
 } from "@material-ui/icons";
 
 export default ({ props }) => {
-  function requireRoleMenuItem(menuItem) {
+  const requireRoleMenuItem = requiredRole => menuItem => {
     const { role } = props;
-    return role.includes("ADMIN") ? menuItem : null;
-  }
+    return role === requiredRole ? menuItem : null;
+  };
 
   return _.chain([
     { icon: <DashboardIcon />, label: "Dashboard", link: "/dashboard" },
-    requireRoleMenuItem({
+    requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,
       label: "Users",
       link: "/users"

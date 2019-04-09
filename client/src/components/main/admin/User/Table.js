@@ -5,6 +5,7 @@ import Button from "@material-ui/core/Button";
 import moment from "moment";
 import ReactTable from "react-table";
 import IconButton from "@material-ui/core/IconButton";
+import Chip from "@material-ui/core/Chip";
 import Tooltip from "@material-ui/core/Tooltip";
 import {
   Delete as DeleteIcon,
@@ -31,7 +32,7 @@ const ROLE_ICON = {
 */
 const makeColumns = ({ props, toggleDialog, allRoles }) => [
   { Header: "No", accessor: row => row.orderNo, width: 50 },
-  { Header: "ID", accessor: row => row._id },
+  { Header: "ID", accessor: row => row._id, width: 100 },
   {
     Header: "Email",
     width: 210,
@@ -55,9 +56,15 @@ const makeColumns = ({ props, toggleDialog, allRoles }) => [
     accessor: row => (row.password ? "PASSWORD_SET" : "PASSWORD_NOT_SET"),
     Cell: ({ original: row }) =>
       row.password ? (
-        <span style={{ color: "green" }}>PASSWORD_SET</span>
+        <Chip
+          label="PASSWORD_SET"
+          style={{ backgroundColor: "limegreen", color: "white" }}
+        />
       ) : (
-        <span style={{ color: "red" }}>PASSWORD_NOT_SET</span>
+        <Chip
+          label="PASSWORD_NOT_SET"
+          style={{ backgroundColor: "red", color: "white" }}
+        />
       )
   },
   {
@@ -71,20 +78,22 @@ const makeColumns = ({ props, toggleDialog, allRoles }) => [
             <RoleIcon style={{ marginRight: "0.2em" }} />
             {row.role}
           </div>
-          <div style={{ textAlign: "right" }}>
-            <Tooltip title="Edit role" placement="top">
-              <IconButton
-                onClick={() =>
-                  toggleDialog("EditRoleDialog")({
-                    ...row,
-                    allRoles
-                  })
-                }
-              >
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-          </div>
+          {row._id !== props.id && (
+            <div style={{ textAlign: "right" }}>
+              <Tooltip title="Edit role" placement="top">
+                <IconButton
+                  onClick={() =>
+                    toggleDialog("EditRoleDialog")({
+                      ...row,
+                      allRoles
+                    })
+                  }
+                >
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+            </div>
+          )}
         </Fragment>
       );
     }
@@ -94,9 +103,15 @@ const makeColumns = ({ props, toggleDialog, allRoles }) => [
     accessor: row => (row.banned ? "BANNED" : "NOT_BANNED"),
     Cell: ({ original: row }) =>
       row.banned ? (
-        <span style={{ color: "red" }}>BANNED</span>
+        <Chip
+          label="BANNED"
+          style={{ backgroundColor: "red", color: "white" }}
+        />
       ) : (
-        <span style={{ color: "green" }}>NOT_BANNED</span>
+        <Chip
+          label="NOT_BANNED"
+          style={{ backgroundColor: "limegreen", color: "white" }}
+        />
       )
   },
   {
@@ -112,7 +127,7 @@ const makeColumns = ({ props, toggleDialog, allRoles }) => [
     plain: () => "",
     Cell: ({ original: row }) => (
       <div style={{ textAlign: "center" }}>
-        {row.email === props.email ? (
+        {row._id === props.id ? (
           <Typography variant="subtitle1">[No actions]</Typography>
         ) : (
           <Fragment>

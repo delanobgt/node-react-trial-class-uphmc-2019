@@ -37,7 +37,6 @@ class DeleteUserDialog extends React.Component {
       deleteUserById,
       successSnackbar,
       errorSnackbar,
-      toggleDialog,
       state,
       name
     } = this.props;

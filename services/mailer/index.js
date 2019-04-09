@@ -41,7 +41,7 @@ exports.sendNewUserEmail = async ({ recipientEmail, payload }) => {
   });
   const mailOptions = {
     to: recipientEmail,
-    subject: `Welcome to HRIS UPHMC`,
+    subject: `Welcome to Voting System (Ambassador UPHMC 2019)`,
     html: renderedHtml
   };
   await sendEmail(mailOptions);
@@ -62,7 +62,7 @@ exports.sendForgetUserPasswordEmail = async ({ recipientEmail, payload }) => {
   });
   const mailOptions = {
     to: recipientEmail,
-    subject: `Forgot Password for HRIS UPHMC`,
+    subject: `Forgot Password for Voting System (Ambassador UPHMC 2019)`,
     html: renderedHtml
   };
   await sendEmail(mailOptions);
@@ -83,7 +83,7 @@ exports.sendResetUserPasswordEmail = async ({ recipientEmail, payload }) => {
   });
   const mailOptions = {
     to: recipientEmail,
-    subject: `Reset Password for HRIS UPHMC`,
+    subject: `Reset Password for Voting System (Ambassador UPHMC 2019)`,
     html: renderedHtml
   };
   await sendEmail(mailOptions);

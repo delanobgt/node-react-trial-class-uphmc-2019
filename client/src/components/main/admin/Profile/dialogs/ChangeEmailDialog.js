@@ -51,8 +51,6 @@ class ChangeEmailDialog extends React.Component {
       updateSelfEmail,
       successSnackbar,
       errorSnackbar,
-      toggleDialog,
-      name,
       reset
     } = this.props;
     try {

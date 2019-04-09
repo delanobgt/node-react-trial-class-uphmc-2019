@@ -57,14 +57,7 @@ class ChangPasswordDialog extends React.Component {
 
   onSubmit = async formProps => {
     const { oldPassword, newPassword } = formProps;
-    const {
-      updateSelfPassword,
-      successSnackbar,
-      errorSnackbar,
-      toggleDialog,
-      name,
-      reset
-    } = this.props;
+    const { updateSelfPassword, successSnackbar, errorSnackbar } = this.props;
     try {
       this.setState({ submitStatus: SUBMITTING });
       await updateSelfPassword({ oldPassword, newPassword });

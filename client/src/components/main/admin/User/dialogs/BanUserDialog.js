@@ -37,7 +37,6 @@ class BanUserDialog extends React.Component {
       updateUserById,
       successSnackbar,
       errorSnackbar,
-      toggleDialog,
       state,
       name
     } = this.props;

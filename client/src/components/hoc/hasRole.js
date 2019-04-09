@@ -41,7 +41,7 @@ export default requiredRole => ChildComponent => {
           />
         );
 
-      if (role && role == requiredRole) {
+      if (role && role === requiredRole) {
         return <ChildComponent {...this.props} />;
       } else {
         return (
