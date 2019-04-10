@@ -9,12 +9,21 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Flare as FlareIcon
+} from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
 
-import * as employeesActions from "../../../../actions/employee";
-import hasRole from "../../../hoc/hasRole";
+import * as candidateActions from "../../../../actions/candidate";
+import requireAuth from "../../../hoc/requireAuth";
 import ExportToExcel from "../../../misc/ExportToExcel";
+import CreateCandidateDialog from "./dialogs/CreateCandidateDialog";
+import EditCandidateDialog from "./dialogs/EditCandidateDialog";
+import DeleteCandidateDialog from "./dialogs/DeleteCandidateDialog";
 
 const styles = theme => ({
   retryText: {
@@ -33,47 +42,35 @@ const styles = theme => ({
   },
   paper: {
     padding: "2em"
+  },
+  actionDiv: {
+    display: "flex",
+    justifyContent: "space-between",
+    margin: "0.5em 0"
+  },
+  picture: {
+    width: "150px",
+    height: "150px",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover"
   }
 });
-
-const headers = [
-  "nik",
-  "kategori_pegawai",
-  "tanggal_mulai_kerja_medan",
-  "tanggal_mutasi_kerja_medan",
-  "tanggal_berhenti_kerja",
-  "tanggal_lahir",
-  "jenis_kelamin",
-  "kewarganegaraan",
-  "jabatan",
-  "cost_center",
-  "status_pegawai",
-  "npwp",
-  "nama_pajak",
-  "alamat_pajak",
-  "nama_kpp",
-  "status_ptkp",
-  "atas_nama_bank",
-  "nama_bank",
-  "no_rekening",
-  "bpjstk",
-  "bpjskis"
-].map(header => ({ type: null, name: header }));
 
 const LOADING = "LOADING",
   ERROR = "ERROR",
   DONE = "DONE";
 
-class PphReportIndex extends React.Component {
+class CandidateListIndex extends React.Component {
   state = {
     loadingStatus: LOADING
   };
 
   fetchData = async () => {
-    const { getEmployees } = this.props;
+    const { getCandidates } = this.props;
     try {
       this.setState({ loadingStatus: LOADING });
-      await getEmployees({ headers });
+      await getCandidates();
       this.setState({ loadingStatus: DONE });
     } catch (error) {
       console.log({ error });
@@ -91,74 +88,54 @@ class PphReportIndex extends React.Component {
   }
 
   render() {
-    const { classes, employees } = this.props;
+    const { classes, candidates } = this.props;
     const { loadingStatus } = this.state;
 
     const columns = [
-      { Header: "No", accessor: d => d.orderNo },
-      { Header: "NIK", accessor: d => d.nik },
-      { Header: "Kategori Pegawai", accessor: d => d.kategori_pegawai || "-" },
+      { Header: "Order Number", accessor: d => d.orderNumber || -1 },
       {
-        Header: "Tanggal Mulai Kerja",
-        accessor: d =>
-          d.tanggal_mulai_kerja_medan
-            ? moment(d.tanggal_mulai_kerja_medan).valueOf()
-            : null,
-        plain: tanggalMs =>
-          tanggalMs ? moment(tanggalMs).format("D MMMM YYYY") : "-",
-        Cell: ({ original: d }) =>
-          d.tanggal_mulai_kerja_medan
-            ? moment(d.tanggal_mulai_kerja_medan).format("D MMMM YYYY")
-            : "-"
+        Header: "Fullname",
+        accessor: d => d.fullname || "-"
       },
       {
-        Header: "Tanggal Mutasi Kerja",
-        accessor: d =>
-          d.tanggal_mutasi_kerja_medan
-            ? moment(d.tanggal_mutasi_kerja_medan).valueOf()
-            : null,
-        plain: tanggalMs =>
-          tanggalMs ? moment(tanggalMs).format("D MMMM YYYY") : "-",
+        Header: "Created At",
+        accessor: d => (d.createdAt ? moment(d.createdAt).valueOf() : null),
+        plain: dateMs => (dateMs ? moment(dateMs).format("D MMMM YYYY") : "-"),
         Cell: ({ original: d }) =>
-          d.tanggal_mutasi_kerja_medan
-            ? moment(d.tanggal_mutasi_kerja_medan).format("D MMMM YYYY")
-            : "-"
+          d.createdAt ? moment(d.createdAt).format("D MMMM YYYY") : "-"
+      },
+      { Header: "Major", accessor: d => d.major || "-" },
+      {
+        Header: "Image",
+        accessor: d => _.get(d, "image.publicId", "-"),
+        Cell: ({ original: d }) => (
+          <div
+            className={classes.picture}
+            style={{
+              backgroundImage: `url(${_.get(d, "image.secureUrl", null) ||
+                "https://via.placeholder.com/300"})`
+            }}
+          />
+        )
       },
       {
-        Header: "Tanggal Berhenti Kerja",
-        accessor: d =>
-          d.tanggal_berhenti_kerja
-            ? moment(d.tanggal_berhenti_kerja).valueOf()
-            : null,
-        plain: tanggalMs =>
-          tanggalMs ? moment(tanggalMs).format("D MMMM YYYY") : "-",
-        Cell: ({ original: d }) =>
-          d.tanggal_berhenti_kerja
-            ? moment(d.tanggal_berhenti_kerja).format("D MMMM YYYY")
-            : "-"
-      },
-      {
-        Header: "Tanggal Lahir",
-        accessor: d =>
-          d.tanggal_lahir ? moment(d.tanggal_lahir).valueOf() : null,
-        plain: tanggalLahirMs =>
-          tanggalLahirMs ? moment(tanggalLahirMs).format("D MMMM YYYY") : "-",
-        Cell: ({ original: d }) =>
-          d.tanggal_lahir ? moment(d.tanggal_lahir).format("D MMMM YYYY") : "-"
-      },
-      { Header: "Jenis Kelamin", accessor: d => d.jenis_kelamin || "-" },
-      { Header: "Jabatan", accessor: d => d.jabatan || "-" },
-      { Header: "Cost Center", accessor: d => d.cost_center || "-" },
-      { Header: "Status Pegawai", accessor: d => d.status_pegawai || "-" },
-      { Header: "NPWP", accessor: d => d.npwp || "-" },
-      { Header: "Nama Pajak", accessor: d => d.nama_pajak || "-" },
-      { Header: "Alamat Pajak", accessor: d => d.alamat_pajak || "-" },
-      { Header: "Status PTKP", accessor: d => d.status_ptkp || "-" },
-      { Header: "Atas Nama Bank", accessor: d => d.atas_nama_bank || "-" },
-      { Header: "Nama Bank", accessor: d => d.nama_bank || "-" },
-      { Header: "No Rekening", accessor: d => d.no_rekening || "-" },
-      { Header: "BPJSTK", accessor: d => d.bpjstk || "-" },
-      { Header: "BPJSKIS", accessor: d => d.bpjskis || "-" }
+        Header: "Actions",
+        accessor: () => "",
+        Cell: ({ original: d }) => (
+          <div style={{ textAlign: "center" }}>
+            <IconButton
+              onClick={() => this.toggleDialog("EditCandidateDialog")(d)}
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => this.toggleDialog("DeleteCandidateDialog")(d)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </div>
+        )
+      }
     ];
 
     // table filter method
@@ -197,22 +174,20 @@ class PphReportIndex extends React.Component {
         </div>
       );
     } else {
-      const data = _.chain(employees)
+      const data = _.chain(candidates)
         .values()
-        .map((emp, index) => ({
-          ...emp,
-          orderNo: index + 1
-        }))
+        .sortBy([cand => cand.orderNumber])
         .value();
+
       mainContent = (
         <Fragment>
-          <div>
+          <div className={classes.actionDiv}>
             <ExportToExcel
               rows={data}
               headers={columns.map(col => col.Header)}
               accessors={columns.map(col => col.accessor)}
               plains={columns.map(col => col.plain)}
-              filename="[HRIS] PPH Report"
+              filename="[Voting System] All Candidates"
               actionElement={
                 <Button
                   variant="outlined"
@@ -223,6 +198,13 @@ class PphReportIndex extends React.Component {
                 </Button>
               }
             />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => this.toggleDialog("CreateCandidateDialog")(true)}
+            >
+              Create New <FlareIcon style={{ marginLeft: "0.5em" }} />
+            </Button>
           </div>
           <ReactTable
             data={data}
@@ -258,13 +240,28 @@ class PphReportIndex extends React.Component {
           <Grid item xs={11}>
             <Paper className={classes.paper} elevation={3}>
               <Typography variant="h5" gutterBottom>
-                PPH Report
+                All Candidates
               </Typography>
               <br />
               {mainContent}
             </Paper>
           </Grid>
         </Grid>
+        <CreateCandidateDialog
+          name="CreateCandidateDialog"
+          state={this.state}
+          toggleDialog={this.toggleDialog}
+        />
+        <EditCandidateDialog
+          name="EditCandidateDialog"
+          state={this.state}
+          toggleDialog={this.toggleDialog}
+        />
+        <DeleteCandidateDialog
+          name="DeleteCandidateDialog"
+          state={this.state}
+          toggleDialog={this.toggleDialog}
+        />
       </Fragment>
     );
   }
@@ -272,7 +269,7 @@ class PphReportIndex extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    ...state.employee
+    ...state.candidate
   };
 }
 
@@ -280,7 +277,7 @@ export default compose(
   withStyles(styles),
   connect(
     mapStateToProps,
-    { ...employeesActions }
+    { ...candidateActions }
   ),
-  hasRole("MASTER_DATA")
-)(PphReportIndex);
+  requireAuth
+)(CandidateListIndex);

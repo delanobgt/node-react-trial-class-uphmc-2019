@@ -15,6 +15,11 @@ export default ({ props }) => {
 
   return _.chain([
     { icon: <DashboardIcon />, label: "Dashboard", link: "/dashboard" },
+    {
+      icon: <PeopleIcon />,
+      label: "Candidates",
+      link: "/candidates"
+    },
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,
       label: "Users",

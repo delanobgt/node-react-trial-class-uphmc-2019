@@ -3,7 +3,7 @@ const db = require("../models");
 
 class Socket {
   static init(server) {
-    this.tokenizedSockets = {};
+    this.identifiedSockets = {};
 
     if (this.io) this.close();
     this.io = require("socket.io")(server);
@@ -39,12 +39,10 @@ class Socket {
       });
     });
 
-    this.io.of("tokenizedSockets").on("connection", socket => {
-      const socketToken = _.get(socket, "handshake.query.socketToken", null);
-      this.tokenizedSockets[socketToken] = socket;
-
+    this.io.of("identifiedSockets").on("connection", socket => {
+      this.identifiedSockets[socket.id] = socket;
       socket.on("disconnect", () => {
-        this.tokenizedSockets = _.omit(this.tokenizedSockets, socketToken);
+        this.identifiedSockets = _.omit(this.identifiedSockets, socket.id);
       });
       socket.emit("ready");
     });

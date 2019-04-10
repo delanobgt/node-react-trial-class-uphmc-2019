@@ -33,12 +33,22 @@ class CreateUserDialog extends React.Component {
   state = INITIAL_STATE;
 
   renderField = field => {
+    const { helperText } = field;
+    const { error, touched } = field.meta;
     return (
       <TextField
         {...field}
         {...field.input}
         autoComplete="off"
-        helperText={field.meta.touched ? field.meta.error : ""}
+        helperText={
+          touched && error ? (
+            <span style={{ color: "red" }}>{error}</span>
+          ) : helperText ? (
+            helperText
+          ) : (
+            <p>&nbsp;</p>
+          )
+        }
       />
     );
   };

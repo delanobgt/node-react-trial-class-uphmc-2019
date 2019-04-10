@@ -11,6 +11,12 @@ router.post(
 );
 router.get("/", controller.getCandidates);
 router.get("/:candidateId", controller.getCandidateById);
+router.put(
+  "/:candidateId",
+  requireAuth,
+  upload.single("imageFile"),
+  controller.updateCandidateById
+);
 router.delete("/:candidateId", requireAuth, controller.deleteCandidateById);
 
 module.exports = router;

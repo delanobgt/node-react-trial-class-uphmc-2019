@@ -12,7 +12,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 
-import * as employeeActions from "../../../../../actions/employee";
+import * as candidateActions from "../../../../../actions/candidate";
 import * as snackbarActions from "../../../../../actions/snackbar";
 
 const styles = theme => ({
@@ -29,25 +29,24 @@ const INITIAL_STATE = {
   submitStatus: IDLE
 };
 
-class DeleteUserDialog extends React.Component {
+class DeleteCandidateDialog extends React.Component {
   state = INITIAL_STATE;
 
   onSubmit = async () => {
     const {
-      deleteEmployeeById,
+      deleteCandidateById,
       successSnackbar,
       errorSnackbar,
-      toggleDialog,
       state,
       name
     } = this.props;
-    const employee = state[name] || {};
+    const candidate = state[name];
 
     try {
       this.setState({ submitStatus: SUBMITTING });
-      await deleteEmployeeById(employee._id);
-      toggleDialog(name)(false);
-      successSnackbar(`Employee deleted.`);
+      await deleteCandidateById(candidate._id);
+      this.onClose();
+      successSnackbar(`Candidate deleted`);
     } catch (error) {
       errorSnackbar(
         _.get(error, "response.data.error.msg", `Please try again!`)
@@ -66,31 +65,23 @@ class DeleteUserDialog extends React.Component {
   render() {
     const { state, name } = this.props;
     const { submitStatus } = this.state;
-    const employee = state[name] || {};
+    const candidate = state[name];
 
-    if (!employee) return null;
-
-    const fullname = _.chain([
-      employee.nama_depan,
-      employee.nama_tengah,
-      employee.nama_belakang
-    ])
-      .compact()
-      .join(" ")
-      .value();
+    if (!candidate) return null;
 
     return (
       <div>
-        <Dialog open={Boolean(state[name])} aria-labelledby="form-dialog-title">
+        <Dialog open={Boolean(candidate)} aria-labelledby="form-dialog-title">
           <Fragment>
             <DialogTitle id="form-dialog-title">
-              Delete Employee Confirmation
+              Delete Candidate Confirmation
             </DialogTitle>
             <DialogContent>
               <DialogContentText>
                 <Typography variant="subtitle1">
-                  Delete <span style={{ color: "blue" }}>{fullname}</span>
-                  's account permanently?
+                  Delete candidate{" "}
+                  <span style={{ color: "blue" }}>{candidate.fullname}</span>{" "}
+                  permanently?
                 </Typography>
               </DialogContentText>
             </DialogContent>
@@ -125,6 +116,6 @@ export default compose(
   withStyles(styles),
   connect(
     null,
-    { ...employeeActions, ...snackbarActions }
+    { ...candidateActions, ...snackbarActions }
   )
-)(DeleteUserDialog);
+)(DeleteCandidateDialog);

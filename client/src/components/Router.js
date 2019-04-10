@@ -26,6 +26,7 @@ import DyingDialog from "./main/admin/Auth/DyingDialog";
 import TokenExpirationWatch from "./main/admin/Auth/TokenExpirationWatch";
 
 // import Configuration from "./main/admin/Configuration";
+import Candidate from "./main/admin/Candidate/Loadable";
 import User from "./main/admin/User";
 
 class App extends Component {
@@ -93,6 +94,7 @@ class App extends Component {
                   <Route path="/dashboard" exact component={Dashboard} />
                   <Route path="/profile" component={Profile} />
                   <Route path="/users" component={User} />
+                  <Route path="/candidates" component={Candidate} />
                   <Route path="/signOut" component={SignOut} />
 
                   <Route

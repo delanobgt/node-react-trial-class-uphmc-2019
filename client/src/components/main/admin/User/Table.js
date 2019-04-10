@@ -167,7 +167,7 @@ export const ExcelButton = ({ data }) => {
   const columns = makeColumns({});
   return (
     <ExportToExcel
-      filename="User List"
+      filename="[Voting System] User List"
       rows={data}
       headers={columns.map(col => col.Header)}
       accessors={columns.map(col => col.accessor)}

@@ -10,13 +10,14 @@ exports.createCandidate = async (req, res) => {
 
   const TOTAL_STEP = 3;
   let currentStep = 0;
-  const { socketToken } = req.body;
+  const { socketId } = req.body;
 
   function emitProgress(msg) {
-    if (!Socket.tokenizedSockets[socketToken]) return;
-    Socket.tokenizedSockets[socketToken].emit("progress", {
+    currentStep += 1;
+    if (!Socket.identifiedSockets[socketId]) return;
+    Socket.identifiedSockets[socketId].emit("progress", {
       msg,
-      currentStep: ++currentStep,
+      currentStep,
       totalStep: TOTAL_STEP
     });
   }
@@ -38,7 +39,7 @@ exports.createCandidate = async (req, res) => {
       major,
       image: {
         secureUrl: uploadResult.secure_url,
-        publicId: uploadResult.publicId
+        publicId: uploadResult.public_id
       }
     });
 
@@ -73,10 +74,59 @@ exports.getCandidateById = async (req, res) => {
   }
 };
 
+exports.updateCandidateById = async (req, res) => {
+  const TOTAL_STEP = 3;
+  let currentStep = 0;
+  const { socketId } = req.body;
+
+  function emitProgress(msg) {
+    currentStep += 1;
+    if (!Socket.identifiedSockets[socketId]) return;
+    Socket.identifiedSockets[socketId].emit("progress", {
+      msg,
+      currentStep,
+      totalStep: TOTAL_STEP
+    });
+  }
+
+  const { candidateId } = req.params;
+  const { orderNumber, fullname, major } = req.body;
+  try {
+    const candidate = await db.Candidate.findById(candidateId);
+
+    emitProgress("Saving image..");
+    if (req.file) {
+      await cloudinary.v2.uploader.destroy(candidate.image.secureUrl);
+      const uploadResult = await cloudinary.v2.uploader.upload(req.file.path, {
+        resource_type: "image",
+        public_id: `Ambassador Candidate Images/${fullname} (${moment().format(
+          "D MMM YYYY (HH:mm:ss)"
+        )})`
+      });
+      candidate.image = {
+        publicId: uploadResult.public_id,
+        secureUrl: uploadResult.secure_url
+      };
+    }
+
+    emitProgress("Updating candidate..");
+    candidate.orderNumber = orderNumber;
+    candidate.fullname = fullname;
+    candidate.major = major;
+    await candidate.save();
+
+    emitProgress("Candidate saved..");
+    res.json(candidate);
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: { msg: "Please try again!" } });
+  }
+};
+
 exports.deleteCandidateById = async (req, res) => {
   const { candidateId } = req.params;
   try {
-    const candidate = await db.Employee.findById(candidateId);
+    const candidate = await db.Candidate.findById(candidateId);
     await cloudinary.v2.uploader.destroy(candidate.image.publicId);
     await candidate.remove();
     res.json({ id: candidate._id });
