@@ -37,7 +37,7 @@ export const createCandidate = ({
     type: CANDIDATE_CREATE,
     payload
   });
-  return response.data;
+  return payload;
 };
 
 export const getCandidates = () => async dispatch => {
@@ -86,7 +86,7 @@ export const updateCandidateById = (
     type: CANDIDATE_UPDATE_BY_ID,
     payload
   });
-  return response.data;
+  return payload;
 };
 
 export const deleteCandidateById = id => async dispatch => {

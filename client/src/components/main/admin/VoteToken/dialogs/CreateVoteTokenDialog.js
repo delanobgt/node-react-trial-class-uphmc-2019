@@ -18,6 +18,7 @@ import Typography from "@material-ui/core/Typography";
 import LinearProgress from "@material-ui/core/LinearProgress";
 
 import * as candidateActions from "../../../../../actions/candidate";
+import * as voteTokenActions from "../../../../../actions/voteToken";
 import * as snackbarActions from "../../../../../actions/snackbar";
 import { compose } from "redux";
 
@@ -37,13 +38,12 @@ const SUBMITTING = "SUBMITTING",
 
 const INITIAL_STATE = {
   submitStatus: IDLE,
-  imageFile: null,
-  imageUrl: null,
-  progressBarOffset: 0,
-  progressBarMessage: ""
+  currentStep: 0,
+  totalStep: 0,
+  progressBarOffset: 0
 };
 
-class CreateCandidateDialog extends React.Component {
+class CreateVoteTokenDialog extends React.Component {
   state = INITIAL_STATE;
 
   renderField = field => {
@@ -68,15 +68,12 @@ class CreateCandidateDialog extends React.Component {
   };
 
   onUploadProgress = e => {
-    this.setState({ progressBarOffset: (e.loaded / e.total) * 70 });
+    this.setState({ progressBarOffset: (e.loaded / e.total) * 0 });
   };
 
   onSubmit = async formProps => {
-    const { createCandidate, successSnackbar, errorSnackbar } = this.props;
-    const { orderNumber, fullname, major } = formProps;
-    const { imageFile } = this.state;
-
-    if (!imageFile) return errorSnackbar("Please choose an image!");
+    const { createVoteTokens, infoSnackbar, errorSnackbar } = this.props;
+    const { voteTokenCount } = formProps;
 
     const socket = io.connect(
       `${process.env.REACT_APP_API_BASE_URL ||
@@ -85,45 +82,38 @@ class CreateCandidateDialog extends React.Component {
     socket.on("ready", async () => {
       try {
         this.setState({ submitStatus: SUBMITTING });
-        await createCandidate({
-          data: { orderNumber, fullname, major, imageFile },
+        const { voteTokens } = await createVoteTokens({
+          voteTokenCount,
           onUploadProgress: this.onUploadProgress,
           socketId: socket.id
         });
         this.onClose();
-        successSnackbar(`Candidate created`);
+        infoSnackbar(
+          `Success: ${voteTokens.length}, Fail: ${Number(voteTokenCount) -
+            voteTokens.length}`
+        );
       } catch (error) {
         console.log({ error });
         errorSnackbar(
           _.get(error, "response.data.error.msg", `Please try again!`)
         );
       } finally {
-        this.setState({ submitStatus: IDLE, progressBarOffset: 0 });
+        this.setState({
+          submitStatus: IDLE,
+          currentStep: 0,
+          totalStep: 0,
+          progressBarOffset: 0
+        });
         socket.close();
       }
     });
     socket.on("progress", ({ msg, currentStep, totalStep }) => {
       this.setState({
-        progressBarMessage: msg,
-        progressBarOffset: 70 + (currentStep / totalStep) * 30
+        currentStep,
+        totalStep,
+        progressBarOffset: 0 + (currentStep / totalStep) * 100
       });
     });
-  };
-
-  handleFileChange = async e => {
-    const { errorSnackbar } = this.props;
-    const { imageUrl } = this.state;
-    const imageFile = _.head(e.target.files);
-    if (
-      !imageFile.name.endsWith(".png") &&
-      !imageFile.name.endsWith(".jpeg") &&
-      !imageFile.name.endsWith(".jpg")
-    ) {
-      this.refs.upload.value = "";
-      return errorSnackbar("Only .png, .jpeg, .jpg are allowed!");
-    }
-    if (imageUrl) URL.revokeObjectURL(imageUrl);
-    this.setState({ imageFile, imageUrl: URL.createObjectURL(imageFile) });
   };
 
   onClose = () => {
@@ -137,8 +127,8 @@ class CreateCandidateDialog extends React.Component {
     const { classes, state, name, handleSubmit } = this.props;
     const {
       submitStatus,
-      imageUrl,
-      progressBarMessage,
+      currentStep,
+      totalStep,
       progressBarOffset
     } = this.state;
 
@@ -155,59 +145,21 @@ class CreateCandidateDialog extends React.Component {
                 >
                   <FormGroup>
                     <Field
-                      name="orderNumber"
+                      name="voteTokenCount"
                       type="number"
-                      label="Order Number"
+                      label="Vote Token Count"
                       component={this.renderField}
                       className={classes.textField}
                       disabled={submitStatus === SUBMITTING}
                       fullWidth
                     />
-                    <Field
-                      name="fullname"
-                      type="text"
-                      label="Fullname"
-                      component={this.renderField}
-                      className={classes.textField}
-                      disabled={submitStatus === SUBMITTING}
-                      fullWidth
-                    />
-                    <Field
-                      name="major"
-                      type="text"
-                      label="Major"
-                      component={this.renderField}
-                      className={classes.textField}
-                      disabled={submitStatus === SUBMITTING}
-                      fullWidth
-                    />
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <div
-                        className={classes.picture}
-                        style={{
-                          backgroundImage: `url(${imageUrl ||
-                            "https://via.placeholder.com/300"})`
-                        }}
-                      />
-                      <br />
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        disabled={submitStatus === SUBMITTING}
-                        onClick={e => this.refs.upload.click()}
-                        style={{ marginLeft: "1em" }}
-                      >
-                        Choose..
-                      </Button>
-                    </div>
                     {submitStatus === SUBMITTING && (
                       <div>
                         <br />
                         <Grid container>
                           <Grid item xs={10}>
                             <Typography variant="subtitle1">
-                              {progressBarMessage}
+                              Creating vote tokens ({currentStep}/{totalStep})
                             </Typography>
                           </Grid>
                           <Grid item xs={2}>
@@ -261,16 +213,13 @@ class CreateCandidateDialog extends React.Component {
 }
 
 function validate(values) {
-  const { orderNumber, fullname, major } = values;
+  const { voteTokenCount } = values;
   const errors = {};
 
-  if (!orderNumber) errors.orderNumber = "Please provide an Order Number";
-  else if (isNaN(orderNumber))
+  if (!voteTokenCount)
+    errors.orderNumber = "Please provide an Vote Token Count";
+  else if (isNaN(voteTokenCount))
     errors.orderNumber = "Please provide a numeric value!";
-
-  if (!fullname) errors.fullname = "Please provide an Fullname";
-
-  if (!major) errors.major = "Please provide a Major";
 
   return errors;
 }
@@ -279,7 +228,7 @@ export default compose(
   withStyles(styles),
   connect(
     null,
-    { ...candidateActions, ...snackbarActions }
+    { ...candidateActions, ...voteTokenActions, ...snackbarActions }
   ),
-  reduxForm({ validate, form: "CreateCandidate" })
-)(CreateCandidateDialog);
+  reduxForm({ validate, form: "CreateVoteTokens" })
+)(CreateVoteTokenDialog);

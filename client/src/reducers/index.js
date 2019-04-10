@@ -6,6 +6,7 @@ import configuration from "./configuration";
 import nav from "./nav";
 import snackbar from "./snackbar";
 import user from "./user";
+import voteToken from "./voteToken";
 
 export default combineReducers({
   auth,
@@ -14,5 +15,6 @@ export default combineReducers({
   nav,
   snackbar,
   user,
+  voteToken,
   form: formReducer
 });

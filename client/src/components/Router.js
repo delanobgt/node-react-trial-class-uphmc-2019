@@ -25,8 +25,10 @@ import ResetPassword from "./main/admin/Auth/ResetPassword/Loadable";
 import DyingDialog from "./main/admin/Auth/DyingDialog";
 import TokenExpirationWatch from "./main/admin/Auth/TokenExpirationWatch";
 
-// import Configuration from "./main/admin/Configuration";
+import CandidateList from "./main/user/CandidateList/Loadable";
+
 import Candidate from "./main/admin/Candidate/Loadable";
+import VoteToken from "./main/admin/VoteToken/Loadable";
 import User from "./main/admin/User";
 
 class App extends Component {
@@ -43,7 +45,7 @@ class App extends Component {
             {!this.props.token ? (
               <Fragment>
                 <Switch>
-                  <Route path="/candidateList" component={null} />
+                  <Route path="/candidateList" component={CandidateList} />
                   <Route path="/openSesame" component={SignIn} />
                   <Route path="/forgetPassword" component={ForgetPassword} />
                   <Route
@@ -92,9 +94,10 @@ class App extends Component {
 
                 <Switch>
                   <Route path="/dashboard" exact component={Dashboard} />
-                  <Route path="/profile" component={Profile} />
-                  <Route path="/users" component={User} />
                   <Route path="/candidates" component={Candidate} />
+                  <Route path="/voteTokens" component={VoteToken} />
+                  <Route path="/users" component={User} />
+                  <Route path="/profile" component={Profile} />
                   <Route path="/signOut" component={SignOut} />
 
                   <Route

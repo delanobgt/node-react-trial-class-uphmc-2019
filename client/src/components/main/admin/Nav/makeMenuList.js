@@ -4,7 +4,11 @@ import {
   Dashboard as DashboardIcon,
   ExitToApp as ExitToAppIcon,
   People as PeopleIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  LocalOffer as LocalOfferIcon,
+  Info as InfoIcon,
+  BarChart as BarChartIcon,
+  Done as DoneIcon
 } from "@material-ui/icons";
 
 export default ({ props }) => {
@@ -19,6 +23,16 @@ export default ({ props }) => {
       icon: <PeopleIcon />,
       label: "Candidates",
       link: "/candidates"
+    },
+    {
+      icon: <LocalOfferIcon />,
+      label: "Vote Tokens",
+      link: "/voteTokens"
+    },
+    {
+      icon: <InfoIcon />,
+      label: "Result",
+      link: "/result"
     },
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,

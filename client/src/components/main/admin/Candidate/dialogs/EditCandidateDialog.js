@@ -212,9 +212,9 @@ class EditCandidateDialog extends React.Component {
                         Choose..
                       </Button>
                     </div>
-                    <br />
                     {submitStatus === SUBMITTING && (
                       <div>
+                        <br />
                         <Grid container>
                           <Grid item xs={10}>
                             <Typography variant="subtitle1">
