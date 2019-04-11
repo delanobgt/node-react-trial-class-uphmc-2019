@@ -26,9 +26,11 @@ import DyingDialog from "./main/admin/Auth/DyingDialog";
 import TokenExpirationWatch from "./main/admin/Auth/TokenExpirationWatch";
 
 import CandidateList from "./main/user/CandidateList/Loadable";
+import ThankYou from "./main/user/ThankYou/Loadable";
 
 import Candidate from "./main/admin/Candidate/Loadable";
 import VoteToken from "./main/admin/VoteToken/Loadable";
+import Result from "./main/user/Result/Loadable";
 import User from "./main/admin/User";
 
 class App extends Component {
@@ -46,6 +48,7 @@ class App extends Component {
               <Fragment>
                 <Switch>
                   <Route path="/candidateList" component={CandidateList} />
+                  <Route path="/thankYou" component={ThankYou} />
                   <Route path="/openSesame" component={SignIn} />
                   <Route path="/forgetPassword" component={ForgetPassword} />
                   <Route
@@ -96,6 +99,7 @@ class App extends Component {
                   <Route path="/dashboard" exact component={Dashboard} />
                   <Route path="/candidates" component={Candidate} />
                   <Route path="/voteTokens" component={VoteToken} />
+                  <Route path="/result" component={Result} />
                   <Route path="/users" component={User} />
                   <Route path="/profile" component={Profile} />
                   <Route path="/signOut" component={SignOut} />

@@ -82,6 +82,10 @@ class QRScannerDialog extends React.Component {
       } catch (error) {
         console.log({ error });
         this.setState({ errorMsg: "Please try again!" });
+      } finally {
+        this.setState({
+          submitStatus: IDLE
+        });
       }
     }
   };

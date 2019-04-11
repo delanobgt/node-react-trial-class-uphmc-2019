@@ -38,7 +38,8 @@ class DeleteCandidateDialog extends React.Component {
       successSnackbar,
       errorSnackbar,
       state,
-      name
+      name,
+      history
     } = this.props;
     const {
       token: { value },
@@ -49,6 +50,7 @@ class DeleteCandidateDialog extends React.Component {
       this.setState({ submitStatus: SUBMITTING });
       await updateVoteTokenByValue({ value, candidateId: candidate._id });
       this.onClose();
+      history.push("/result");
       successSnackbar(`Vote saved`);
     } catch (error) {
       errorSnackbar(

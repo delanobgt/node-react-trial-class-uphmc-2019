@@ -3,7 +3,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const methodOverride = require("method-override");
 const morgan = require("morgan");
-const app = require("express")();
+const express = require("express");
+const app = express();
 const server = require("http").Server(app);
 require("./services/socket").init(server);
 
@@ -31,8 +32,14 @@ app.use((req, res, next) => {
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/user"));
 app.use("/api/candidates", require("./routes/candidate"));
-// app.use("/api/candidates", require("./routes/employee"));
+app.use("/api/voteTokens", require("./routes/voteToken"));
 app.use("/api/configuration", require("./routes/configuration"));
+
+const path = require("path");
+app.use(express.static(path.join("client", "build")));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
 
 // Server Setup
 const PORT = process.env.PORT || 3090;
