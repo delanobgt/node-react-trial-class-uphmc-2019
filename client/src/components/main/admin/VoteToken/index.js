@@ -16,6 +16,14 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import { Delete as DeleteIcon, Search as SearchIcon } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend
+} from "recharts";
 
 import * as candidateActions from "../../../../actions/candidate";
 import * as voteTokenActions from "../../../../actions/voteToken";
@@ -51,12 +59,21 @@ const styles = theme => ({
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover"
+  },
+  statisticsPaper: {
+    padding: "1.5em",
+    overflowX: "auto"
   }
 });
 
 const LOADING = "LOADING",
   ERROR = "ERROR",
   DONE = "DONE";
+
+const usageColorDict = {
+  USED: "red",
+  "UN-USED": "blue"
+};
 
 class CandidateListIndex extends React.Component {
   state = {
@@ -192,6 +209,7 @@ class CandidateListIndex extends React.Component {
     };
 
     let mainContent = null;
+    let charContent = null;
     if (loadingStatus === ERROR) {
       mainContent = (
         <Fragment>
@@ -229,6 +247,48 @@ class CandidateListIndex extends React.Component {
             (!Boolean(voteToken.candidateId) && showUnused)
         )
         .value();
+
+      const chartData = _.chain(voteTokens)
+        .groupBy(voteToken => (voteToken.candidateId ? "USED" : "UN-USED"))
+        .map((voteTokens, key) => ({ name: key, value: voteTokens.length }))
+        .value();
+
+      charContent = (
+        <Grid item xs={4}>
+          <Paper className={classes.statisticsPaper} elevation={2}>
+            <Typography variant="subtitle1" align="center" gutterBottom>
+              <strong>Usage Statistics</strong>
+            </Typography>
+
+            {!chartData.length ? (
+              <Typography variant="subtitle1" align="center" gutterBottom>
+                No data available.
+              </Typography>
+            ) : (
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    nameKey="name"
+                    dataKey="value"
+                    outerRadius="100%"
+                    paddingAngle={1}
+                    fill="#8884d8"
+                    labelLine={false}
+                    label
+                  >
+                    {chartData.map(({ name }, index) => (
+                      <Cell key={`cell-${index}`} fill={usageColorDict[name]} />
+                    ))}
+                  </Pie>
+                  <Legend verticalAlign="top" height={36} />
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </Paper>
+        </Grid>
+      );
 
       mainContent = (
         <Fragment>
@@ -346,11 +406,14 @@ class CandidateListIndex extends React.Component {
       <Fragment>
         <Grid container justify="center">
           <Grid item xs={11}>
+            <Grid container spacing={8}>
+              {charContent}
+            </Grid>
+            <br />
             <Paper className={classes.paper} elevation={3}>
               <Typography variant="h5" gutterBottom>
                 All Vote Tokens
               </Typography>
-              <br />
               {mainContent}
             </Paper>
           </Grid>

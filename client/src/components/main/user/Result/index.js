@@ -1,6 +1,5 @@
 import "react-table/react-table.css";
 import _ from "lodash";
-import moment from "moment";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -10,7 +9,22 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
+import Dialog from "@material-ui/core/Dialog";
+import DialogContent from "@material-ui/core/DialogContent";
+import { Close as CloseIcon } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
+import Slide from "@material-ui/core/Slide";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend
+} from "recharts";
 
 import * as candidateActions from "../../../../actions/candidate";
 import * as voteTokenActions from "../../../../actions/voteToken";
@@ -56,12 +70,20 @@ const LOADING = "LOADING",
   REVEALING = "REVEALING",
   REVEALED = "REVEALED";
 
+function Transition(props) {
+  return <Slide direction="up" {...props} />;
+}
 class CandidateListIndex extends React.Component {
   state = {
     loadingStatus: LOADING,
     winnerCandidate: null,
     randomImageUrl: null,
-    winnerImageUrl: null
+    winnerImageUrl: null,
+    chartShow: false
+  };
+
+  toggleChartShow = () => {
+    this.setState({ chartShow: !this.state.chartShow });
   };
 
   fetchData = async () => {
@@ -113,8 +135,13 @@ class CandidateListIndex extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
-    const { loadingStatus, randomImageUrl, winnerImageUrl } = this.state;
+    const { classes, candidates, voteTokens } = this.props;
+    const {
+      loadingStatus,
+      randomImageUrl,
+      winnerImageUrl,
+      chartShow
+    } = this.state;
 
     let mainContent = null;
     if (loadingStatus === ERROR) {
@@ -164,9 +191,21 @@ class CandidateListIndex extends React.Component {
               backgroundImage: `url(${winnerImageUrl})`
             }}
           />
+          <br />
+          <Button onClick={this.toggleChartShow}>Show chart</Button>
         </div>
       );
     }
+
+    const candidateDict = _.mapKeys(candidates, "_id");
+    const chartData = _.chain(voteTokens)
+      .pickBy(voteToken => voteToken.candidateId)
+      .groupBy(voteToken => voteToken.candidateId)
+      .map((voteTokens, candidateId) => ({
+        name: candidateDict[candidateId].fullname,
+        value: voteTokens.length
+      }))
+      .value();
 
     return (
       <Fragment>
@@ -181,6 +220,39 @@ class CandidateListIndex extends React.Component {
             </Paper>
           </Grid>
         </Grid>
+
+        <Dialog fullScreen open={chartShow} TransitionComponent={Transition}>
+          <DialogContent>
+            <div>
+              <IconButton
+                color="inherit"
+                onClick={this.toggleChartShow}
+                aria-label="Close"
+              >
+                <CloseIcon />
+              </IconButton>
+            </div>
+            <ResponsiveContainer width="100%" height={500}>
+              <BarChart
+                // width={500}
+                // height={300}
+                data={chartData}
+                margin={{
+                  top: 5,
+                  right: 30,
+                  left: 20,
+                  bottom: 5
+                }}
+              >
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </DialogContent>
+        </Dialog>
       </Fragment>
     );
   }

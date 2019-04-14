@@ -21,7 +21,15 @@ const styles = theme => ({
   textField: {
     margin: "0.5em 0"
   },
-  formControl: {}
+  formControl: {},
+  picture: {
+    width: "150px",
+    height: "150px",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "cover",
+    display: "inline-block"
+  }
 });
 
 const SUBMITTING = "SUBMITTING",
@@ -77,7 +85,7 @@ class DeleteCandidateDialog extends React.Component {
   };
 
   render() {
-    const { state, name } = this.props;
+    const { state, name, classes } = this.props;
     const { submitStatus } = this.state;
     const candidate = state[name];
 
@@ -87,13 +95,40 @@ class DeleteCandidateDialog extends React.Component {
       <div>
         <Dialog open={Boolean(candidate)} aria-labelledby="form-dialog-title">
           <Fragment>
-            <DialogTitle id="form-dialog-title">Vote Confirmation</DialogTitle>
+            {/* <div style={{ position: "relative", height: "75px" }}>
+              <div
+                className={classes.picture}
+                style={{
+                  backgroundImage: `url(${_.get(
+                    candidate,
+                    "image.secureUrl",
+                    null
+                  ) || "https://via.placeholder.com/300"})`,
+                  position: "fixed",
+                  top: "50px"
+                }}
+              />
+            </div> */}
+
             <DialogContent>
-              <DialogContentText>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
                 <Typography variant="subtitle1">
                   Vote for {candidate.fullname}?
                 </Typography>
-              </DialogContentText>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() => this.pinInput.clear()}
+                >
+                  Clear
+                </Button>
+              </div>
               <PinInput
                 length={8}
                 initialValue=""
@@ -105,11 +140,14 @@ class DeleteCandidateDialog extends React.Component {
                 type="custom"
                 style={{ padding: "10px" }}
                 inputStyle={{
-                  border: "2px solid black",
-                  height: "70px",
-                  width: "40px"
+                  border: "1px solid lightgray",
+                  borderBottom: "2px solid lightgray",
+                  height: "30px",
+                  width: "20px"
                 }}
-                inputFocusStyle={{ border: "2px solid lightblue" }}
+                inputFocusStyle={{
+                  borderBottom: "2px solid blue"
+                }}
                 ref={n => (this.pinInput = n)}
               />
             </DialogContent>
@@ -123,7 +161,7 @@ class DeleteCandidateDialog extends React.Component {
               </Button>
               <Button
                 onClick={this.onSubmit}
-                color="secondary"
+                color="primary"
                 disabled={submitStatus === SUBMITTING}
               >
                 {submitStatus === SUBMITTING ? (

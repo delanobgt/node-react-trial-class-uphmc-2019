@@ -4,10 +4,13 @@ import { compose } from "redux";
 import { connect } from "react-redux";
 
 import * as authActions from "../../../../actions/auth";
+import * as candidateActions from "../../../../actions/candidate";
 import * as userActions from "../../../../actions/user";
+import * as voteTokenActions from "../../../../actions/voteToken";
 import * as snackbarActions from "../../../../actions/snackbar";
 import requireAuth from "../../../hoc/requireAuth";
 import StickyLoading from "./small-components/StickyLoading";
+import voteToken from "../../../../reducers/voteToken";
 
 class SocketIndex extends React.Component {
   state = { msg: null, socket: null };
@@ -115,7 +118,9 @@ export default compose(
     mapStateToProps,
     {
       ...authActions,
+      ...candidateActions,
       ...userActions,
+      ...voteTokenActions,
       ...snackbarActions
     }
   ),
