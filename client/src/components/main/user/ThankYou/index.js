@@ -55,7 +55,7 @@ class CandidateListIndex extends React.Component {
                 Thank you for voting!
               </Typography>
               <div>
-                <Button onCLick={() => history.push("/candidateList")}>
+                <Button onClick={() => history.push("/candidateList")}>
                   Back to Candidate List
                 </Button>
               </div>

@@ -18,36 +18,37 @@ export default ({ props }) => {
   };
 
   return _.chain([
-    { icon: <DashboardIcon />, label: "Dashboard", link: "/dashboard" },
+    { icon: <DashboardIcon />, label: "Dashboard", link: "/admin/dashboard" },
     {
       icon: <PeopleIcon />,
       label: "Candidates",
-      link: "/candidates"
+      link: "/admin/candidates"
     },
     {
       icon: <LocalOfferIcon />,
       label: "Vote Tokens",
-      link: "/voteTokens"
+      link: "/admin/voteTokens"
     },
     {
       icon: <InfoIcon />,
       label: "Result",
-      link: "/result"
+      link: "/result",
+      target: "_blank"
     },
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,
       label: "Users",
-      link: "/users"
+      link: "/admin/users"
     }),
     {
       icon: <PersonIcon />,
       label: "My Profile",
-      link: "/profile"
+      link: "/admin/profile"
     },
     {
       icon: <ExitToAppIcon />,
       label: "Logout",
-      link: "/signOut"
+      link: "/admin/signOut"
     }
   ])
     .compact()

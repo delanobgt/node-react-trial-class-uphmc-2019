@@ -8,12 +8,10 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
 
 import * as candidateActions from "../../../../actions/candidate";
-import QRScannerDialog from "./dialogs/QRScannerDialog";
 import ConfirmDialog from "./dialogs/ConfirmDialog";
 
 const styles = theme => ({
@@ -32,21 +30,20 @@ const styles = theme => ({
     marginBottom: "1em"
   },
   paper: {
-    marginTop: "1em",
     padding: "2em"
   },
-  listItem: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    margin: "1.5em 0"
+  paperItem: {
+    margin: "1.5em 0",
+    padding: "2em",
+    textAlign: "center"
   },
   picture: {
     width: "150px",
     height: "150px",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "cover"
+    backgroundSize: "cover",
+    display: "inline-block"
   }
 });
 
@@ -113,39 +110,43 @@ class CandidateListIndex extends React.Component {
         .value();
 
       mainContent = (
-        <div>
+        <Grid container spacing={16}>
           {data.map(d => (
-            <div key={d.orderNumber} className={classes.listItem}>
-              <div
-                className={classes.picture}
-                style={{
-                  backgroundImage: `url(${_.get(d, "image.secureUrl", null) ||
-                    "https://via.placeholder.com/300"})`
-                }}
-              />
+            <Grid item xs={12} sm={6} md={4} lg={3} key={d.orderNumber}>
+              <Paper className={classes.paperItem} elevation={3}>
+                <div
+                  className={classes.picture}
+                  style={{
+                    backgroundImage: `url(${_.get(d, "image.secureUrl", null) ||
+                      "https://via.placeholder.com/300"})`
+                  }}
+                />
 
-              <div>
-                <Typography variant="subtitle1">
-                  Number: {d.orderNumber}
-                </Typography>
-                <Typography variant="subtitle1">
-                  Fullname: {d.fullname}
-                </Typography>
-                <Typography variant="subtitle1">Major: {d.major}</Typography>
-              </div>
+                <div>
+                  <Typography variant="subtitle1" align="center">
+                    ({d.orderNumber})
+                  </Typography>
+                  <Typography variant="subtitle1" align="center">
+                    {d.fullname}
+                  </Typography>
+                  <Typography variant="subtitle1" align="center">
+                    {d.major}
+                  </Typography>
+                </div>
 
-              <div>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => this.toggleDialog("QRScannerDialog")(d)}
-                >
-                  Vote
-                </Button>
-              </div>
-            </div>
+                <div>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => this.toggleDialog("ConfirmDialog")(d)}
+                  >
+                    Vote
+                  </Button>
+                </div>
+              </Paper>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       );
     }
 
@@ -157,16 +158,11 @@ class CandidateListIndex extends React.Component {
               <Typography variant="h5" gutterBottom>
                 All Candidates
               </Typography>
-              <br />
-              {mainContent}
             </Paper>
+            <br />
+            {mainContent}
           </Grid>
         </Grid>
-        <QRScannerDialog
-          name="QRScannerDialog"
-          state={this.state}
-          toggleDialog={this.toggleDialog}
-        />
         <ConfirmDialog
           name="ConfirmDialog"
           state={this.state}

@@ -2,9 +2,10 @@ import _ from "lodash";
 
 export const CANDIDATE_CREATE = "CANDIDATE_CREATE";
 export const CANDIDATES_GET = "CANDIDATES_GET";
-export const CANDIDATE_GET_BY_ID = "EMPLOYEE_GET_BY_ID";
+export const CANDIDATE_GET_BY_ID = "CANDIDATE_GET_BY_ID";
 export const CANDIDATE_UPDATE_BY_ID = "CANDIDATE_UPDATE_BY_ID";
-export const CANDIDATE_DELETE_BY_ID = "EMPLOYEE_DELETE_BY_ID";
+export const CANDIDATE_DELETE_BY_ID = "CANDIDATE_DELETE_BY_ID";
+export const CANDIDATE_REMOVE_BY_ID = "CANDIDATE_REMOVE_BY_ID";
 
 const INITIAL_STATE = {
   candidates: {}
@@ -31,7 +32,8 @@ export default function(state = INITIAL_STATE, action) {
         }
       };
     }
-    case CANDIDATE_DELETE_BY_ID: {
+    case CANDIDATE_DELETE_BY_ID:
+    case CANDIDATE_REMOVE_BY_ID: {
       const { id } = action.payload;
       return {
         ...state,

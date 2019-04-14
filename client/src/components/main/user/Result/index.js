@@ -45,7 +45,8 @@ const styles = theme => ({
     height: "150px",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
-    backgroundSize: "cover"
+    backgroundSize: "cover",
+    display: "inline-block"
   }
 });
 
@@ -145,7 +146,7 @@ class CandidateListIndex extends React.Component {
       );
     } else if (loadingStatus === REVEALING) {
       mainContent = (
-        <div>
+        <div style={{ textAlign: "center" }}>
           <div
             className={classes.picture}
             style={{
@@ -156,7 +157,7 @@ class CandidateListIndex extends React.Component {
       );
     } else {
       mainContent = (
-        <div>
+        <div style={{ textAlign: "center" }}>
           <div
             className={classes.picture}
             style={{

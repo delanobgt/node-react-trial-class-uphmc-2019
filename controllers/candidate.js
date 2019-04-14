@@ -47,6 +47,7 @@ exports.createCandidate = async (req, res) => {
 
     emitProgress("Candidate saved..");
     res.json(candidate);
+    Socket.globalSocket.emit("CANDIDATE_GET_BY_ID", { id: candidate._id });
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: { msg: "Please try again!" } });
@@ -117,6 +118,7 @@ exports.updateCandidateById = async (req, res) => {
 
     emitProgress("Candidate saved..");
     res.json(candidate);
+    Socket.globalSocket.emit("CANDIDATE_GET_BY_ID", { id: candidate._id });
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: { msg: "Please try again!" } });
@@ -130,6 +132,7 @@ exports.deleteCandidateById = async (req, res) => {
     await cloudinary.v2.uploader.destroy(candidate.image.publicId);
     await candidate.remove();
     res.json({ id: candidate._id });
+    Socket.globalSocket.emit("CANDIDATE_REMOVE_BY_ID", { id: candidate._id });
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: { msg: "Please try again!" } });

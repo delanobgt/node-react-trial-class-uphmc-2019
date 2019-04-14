@@ -224,7 +224,9 @@ exports.updateUserById = async (req, res) => {
     await user.save();
     res.json(minifyUser(user));
     Socket.globalSocket.emit("USER_GET_BY_ID", { id: user._id });
-    Socket.globalSocket.emit("SELF_PROFILE_GET", { id: user._id });
+    Socket.userSockets[user._id].forEach(socket =>
+      socket.emit("SELF_PROFILE_GET")
+    );
   } catch (error) {
     console.log(error);
     res.status(500).json({ error });
@@ -238,7 +240,9 @@ exports.deleteUserById = async (req, res) => {
     await user.remove();
     res.json({ id: user._id });
     Socket.globalSocket.emit("USER_REMOVE_BY_ID", { id: user._id });
-    Socket.globalSocket.emit("SELF_PROFILE_GET", { id: user._id });
+    Socket.userSockets[user._id].forEach(socket =>
+      socket.emit("SELF_PROFILE_GET")
+    );
   } catch (error) {
     res.status(500).json({ error });
   }
@@ -268,7 +272,9 @@ exports.resetUserPasswordById = async (req, res) => {
     await user.save();
     res.json({ success: true });
     Socket.globalSocket.emit("USER_GET_BY_ID", { id: user._id });
-    Socket.globalSocket.emit("SELF_PROFILE_GET", { id: user._id });
+    Socket.userSockets[user._id].forEach(socket =>
+      socket.emit("SELF_PROFILE_GET")
+    );
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: { msg: "Please try again!" } });

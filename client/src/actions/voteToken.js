@@ -4,7 +4,8 @@ import {
   VOTE_TOKENS_GET,
   VOTE_TOKEN_GET_BY_ID,
   VOTE_TOKEN_UPDATE_BY_VALUE,
-  VOTE_TOKEN_DELETE_BY_ID
+  VOTE_TOKEN_DELETE_BY_ID,
+  VOTE_TOKEN_REMOVE_BY_ID
 } from "../reducers/voteToken";
 
 export const emptyVoteTokens = () => dispatch => {
@@ -51,14 +52,6 @@ export const getVoteTokenById = id => async dispatch => {
   return payload;
 };
 
-export const isVoteTokenAvailableByValue = value => async dispatch => {
-  const response = await votingApi().post(`/voteTokens/available`, {
-    value
-  });
-  const payload = { available: response.data };
-  return payload;
-};
-
 export const updateVoteTokenByValue = ({
   value,
   candidateId
@@ -80,6 +73,15 @@ export const deleteVoteTokenById = id => async dispatch => {
   const payload = { id: response.data.id };
   dispatch({
     type: VOTE_TOKEN_DELETE_BY_ID,
+    payload
+  });
+  return payload;
+};
+
+export const removeVoteTokenById = id => async dispatch => {
+  const payload = { id };
+  dispatch({
+    type: VOTE_TOKEN_REMOVE_BY_ID,
     payload
   });
   return payload;

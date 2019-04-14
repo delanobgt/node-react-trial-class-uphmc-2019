@@ -61,7 +61,7 @@ class SocketIndex extends React.Component {
     // auth store update
     const { getSelfProfile } = this.props;
     socket.on("SELF_PROFILE_GET", payload => {
-      if (auth.id === payload.id) getSelfProfile();
+      getSelfProfile();
     });
 
     // user store update
@@ -71,6 +71,24 @@ class SocketIndex extends React.Component {
     });
     socket.on("USER_REMOVE_BY_ID", payload => {
       removeUserById(payload.id);
+    });
+
+    // candidate store update
+    const { getCandidateById, removeCandidateById } = this.props;
+    socket.on("CANDIDATE_GET_BY_ID", payload => {
+      getCandidateById(payload.id);
+    });
+    socket.on("CANDIDATE_REMOVE_BY_ID", payload => {
+      removeCandidateById(payload.id);
+    });
+
+    // voteToken store update
+    const { getVoteTokenById, removeVoteTokenById } = this.props;
+    socket.on("VOTE_TOKEN_GET_BY_ID", payload => {
+      getVoteTokenById(payload.id);
+    });
+    socket.on("VOTE_TOKEN_REMOVE_BY_ID", payload => {
+      removeVoteTokenById(payload.id);
     });
   }
 

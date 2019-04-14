@@ -24,7 +24,6 @@ import ExportToExcel from "../../../misc/ExportToExcel";
 import CreateVoteTokenDialog from "./dialogs/CreateVoteTokenDialog";
 import DeleteVoteTokenDialog from "./dialogs/DeleteVoteTokenDialog";
 import DeleteSelectedVoteTokenDialog from "./dialogs/DeleteSelectedVoteTokenDialog";
-import ViewQRCodeDialog from "./dialogs/ViewQRCodeDialog";
 
 const styles = theme => ({
   retryText: {
@@ -36,9 +35,6 @@ const styles = theme => ({
     textAlign: "center"
   },
   headline: {
-    marginBottom: "1em"
-  },
-  excelButton: {
     marginBottom: "1em"
   },
   paper: {
@@ -83,6 +79,16 @@ class CandidateListIndex extends React.Component {
         [stateName]: !Boolean(this.state.toBeDeleted[stateName])
       }
     });
+  };
+
+  handleDeleteAllCheckboxChange = () => {
+    if (_.size(this.state.toBeDeleted) === 0) {
+      this.setState({
+        toBeDeleted: _.mapValues(this.props.voteTokens, () => true)
+      });
+    } else {
+      this.setState({ toBeDeleted: {} });
+    }
   };
 
   handleFilterCheckboxChange = stateName => () => {
@@ -131,19 +137,7 @@ class CandidateListIndex extends React.Component {
       { Header: "No", accessor: d => d.orderNo },
       {
         Header: "Value",
-        accessor: d => d.value,
-        Cell: ({ original: d }) => (
-          <div>
-            {d.value}
-            <div style={{ textAlign: "right" }}>
-              <IconButton
-                onClick={() => this.toggleDialog("ViewQRCodeDialog")(d)}
-              >
-                <SearchIcon />
-              </IconButton>
-            </div>
-          </div>
-        )
+        accessor: d => d.value
       },
       {
         Header: "Candidate Name",
@@ -155,9 +149,10 @@ class CandidateListIndex extends React.Component {
       {
         Header: "Used At",
         accessor: d => (d.usedAt ? moment(d.usedAt).valueOf() : null),
-        plain: dateMs => (dateMs ? moment(dateMs).format("D MMMM YYYY") : "-"),
+        plain: dateMs =>
+          dateMs ? moment(dateMs).format("D MMMM YYYY (HH:mm:ss)") : "-",
         Cell: ({ original: d }) =>
-          d.usedAt ? moment(d.usedAt).format("D MMMM YYYY") : "-"
+          d.usedAt ? moment(d.usedAt).format("D MMMM YYYY (HH:mm:ss)") : "-"
       },
       {
         Header: "Candidate Name",
@@ -238,22 +233,22 @@ class CandidateListIndex extends React.Component {
       mainContent = (
         <Fragment>
           <div className={classes.actionDiv}>
-            <ExportToExcel
-              rows={data}
-              headers={columns.map(col => col.Header)}
-              accessors={columns.map(col => col.accessor)}
-              plains={columns.map(col => col.plain)}
-              filename="[Voting System] All Candidates"
-              actionElement={
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  className={classes.excelButton}
-                >
-                  Excel
-                </Button>
-              }
-            />
+            <div>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={_.size(toBeDeleted) === data.length}
+                    onChange={this.handleDeleteAllCheckboxChange}
+                    value=""
+                    indeterminate={
+                      _.size(toBeDeleted) > 0 &&
+                      _.size(toBeDeleted) < data.length
+                    }
+                  />
+                }
+                label="Select All"
+              />
+            </div>
             <div>
               <FormControlLabel
                 control={
@@ -279,10 +274,27 @@ class CandidateListIndex extends React.Component {
               />
             </div>
             <div>
+              <ExportToExcel
+                rows={data}
+                headers={columns.map(col => col.Header)}
+                accessors={columns.map(col => col.accessor)}
+                plains={columns.map(col => col.plain)}
+                filename="[Voting System] All Candidates"
+                actionElement={
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    className={classes.excelButton}
+                  >
+                    Excel
+                  </Button>
+                }
+              />
               <Button
                 variant="contained"
                 color="primary"
                 onClick={() => this.toggleDialog("CreateVoteTokenDialog")(true)}
+                style={{ marginLeft: "1em" }}
               >
                 Create
               </Button>
@@ -358,11 +370,6 @@ class CandidateListIndex extends React.Component {
           state={this.state}
           toggleDialog={this.toggleDialog}
           onActionPerformed={this.handleSelectedTokenValuesDeleted}
-        />
-        <ViewQRCodeDialog
-          name="ViewQRCodeDialog"
-          state={this.state}
-          toggleDialog={this.toggleDialog}
         />
       </Fragment>
     );

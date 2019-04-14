@@ -3,53 +3,15 @@ const moment = require("moment");
 const crypto = require("crypto");
 const db = require("../models");
 const Socket = require("../services/socket");
-const util = require("util");
-const fs = require("fs");
-const path = require("path");
-const mkdir = util.promisify(fs.mkdir);
-const exists = util.promisify(fs.exists);
-const unlink = util.promisify(fs.unlink);
-const QRCode = require("qrcode");
 
-exports.isVoteTokenAvailableByValue = async (req, res) => {
-  const { value } = req.body;
-  try {
-    const voteToken = await db.VoteToken.findOne({ value });
-    if (!voteToken) return res.json(false);
-    if (voteToken.candidateId) return res.json(false);
-    res.json(true);
-  } catch (error) {
-    res.json(false);
-  }
-};
-
-exports.generateQRCodeById = async (req, res) => {
-  const { voteTokenId } = req.params;
-  try {
-    const voteToken = await db.VoteToken.findById(voteTokenId);
-
-    const dir = "QR Codes";
-    if (!(await exists(dir))) await mkdir(dir);
-
-    const filename = path.join(dir, `${voteToken.value}.png`);
-    await QRCode.toFile(filename, voteToken.value, {
-      rendererOpts: { scale: 4 }
-    });
-
-    const imagePath = path.join(__dirname, "..", dir, `${voteToken.value}.png`);
-    res.sendFile(imagePath);
-    res.on("finish", async () => {
-      try {
-        await unlink(imagePath);
-      } catch (error) {
-        console.log({ error });
-      }
-    });
-  } catch (error) {
-    console.log({ error });
-    res.status(500).send("Failed to generate qr code!");
-  }
-};
+function encapsulateVoteToken(voteToken, user) {
+  if (user.role === "SUPER_ADMIN") return voteToken;
+  else
+    return {
+      ...voteToken.toObject(),
+      value: voteToken.value.slice(0, 4) + "...."
+    };
+}
 
 exports.createVoteTokens = async (req, res) => {
   let currentStep = 0;
@@ -71,10 +33,11 @@ exports.createVoteTokens = async (req, res) => {
     try {
       emitProgress();
       const voteToken = new db.VoteToken({
-        value: (await crypto.randomBytes(32)).toString("hex")
+        value: (await crypto.randomBytes(4)).toString("hex")
       });
       await voteToken.save();
-      voteTokens.push(voteToken);
+      voteTokens.push(encapsulateVoteToken(voteToken, req.user));
+      Socket.globalSocket.emit("VOTE_TOKEN_GET_BY_ID", { id: voteToken._id });
     } catch (error) {
       console.log({ error });
     }
@@ -86,7 +49,7 @@ exports.getVoteTokens = async (req, res) => {
   try {
     const voteTokens = await db.VoteToken.find({});
     const minifiedVoteTokens = _.chain(voteTokens)
-      .map(vt => ({ ...vt.toObject(), value: vt.value.slice(0, 10) + "..." }))
+      .map(vt => encapsulateVoteToken(vt, req.user))
       .value();
     res.json(minifiedVoteTokens);
   } catch (error) {
@@ -99,11 +62,7 @@ exports.getVoteTokenById = async (req, res) => {
   const { voteTokenId } = req.params;
   try {
     const voteToken = await db.VoteToken.findById(voteTokenId);
-    const minifiedVoteToken = {
-      ...voteToken.toObject(),
-      value: voteToken.value.slice(0, 10) + "..."
-    };
-    res.json(minifiedVoteToken);
+    res.json(encapsulateVoteToken(voteToken, req.user));
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: { msg: "Please try again!" } });
@@ -113,7 +72,9 @@ exports.getVoteTokenById = async (req, res) => {
 exports.updateVoteTokenByValue = async (req, res) => {
   const { value, candidateId } = req.body;
   try {
-    const voteToken = await db.VoteToken.findOne({ value });
+    const voteToken = await db.VoteToken.findOne({
+      value: value.toLowerCase()
+    });
     if (!voteToken) {
       return res
         .status(422)
@@ -123,16 +84,19 @@ exports.updateVoteTokenByValue = async (req, res) => {
         .status(422)
         .json({ error: { msg: "Vote Token has been used!" } });
     }
+
     const candidate = await db.Candidate.findById(candidateId);
     if (!candidate) {
       return res
         .status(422)
         .json({ error: { msg: "Candidate doesn't exist!" } });
     }
+
     voteToken.candidateId = candidateId;
     voteToken.usedAt = moment().toDate();
     await voteToken.save();
-    res.json(voteToken);
+    res.json({ success: true });
+    Socket.globalSocket.emit("VOTE_TOKEN_GET_BY_ID", { id: voteToken._id });
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: { msg: "Please try again!" } });
@@ -144,6 +108,7 @@ exports.deleteVoteTokenById = async (req, res) => {
   try {
     const voteToken = await db.VoteToken.findByIdAndRemove(voteTokenId);
     res.json({ id: voteToken._id });
+    Socket.globalSocket.emit("VOTE_TOKEN_REMOVE_BY_ID", { id: voteToken._id });
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: { msg: "Please try again!" } });

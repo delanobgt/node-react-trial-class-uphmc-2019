@@ -2,6 +2,7 @@ import _ from "lodash";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import { withStyles } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
@@ -11,6 +12,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
+import PinInput from "react-pin-input";
 
 import * as voteTokenActions from "../../../../../actions/voteToken";
 import * as snackbarActions from "../../../../../actions/snackbar";
@@ -26,11 +28,13 @@ const SUBMITTING = "SUBMITTING",
   IDLE = "IDLE";
 
 const INITIAL_STATE = {
-  submitStatus: IDLE
+  submitStatus: IDLE,
+  voteToken: ""
 };
 
 class DeleteCandidateDialog extends React.Component {
   state = INITIAL_STATE;
+  pinInput = null;
 
   onSubmit = async () => {
     const {
@@ -41,18 +45,23 @@ class DeleteCandidateDialog extends React.Component {
       name,
       history
     } = this.props;
-    const {
-      token: { value },
-      ...candidate
-    } = state[name];
+    const candidate = state[name];
+    const { voteToken } = this.state;
+
+    if (voteToken.length !== 8)
+      return errorSnackbar("Some pin character is missing!");
 
     try {
       this.setState({ submitStatus: SUBMITTING });
-      await updateVoteTokenByValue({ value, candidateId: candidate._id });
+      await updateVoteTokenByValue({
+        value: voteToken,
+        candidateId: candidate._id
+      });
       this.onClose();
-      history.push("/result");
+      history.push("/thankYou");
       successSnackbar(`Vote saved`);
     } catch (error) {
+      console.log({ error });
       errorSnackbar(
         _.get(error, "response.data.error.msg", `Please try again!`)
       );
@@ -82,9 +91,27 @@ class DeleteCandidateDialog extends React.Component {
             <DialogContent>
               <DialogContentText>
                 <Typography variant="subtitle1">
-                  Vote for ${candidate.fullname}?
+                  Vote for {candidate.fullname}?
                 </Typography>
               </DialogContentText>
+              <PinInput
+                length={8}
+                initialValue=""
+                secret
+                focus
+                onChange={(value, index) => {
+                  this.setState({ voteToken: value });
+                }}
+                type="custom"
+                style={{ padding: "10px" }}
+                inputStyle={{
+                  border: "2px solid black",
+                  height: "70px",
+                  width: "40px"
+                }}
+                inputFocusStyle={{ border: "2px solid lightblue" }}
+                ref={n => (this.pinInput = n)}
+              />
             </DialogContent>
             <DialogActions>
               <Button
@@ -118,5 +145,6 @@ export default compose(
   connect(
     null,
     { ...voteTokenActions, ...snackbarActions }
-  )
+  ),
+  withRouter
 )(DeleteCandidateDialog);

@@ -73,7 +73,7 @@ class SignIn extends Component {
     try {
       this.setState({ submitStatus: SUBMITTING });
       await signIn(_.pick(formValues, ["email", "password"]));
-      history.push("/");
+      history.push("/admin");
     } catch (error) {
       console.log({ error });
       return this.setState({ authInfo: error.msg });

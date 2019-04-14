@@ -4,6 +4,7 @@ const db = require("../models");
 class Socket {
   static init(server) {
     this.identifiedSockets = {};
+    this.userSockets = {};
 
     if (this.io) this.close();
     this.io = require("socket.io")(server);
@@ -13,28 +14,38 @@ class Socket {
     this.globalSocket.on("connection", async socket => {
       const userId = _.get(socket, "handshake.query.userId", null);
 
-      // set connected to true
-      try {
-        const user = await db.User.findByIdAndUpdate(userId, {
-          $set: { connected: true }
-        });
-        this.globalSocket.emit("SELF_PROFILE_GET", { id: userId });
-        this.globalSocket.emit("USER_GET_BY_ID", { id: userId });
-        console.log(`Socket connected to user ${user.email}.`);
-      } catch (error) {
-        // console.log({ error });
-      }
+      if (!this.userSockets[userId]) this.userSockets[userId] = [];
 
-      socket.on("disconnect", async () => {
-        // set connected to false
+      if (this.userSockets[userId].length === 0) {
+        // set connected to true
         try {
           const user = await db.User.findByIdAndUpdate(userId, {
-            $set: { connected: false }
+            $set: { connected: true }
           });
+          socket.emit("SELF_PROFILE_GET");
           this.globalSocket.emit("USER_GET_BY_ID", { id: userId });
-          console.log(`Socket disconnected with user ${user.email}.`);
+          console.log(`Socket connected to user ${user.email}.`);
         } catch (error) {
-          console.log({ error });
+          // console.log({ error });
+        }
+      }
+      this.userSockets[userId].push(socket);
+
+      socket.on("disconnect", async () => {
+        this.userSockets[userId] = this.userSockets[userId].filter(
+          userSocket => userSocket.id !== socket.id
+        );
+        if (this.userSockets[userId].length === 0) {
+          // set connected to false
+          try {
+            const user = await db.User.findByIdAndUpdate(userId, {
+              $set: { connected: false }
+            });
+            this.globalSocket.emit("USER_GET_BY_ID", { id: userId });
+            console.log(`Socket disconnected with user ${user.email}.`);
+          } catch (error) {
+            console.log({ error });
+          }
         }
       });
     });

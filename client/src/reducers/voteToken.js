@@ -5,6 +5,7 @@ export const VOTE_TOKENS_GET = "VOTE_TOKENS_GET";
 export const VOTE_TOKEN_GET_BY_ID = "VOTE_TOKEN_GET_BY_ID";
 export const VOTE_TOKEN_UPDATE_BY_VALUE = "VOTE_TOKEN_UPDATE_BY_VALUE";
 export const VOTE_TOKEN_DELETE_BY_ID = "VOTE_TOKEN_DELETE_BY_ID";
+export const VOTE_TOKEN_REMOVE_BY_ID = "VOTE_TOKEN_REMOVE_BY_ID";
 
 const INITIAL_STATE = {
   voteTokens: {}
@@ -40,7 +41,8 @@ export default function(state = INITIAL_STATE, action) {
         }
       };
     }
-    case VOTE_TOKEN_DELETE_BY_ID: {
+    case VOTE_TOKEN_DELETE_BY_ID:
+    case VOTE_TOKEN_REMOVE_BY_ID: {
       const { id } = action.payload;
       return {
         ...state,

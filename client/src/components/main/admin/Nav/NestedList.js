@@ -51,6 +51,7 @@ class NestedList extends React.Component {
             key={menu.label}
             to={menu.link}
             onClick={() => this.handleLinkClick()}
+            target={menu.target || ""}
           >
             <ListItem
               button

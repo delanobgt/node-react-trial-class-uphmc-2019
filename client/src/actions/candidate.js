@@ -4,7 +4,8 @@ import {
   CANDIDATES_GET,
   CANDIDATE_GET_BY_ID,
   CANDIDATE_UPDATE_BY_ID,
-  CANDIDATE_DELETE_BY_ID
+  CANDIDATE_DELETE_BY_ID,
+  CANDIDATE_REMOVE_BY_ID
 } from "../reducers/candidate";
 
 export const emptyCandidates = () => dispatch => {
@@ -94,6 +95,15 @@ export const deleteCandidateById = id => async dispatch => {
   const payload = { id: response.data.id };
   dispatch({
     type: CANDIDATE_DELETE_BY_ID,
+    payload
+  });
+  return payload;
+};
+
+export const removeCandidateById = id => async dispatch => {
+  const payload = { id };
+  dispatch({
+    type: CANDIDATE_REMOVE_BY_ID,
     payload
   });
   return payload;

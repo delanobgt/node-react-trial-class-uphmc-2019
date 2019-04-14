@@ -114,12 +114,12 @@ class MyAppBar extends Component {
                 open={open}
                 onClose={this.handleClose}
               >
-                <CleanLink to="/profile">
+                <CleanLink to="/admin/profile">
                   <MenuItem onClick={this.handleClose}>
                     <Typography variant="body1">Profile</Typography>
                   </MenuItem>
                 </CleanLink>
-                <CleanLink to="/signOut">
+                <CleanLink to="/admin/signOut">
                   <MenuItem onClick={this.handleClose}>
                     <Typography variant="body1">Logout</Typography>
                   </MenuItem>
