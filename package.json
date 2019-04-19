@@ -36,6 +36,7 @@
     "passport-jwt": "*",
     "passport-local": "*",
     "qrcode": "^1.3.3",
+    "sharp": "^0.22.0",
     "socket.io": "^2.2.0",
     "xlsx": "^0.11.14"
   },

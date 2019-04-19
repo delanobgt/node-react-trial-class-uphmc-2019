@@ -83,8 +83,6 @@ class EditCandidateDialog extends React.Component {
     const { imageFile } = this.state;
     const payload = state[name];
 
-    if (!imageFile) return errorSnackbar("Please choose an image!");
-
     const socket = io.connect(
       `${process.env.REACT_APP_API_BASE_URL ||
         window.location.origin}/identifiedSockets`

@@ -46,6 +46,7 @@ const styles = theme => ({
   actionDiv: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     margin: "0.5em 0"
   },
   picture: {
@@ -97,13 +98,6 @@ class CandidateListIndex extends React.Component {
         Header: "Fullname",
         accessor: d => d.fullname || "-"
       },
-      {
-        Header: "Created At",
-        accessor: d => (d.createdAt ? moment(d.createdAt).valueOf() : null),
-        plain: dateMs => (dateMs ? moment(dateMs).format("D MMMM YYYY") : "-"),
-        Cell: ({ original: d }) =>
-          d.createdAt ? moment(d.createdAt).format("D MMMM YYYY") : "-"
-      },
       { Header: "Major", accessor: d => d.major || "-" },
       {
         Header: "Image",
@@ -117,6 +111,13 @@ class CandidateListIndex extends React.Component {
             }}
           />
         )
+      },
+      {
+        Header: "Created At",
+        accessor: d => (d.createdAt ? moment(d.createdAt).valueOf() : null),
+        plain: dateMs => (dateMs ? moment(dateMs).format("D MMMM YYYY") : "-"),
+        Cell: ({ original: d }) =>
+          d.createdAt ? moment(d.createdAt).format("D MMMM YYYY") : "-"
       },
       {
         Header: "Actions",
@@ -217,7 +218,11 @@ class CandidateListIndex extends React.Component {
                 {
                   id: String(index),
                   width: column.width,
-                  style: { whiteSpace: "unset" },
+                  style: {
+                    whiteSpace: "unset",
+                    display: "flex",
+                    alignItems: "center"
+                  },
                   Header: column.Header,
                   accessor: column.accessor,
                   Cell: column.Cell,

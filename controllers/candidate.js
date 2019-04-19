@@ -1,8 +1,34 @@
 const _ = require("lodash");
 const moment = require("moment");
 const cloudinary = require("cloudinary");
+const sharp = require("sharp");
 const db = require("../models");
+const path = require("path");
 const Socket = require("../services/socket");
+
+async function adjustImage(filePath, { format }) {
+  const imageFile = sharp(filePath);
+
+  const { width, height } = await imageFile.metadata();
+  const squareSize = Math.min(width, height, 500);
+
+  const fileExt = path.extname(filePath);
+  const resultFilePath = path.resolve(
+    path.dirname(filePath),
+    "adjusted_" + path.basename(filePath, fileExt) + "." + format
+  );
+
+  await imageFile
+    .resize({
+      width: squareSize,
+      height: squareSize,
+      fit: "cover"
+    })
+    .toFormat(format)
+    .toFile(resultFilePath);
+
+  return resultFilePath;
+}
 
 exports.createCandidate = async (req, res) => {
   if (!req.file)
@@ -23,9 +49,15 @@ exports.createCandidate = async (req, res) => {
   }
 
   const { orderNumber, fullname, major } = req.body;
+  let uploadResult = null;
+  let session = await db.Candidate.startSession();
+  session.startTransaction();
   try {
     emitProgress("Saving image..");
-    const uploadResult = await cloudinary.v2.uploader.upload(req.file.path, {
+    const adjustedFilePath = await adjustImage(req.file.path, {
+      format: "jpeg"
+    });
+    uploadResult = await cloudinary.v2.uploader.upload(adjustedFilePath, {
       resource_type: "image",
       public_id: `Ambassador Candidate Images/${fullname} (${moment().format(
         "D MMM YYYY (HH:mm:ss)"
@@ -46,11 +78,22 @@ exports.createCandidate = async (req, res) => {
     await candidate.save();
 
     emitProgress("Candidate saved..");
+    await session.commitTransaction();
     res.json(candidate);
     Socket.globalSocket.emit("CANDIDATE_GET_BY_ID", { id: candidate._id });
   } catch (error) {
     console.log({ error });
+    await session.abortTransaction();
+    if (uploadResult !== null) {
+      try {
+        await cloudinary.v2.uploader.destroy(uploadResult.public_id);
+      } catch (error) {
+        console.log({ error });
+      }
+    }
     res.status(500).json({ error: { msg: "Please try again!" } });
+  } finally {
+    session.endSession();
   }
 };
 
@@ -92,23 +135,10 @@ exports.updateCandidateById = async (req, res) => {
 
   const { candidateId } = req.params;
   const { orderNumber, fullname, major } = req.body;
+  let session = await db.Candidate.startSession();
+  session.startTransaction();
   try {
     const candidate = await db.Candidate.findById(candidateId);
-
-    emitProgress("Saving image..");
-    if (req.file) {
-      await cloudinary.v2.uploader.destroy(candidate.image.secureUrl);
-      const uploadResult = await cloudinary.v2.uploader.upload(req.file.path, {
-        resource_type: "image",
-        public_id: `Ambassador Candidate Images/${fullname} (${moment().format(
-          "D MMM YYYY (HH:mm:ss)"
-        )})`
-      });
-      candidate.image = {
-        publicId: uploadResult.public_id,
-        secureUrl: uploadResult.secure_url
-      };
-    }
 
     emitProgress("Updating candidate..");
     candidate.orderNumber = orderNumber;
@@ -116,12 +146,38 @@ exports.updateCandidateById = async (req, res) => {
     candidate.major = major;
     await candidate.save();
 
+    emitProgress("Saving image..");
+    if (req.file) {
+      await cloudinary.v2.uploader.destroy(candidate.image.publicId);
+      const adjustedFilePath = await adjustImage(req.file.path, {
+        format: "jpeg"
+      });
+      const uploadResult = await cloudinary.v2.uploader.upload(
+        adjustedFilePath,
+        {
+          resource_type: "image",
+          public_id: `Ambassador Candidate Images/${fullname} (${moment().format(
+            "D MMM YYYY (HH:mm:ss)"
+          )})`
+        }
+      );
+      candidate.image = {
+        publicId: uploadResult.public_id,
+        secureUrl: uploadResult.secure_url
+      };
+      await candidate.save();
+    }
+
     emitProgress("Candidate saved..");
+    await session.commitTransaction();
     res.json(candidate);
     Socket.globalSocket.emit("CANDIDATE_GET_BY_ID", { id: candidate._id });
   } catch (error) {
     console.log({ error });
+    await session.abortTransaction();
     res.status(500).json({ error: { msg: "Please try again!" } });
+  } finally {
+    session.endSession();
   }
 };
 

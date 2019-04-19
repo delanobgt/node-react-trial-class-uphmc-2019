@@ -15,11 +15,13 @@ const candidateSchema = new mongoose.Schema(
   {
     orderNumber: {
       type: Number,
-      required: true
+      required: true,
+      unique: true
     },
     fullname: {
       type: String,
-      required: true
+      required: true,
+      unique: true
     },
     major: {
       type: String,

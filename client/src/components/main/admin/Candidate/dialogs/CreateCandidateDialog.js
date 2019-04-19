@@ -22,7 +22,7 @@ import * as snackbarActions from "../../../../../actions/snackbar";
 import { compose } from "redux";
 
 const styles = theme => ({
-  formControl: { minWidth: "300px" },
+  formControl: { minWidth: "280px" },
   picture: {
     width: "150px",
     height: "150px",
@@ -186,20 +186,25 @@ class CreateCandidateDialog extends React.Component {
                         className={classes.picture}
                         style={{
                           backgroundImage: `url(${imageUrl ||
-                            "https://via.placeholder.com/300"})`
+                            "https://via.placeholder.com/300?text=SQUARE"})`
                         }}
                       />
                       <br />
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        disabled={submitStatus === SUBMITTING}
-                        onClick={e => this.refs.upload.click()}
-                        style={{ marginLeft: "1em" }}
-                      >
-                        Choose..
-                      </Button>
+                      <div style={{ marginLeft: "1em" }}>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          disabled={submitStatus === SUBMITTING}
+                          onClick={e => this.refs.upload.click()}
+                        >
+                          Choose..
+                        </Button>
+                        <br />
+                        <Typography variant="caption">
+                          Only .png, .jpeg, .jpg <br /> are allowed!
+                        </Typography>
+                      </div>
                     </div>
                     {submitStatus === SUBMITTING && (
                       <div>
