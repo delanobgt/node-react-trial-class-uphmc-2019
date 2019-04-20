@@ -32,8 +32,7 @@ export default ({ props }) => {
     {
       icon: <InfoIcon />,
       label: "Result",
-      link: "/result",
-      target: "_blank"
+      link: "/admin/result"
     },
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,

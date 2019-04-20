@@ -17,7 +17,6 @@ import ResetPassword from "./main/admin/Auth/ResetPassword/Loadable";
 import CandidateList from "./main/user/CandidateList/Loadable";
 import ThankYou from "./main/user/ThankYou/Loadable";
 
-import Result from "./main/user/Result/Loadable";
 import AdminRouter from "./main/admin/AdminRouter";
 
 class App extends Component {
@@ -48,7 +47,6 @@ class App extends Component {
               <Fragment>
                 <Socket />
                 <Switch>
-                  <Route path="/result" component={Result} />
                   <Route path="/admin" component={AdminRouter} />
                   <Route path="*" component={() => <Redirect to="/admin" />} />
                 </Switch>

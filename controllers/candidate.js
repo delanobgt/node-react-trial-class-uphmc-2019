@@ -10,7 +10,8 @@ async function adjustImage(filePath, { format }) {
   const imageFile = sharp(filePath);
 
   const { width, height } = await imageFile.metadata();
-  const squareSize = Math.min(width, height, 500);
+  // const squareSize = Math.min(width, height, 500);
+  const squareSize = 500;
 
   const fileExt = path.extname(filePath);
   const resultFilePath = path.resolve(

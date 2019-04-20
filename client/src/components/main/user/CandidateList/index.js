@@ -1,6 +1,6 @@
 import "react-table/react-table.css";
+import "./css/gradient-button.css";
 import _ from "lodash";
-import moment from "moment";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -8,11 +8,12 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import Paper from "@material-ui/core/Paper";
 import { withStyles } from "@material-ui/core/styles";
 
 import * as candidateActions from "../../../../actions/candidate";
 import ConfirmDialog from "./dialogs/ConfirmDialog";
+import Hexagon from "./svg/Hexagon";
+import Lotus from "./svg/Lotus";
 
 const styles = theme => ({
   retryText: {
@@ -23,19 +24,8 @@ const styles = theme => ({
     margin: "auto",
     textAlign: "center"
   },
-  headline: {
-    marginBottom: "1em"
-  },
-  excelButton: {
-    marginBottom: "1em"
-  },
   paper: {
     padding: "2em"
-  },
-  paperItem: {
-    margin: "1.5em 0",
-    padding: "2em",
-    textAlign: "center"
   },
   picture: {
     width: "150px",
@@ -44,6 +34,84 @@ const styles = theme => ({
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     display: "inline-block"
+  },
+
+  cardWrapper: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "nowrap",
+    overflowX: "scroll",
+    height: "100vh",
+    width: "100vw",
+    backgroundColor: "#1b1a17",
+    "&::-webkit-scrollbar": {
+      display: "none"
+    }
+  },
+  card: {
+    flex: "0 0 auto",
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "column",
+    width: "100%",
+    padding: "1em"
+    // border: "1px solid yellow"
+  },
+
+  orderNumberPart: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "1.5em"
+  },
+  orderNumber: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "100%",
+    color: "white",
+    border: "1.5px solid #CFB539",
+    width: "1.5em",
+    height: "1.5em",
+    margin: "0 0.5em",
+    fontSize: "1.25em",
+    padding: "2px"
+  },
+  shortBar: {
+    width: "28px",
+    height: "1px",
+    backgroundColor: "#CFB539"
+  },
+
+  imageWrapper: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+
+  fullnameParagraph: {
+    fontSize: "1.5em",
+    color: "white"
+  },
+  longBar: {
+    width: "100px",
+    height: "1px",
+    backgroundColor: "#CFB539",
+    margin: "0.25em 0"
+  },
+  majorParagraph: {
+    fontSize: "1em",
+    color: "white"
+  },
+
+  voteButton: {
+    border: "3px solid #896528",
+    backgroundColor: "#D5AF34",
+    borderRadius: "9px",
+    padding: "0.5em",
+    color: "white",
+    marginTop: "1em"
   }
 });
 
@@ -107,61 +175,74 @@ class CandidateListIndex extends React.Component {
       const data = _.chain(candidates)
         .values()
         .sortBy([cand => cand.orderNumber])
+        .map(cand => ({
+          ...cand,
+          orderNumber:
+            cand.orderNumber < 10 ? "0" + cand.orderNumber : cand.orderNumber
+        }))
         .value();
 
-      mainContent = (
-        <Grid container spacing={16}>
-          {data.map(d => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={d.orderNumber}>
-              <Paper className={classes.paperItem} elevation={3}>
-                <div
-                  className={classes.picture}
-                  style={{
-                    backgroundImage: `url(${_.get(d, "image.secureUrl", null) ||
-                      "https://via.placeholder.com/300"})`
-                  }}
-                />
+      mainContent = data.map(d => (
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={4}
+          lg={3}
+          key={d.orderNumber}
+          className={classes.card}
+        >
+          <div className={classes.orderNumberPart}>
+            <div className={classes.shortBar} />
+            <div className={classes.orderNumber}>{d.orderNumber}</div>
+            <div className={classes.shortBar} />
+          </div>
 
-                <div>
-                  <Typography variant="subtitle1" align="center">
-                    ({d.orderNumber})
-                  </Typography>
-                  <Typography variant="subtitle1" align="center">
-                    {d.fullname}
-                  </Typography>
-                  <Typography variant="subtitle1" align="center">
-                    {d.major}
-                  </Typography>
-                </div>
+          <div className={classes.imageWrapper}>
+            <Lotus size={50} />
+            <Hexagon
+              key={d.orderNumber}
+              id={d.orderNumber}
+              style={{ margin: "0 1.5em" }}
+              size={145}
+              imgUrl={_.get(
+                d,
+                "image.secureUrl",
+                "https://via.placeholder.com/300"
+              )}
+            />
+            <Lotus size={50} />
+          </div>
 
-                <div>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => this.toggleDialog("ConfirmDialog")(d)}
-                  >
-                    Vote
-                  </Button>
-                </div>
-              </Paper>
-            </Grid>
-          ))}
+          <div>
+            <Lotus size={20} style={{ margin: "0.5em 0" }} />
+          </div>
+
+          <p className={classes.fullnameParagraph}>{d.fullname}</p>
+          <div className={classes.longBar} />
+          <p className={classes.majorParagraph}>{d.major}</p>
+
+          {/* <button
+            className={classes.voteButton}
+            onClick={() => this.toggleDialog("ConfirmDialog")(d)}
+          >
+            VOTE
+          </button> */}
+
+          <button
+            className="btn btn-1"
+            onClick={() => this.toggleDialog("ConfirmDialog")(d)}
+          >
+            VOTE
+          </button>
         </Grid>
-      );
+      ));
     }
 
     return (
       <Fragment>
-        <Grid container justify="center">
-          <Grid item xs={11}>
-            <Paper className={classes.paper} elevation={3}>
-              <Typography variant="h5" gutterBottom>
-                All Candidates
-              </Typography>
-            </Paper>
-            <br />
-            {mainContent}
-          </Grid>
+        <Grid container className={classes.cardWrapper}>
+          {mainContent}
         </Grid>
         <ConfirmDialog
           name="ConfirmDialog"

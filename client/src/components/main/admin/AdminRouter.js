@@ -20,6 +20,7 @@ import SignOut from "./Auth/SignOut/Loadable";
 import DyingDialog from "./Auth/DyingDialog";
 import TokenExpirationWatch from "./Auth/TokenExpirationWatch";
 
+import Result from "./Result/Loadable";
 import Candidate from "./Candidate/Loadable";
 import VoteToken from "./VoteToken/Loadable";
 import User from "./User/Loadable";
@@ -64,6 +65,7 @@ class App extends Component {
         </Grid>
 
         <Switch>
+          <Route path="/admin/result" component={Result} />
           <Route path="/admin/dashboard" exact component={Dashboard} />
           <Route path="/admin/candidates" component={Candidate} />
           <Route path="/admin/voteTokens" component={VoteToken} />

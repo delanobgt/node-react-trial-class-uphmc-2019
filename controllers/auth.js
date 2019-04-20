@@ -32,9 +32,10 @@ exports.signIn = async (req, res) => {
       expiresAt: user.authToken.expiresAt
     });
     Socket.globalSocket.emit("USER_GET_BY_ID", { id: user._id });
-    Socket.userSockets[user._id].forEach(socket =>
-      socket.emit("SELF_PROFILE_GET")
-    );
+    if (Socket.userSockets[user._id])
+      Socket.userSockets[user._id].forEach(socket =>
+        socket.emit("SELF_PROFILE_GET")
+      );
   } catch (error) {
     console.log({ error });
     res.status(500).send("<pre>Please try again!</pre>");
