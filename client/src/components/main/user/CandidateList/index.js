@@ -2,6 +2,7 @@ import "react-table/react-table.css";
 import "./css/gradient-button.css";
 import "./css/splash.css";
 import _ from "lodash";
+import scrollSnapPolyfill from "css-scroll-snap-polyfill";
 import classNames from "classnames";
 import React, { Fragment } from "react";
 import { compose } from "redux";
@@ -193,6 +194,7 @@ class CandidateListIndex extends React.Component {
 
   componentDidMount() {
     this.fetchData();
+    scrollSnapPolyfill();
   }
 
   componentWillUnmount() {}
