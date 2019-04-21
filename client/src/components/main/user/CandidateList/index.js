@@ -1,6 +1,8 @@
 import "react-table/react-table.css";
 import "./css/gradient-button.css";
+import "./css/splash.css";
 import _ from "lodash";
+import classNames from "classnames";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -9,6 +11,7 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { withStyles } from "@material-ui/core/styles";
+import { ArrowRightAlt as ArrowRightAltIcon } from "@material-ui/icons";
 
 import * as candidateActions from "../../../../actions/candidate";
 import ConfirmDialog from "./dialogs/ConfirmDialog";
@@ -36,6 +39,24 @@ const styles = theme => ({
     display: "inline-block"
   },
 
+  splashItem: {
+    scrollSnapAlign: "start",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column",
+    width: "100%",
+    scrollSnapAlign: "start",
+    flex: "0 0 auto"
+  },
+
+  circularProgress: {
+    circleIndeterminate: {
+      color: "#cfb539",
+      backgroundColor: "#cfb539"
+    }
+  },
+
   cardWrapper: {
     display: "flex",
     alignItems: "center",
@@ -46,7 +67,10 @@ const styles = theme => ({
     backgroundColor: "#1b1a17",
     "&::-webkit-scrollbar": {
       display: "none"
-    }
+    },
+    scrollSnapType: "mandatory",
+    scrollSnapPointsX: "repeat(100vw)",
+    scrollSnapType: "x mandatory"
   },
   card: {
     flex: "0 0 auto",
@@ -54,8 +78,8 @@ const styles = theme => ({
     alignItems: "center",
     flexDirection: "column",
     width: "100%",
-    padding: "1em"
-    // border: "1px solid yellow"
+    padding: "1em",
+    scrollSnapAlign: "start"
   },
 
   orderNumberPart: {
@@ -63,7 +87,7 @@ const styles = theme => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "1.5em"
+    marginBottom: "1em"
   },
   orderNumber: {
     display: "flex",
@@ -109,7 +133,7 @@ const styles = theme => ({
     border: "3px solid #896528",
     backgroundColor: "#D5AF34",
     borderRadius: "9px",
-    padding: "0.5em",
+    padding: "0.35em",
     color: "white",
     marginTop: "1em"
   }
@@ -119,9 +143,18 @@ const LOADING = "LOADING",
   ERROR = "ERROR",
   DONE = "DONE";
 
+const animationClassNames = ["splash-logo-1", "splash-logo-2", "splash-logo-3"];
+
+const paragraphClassNames = [
+  "splash-paragraph-1",
+  "splash-paragraph-1",
+  "splash-paragraph-2"
+];
+
 class CandidateListIndex extends React.Component {
   state = {
-    loadingStatus: LOADING
+    loadingStatus: LOADING,
+    animationStatus: 0
   };
 
   fetchData = async () => {
@@ -141,37 +174,76 @@ class CandidateListIndex extends React.Component {
       [stateName]: open === undefined ? !Boolean(state[stateName]) : open
     }));
 
-  async componentDidMount() {
-    await this.fetchData();
+  startAnimation = () => {
+    setTimeout(() => {
+      this.setState(state => ({ animationStatus: state.animationStatus + 1 }));
+      setTimeout(() => {
+        this.setState(state => ({
+          animationStatus: state.animationStatus + 1
+        }));
+      }, 2000);
+    }, 1000);
+  };
+
+  componentDidMount() {
+    this.fetchData();
   }
+
+  componentWillUnmount() {}
 
   render() {
     const { classes, candidates } = this.props;
-    const { loadingStatus } = this.state;
+    const { loadingStatus, animationStatus } = this.state;
 
+    let splashContent = null;
     let mainContent = null;
-    if (loadingStatus === ERROR) {
-      mainContent = (
-        <Fragment>
-          <Typography variant="subtitle1" className={classes.retryText}>
-            Cannot fetch data.
-          </Typography>
-          <Button
-            color="primary"
-            className={classes.retryButton}
-            onClick={this.fetchData}
-          >
-            Retry
-          </Button>
-        </Fragment>
-      );
-    } else if (loadingStatus === LOADING) {
-      mainContent = (
-        <div style={{ textAlign: "center" }}>
-          <CircularProgress size={50} />
+
+    splashContent = (
+      <Grid item xs={12} className={classes.splashItem}>
+        <img
+          src={require("../../../../res/images/logo.png")}
+          alt=""
+          onLoad={this.startAnimation}
+          className={classNames(
+            "splash-logo",
+            animationClassNames[animationStatus]
+          )}
+        />
+        <p
+          className={classNames(
+            "splash-paragraph",
+            paragraphClassNames[animationStatus]
+          )}
+        >
+          Vote for your favourite candidate!
+        </p>
+
+        <div
+          className={classNames(
+            "splash-loading",
+            animationStatus >= 2 && loadingStatus === LOADING
+              ? "splash-loading-2"
+              : "splash-loading-1"
+          )}
+        >
+          <CircularProgress size={32} classes={classes.circularProgress} />
         </div>
-      );
-    } else {
+
+        <div
+          className={classNames(
+            "splash-direction",
+            animationStatus >= 2 && loadingStatus === DONE
+              ? "splash-direction-2"
+              : "splash-direction-1"
+          )}
+        >
+          <p>Swipe to see candidates </p>
+          <ArrowRightAltIcon style={{ color: "#cfb539" }} />
+        </div>
+      </Grid>
+    );
+
+    if (loadingStatus === DONE && animationStatus >= 2) {
       const data = _.chain(candidates)
         .values()
         .sortBy([cand => cand.orderNumber])
@@ -230,7 +302,7 @@ class CandidateListIndex extends React.Component {
           </button> */}
 
           <button
-            className="btn btn-1"
+            className="btn btn-grad-4"
             onClick={() => this.toggleDialog("ConfirmDialog")(d)}
           >
             VOTE
@@ -242,6 +314,7 @@ class CandidateListIndex extends React.Component {
     return (
       <Fragment>
         <Grid container className={classes.cardWrapper}>
+          {splashContent}
           {mainContent}
         </Grid>
         <ConfirmDialog
