@@ -68,9 +68,13 @@ const styles = theme => ({
     "&::-webkit-scrollbar": {
       display: "none"
     },
-    scrollSnapType: "mandatory",
-    scrollSnapPointsX: "repeat(100vw)",
-    scrollSnapType: "x mandatory"
+    "scroll-snap-type": "mandatory" /* Firefox */,
+    "scroll-snap-type": "x mandatory" /* Chrome Canary */,
+    "-ms-scroll-snap-type": "mandatory" /* IE/Edge */,
+    "-webkit-scroll-snap-type": "mandatory" /* Safari */,
+    "scroll-snap-points-x": "repeat(100vw)",
+    "-webkit-scroll-snap-destination": "0% 0%",
+    "-webkit-overflow-scrolling": "touch" /* important for iOS */
   },
   card: {
     flex: "0 0 auto",
@@ -79,7 +83,9 @@ const styles = theme => ({
     flexDirection: "column",
     width: "100%",
     padding: "1em",
-    scrollSnapAlign: "start"
+    "scroll-snap-align": "center" /* latest (Chrome 69+) */,
+    "scroll-snap-coordinate": "50% 50%" /* older (Firefox/IE) */,
+    "-webkit-scroll-snap-coordinate": "50% 50%" /* older (Safari) */
   },
 
   orderNumberPart: {
