@@ -17,6 +17,7 @@ import ResetPassword from "./main/admin/Auth/ResetPassword/Loadable";
 import CandidateList from "./main/user/CandidateList/Loadable";
 import ThankYou from "./main/user/ThankYou/Loadable";
 
+import Background from "./Background";
 import AdminRouter from "./main/admin/AdminRouter";
 
 class App extends Component {
@@ -32,6 +33,7 @@ class App extends Component {
             />
             {!this.props.token ? (
               <Fragment>
+                <Background />
                 <Switch>
                   <Route path="/candidateList" component={CandidateList} />
                   <Route path="/thankYou" component={ThankYou} />

@@ -21,9 +21,6 @@ import * as voteTokenActions from "../../../../../actions/voteToken";
 import * as snackbarActions from "../../../../../actions/snackbar";
 
 const styles = theme => ({
-  textField: {
-    margin: "0.5em 0"
-  },
   formControl: {},
   picture: {
     width: "150px",
@@ -50,13 +47,24 @@ const styles = theme => ({
     border: "2px solid #CFB539",
     padding: "2em 0.8em",
     paddingBottom: "0.8em",
-    overflow: "hidden",
-    width: "250px"
+    overflow: "hidden"
   },
   title: {
     color: "white",
-    fontSize: "1.2em",
-    textAlign: "center"
+    fontSize: "0.8em",
+    textAlign: "center",
+    letterSpacing: "0.1em",
+    wordSpacing: "0.15em",
+    lineHeight: "1.7em"
+  },
+  secondTitle: {
+    color: "white",
+    fontSize: "0.8em",
+    textAlign: "center",
+    letterSpacing: "0.1em",
+    wordSpacing: "0.15em",
+    lineHeight: "1.7em",
+    marginBottom: "0.5em"
   },
 
   circleContainer: {
@@ -77,58 +85,99 @@ const styles = theme => ({
   },
 
   contentBox: {
-    display: "flex",
-    flexWrap: "nowrap",
-    overflowX: "scroll",
-    height: "180px"
+    height: "200px"
   },
-  contentItem: {
-    flex: "0 0 auto"
+
+  captcha: {
+    marginTop: "1em",
+    borderRadius: "12px",
+    width: "150px"
+  },
+  textField: {
+    border: 0,
+    borderRadius: "7px",
+    padding: "0.35em",
+    textAlign: "center",
+    fontSize: "1em",
+    width: "100px",
+    textTransform: "uppercase"
+  },
+  tokenValueErrorMsg: {
+    textAlign: "center",
+    color: "red",
+    marginTop: "0.75em"
+  },
+  captchaValueErrorMsg: {
+    textAlign: "center",
+    color: "red",
+    marginTop: "0.75em"
   }
 });
 
 const SUBMITTING = "SUBMITTING",
   IDLE = "IDLE";
 
+function getNewCaptchaUrl() {
+  return (
+    `${process.env.REACT_APP_API_BASE_URL ||
+      window.location.origin}/api/voteTokens/captcha?` + new Date().getTime()
+  );
+}
+
 const INITIAL_STATE = {
   submitStatus: IDLE,
-  voteToken: "",
-  stepIndex: 0
+  tokenValue: "",
+  tokenValueError: "",
+  stepIndex: 0,
+  captchaUrl: getNewCaptchaUrl(),
+  captchaValue: "",
+  captchaValueError: ""
 };
 
-class DeleteCandidateDialog extends React.Component {
+class ConfirmDialog extends React.Component {
   state = INITIAL_STATE;
   pinInput = null;
 
-  onSubmit = async () => {
-    const {
-      updateVoteTokenByValue,
-      successSnackbar,
-      errorSnackbar,
-      state,
-      name,
-      history
-    } = this.props;
-    const candidate = state[name];
-    const { voteToken } = this.state;
+  handleFirstSubmit = async () => {
+    const { tokenValue } = this.state;
 
-    if (voteToken.length !== 8)
-      return errorSnackbar("Some pin character is missing!");
+    if (tokenValue.length !== 6) {
+      this.setState({ tokenValueError: "Please input missing code" });
+    } else {
+      this.setState(state => ({
+        stepIndex: state.stepIndex + 1,
+        tokenValueError: ""
+      }));
+    }
+  };
+
+  handleSecondSubmit = async () => {
+    const { updateVoteTokenByValue, state, name, history } = this.props;
+    const candidate = state[name];
+    const { tokenValue, captchaValue } = this.state;
 
     try {
-      this.setState({ submitStatus: SUBMITTING });
+      this.setState({ submitStatus: SUBMITTING, captchaValueError: "" });
       await updateVoteTokenByValue({
-        value: voteToken,
+        tokenValue,
+        captchaValue,
         candidateId: candidate._id
       });
       this.onClose();
       history.push("/thankYou");
-      successSnackbar(`Vote saved`);
     } catch (error) {
       console.log({ error });
-      errorSnackbar(
-        _.get(error, "response.data.error.msg", `Please try again!`)
-      );
+      this.setState({
+        captchaValueError: _.get(
+          error,
+          "response.data.error.msg",
+          "Please try again!"
+        )
+      });
+      if (_.get(error, "response.data.error.expired", false)) {
+        console.log("getNewCaptchaUrl");
+        this.setState({ captchaUrl: getNewCaptchaUrl() });
+      }
     } finally {
       this.setState({ submitStatus: IDLE });
     }
@@ -140,9 +189,29 @@ class DeleteCandidateDialog extends React.Component {
     this.setState(INITIAL_STATE);
   };
 
+  handleCaptchaValueChange = e => {
+    this.setState({
+      captchaValue: _.get(e, "target.value", this.state.captchaValue)
+    });
+  };
+
+  handleCaptchaLoad = () => {
+    console.log("loaded");
+  };
+  handleCaptchaLoadStart = () => {
+    console.log("load starting..");
+  };
+
   render() {
     const { state, name, classes } = this.props;
-    const { submitStatus, stepIndex } = this.state;
+    const {
+      submitStatus,
+      stepIndex,
+      captchaUrl,
+      captchaValue,
+      tokenValueError,
+      captchaValueError
+    } = this.state;
     const candidate = state[name];
 
     // if (!candidate) return null;
@@ -151,136 +220,132 @@ class DeleteCandidateDialog extends React.Component {
       Boolean(true || candidate) && (
         <div className={classes.dialogBackground}>
           <div className={classes.dialogBox}>
-            <div className={classes.contentBox}>
-              <div className={classes.contentItem}>
-                <Slide left collapse when={stepIndex === 0}>
-                  <p className={classes.title}>
-                    Input the 6 alphanumeric <br />
-                    code from your ticket
+            <Slide right collapse when={stepIndex === 1}>
+              <div className={classes.contentBox}>
+                <p className={classes.secondTitle}>
+                  PLEASE TYPE THE TEXT BELOW
+                </p>
+
+                <div style={{ textAlign: "center" }}>
+                  <img
+                    alt=""
+                    className={classes.captcha}
+                    src={captchaUrl}
+                    onLoad={this.handleCaptchaLoad}
+                    onLoadStart={this.handleCaptchaLoadStart}
+                    onLoadStartCapture={this.handleCaptchaLoadStart}
+                  />
+                </div>
+
+                <div style={{ textAlign: "center", margin: "0.8em 0" }}>
+                  <input
+                    type="text"
+                    placeholder="Type here"
+                    value={captchaValue}
+                    onChange={this.handleCaptchaValueChange}
+                    className={classes.textField}
+                    autoComplete="off"
+                    autoFocus
+                    required
+                  />
+                </div>
+                {captchaValueError && (
+                  <p className={classes.captchaValueErrorMsg}>
+                    {captchaValueError}
                   </p>
-
-                  {/* <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end"
-              }}
-            >
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => this.pinInput.clear()}
-              >
-                Clear
-              </Button>
-            </div> */}
-
-                  <div style={{ margin: "0.8em 0" }}>
-                    <PinInput
-                      length={6}
-                      initialValue=""
-                      secret
-                      focus
-                      onChange={(value, index) => {
-                        this.setState({ voteToken: value });
-                      }}
-                      type="custom"
-                      style={{ padding: "10px" }}
-                      inputStyle={{
-                        margin: "0.25em",
-                        border: "1px solid black",
-                        borderRadius: "5px",
-                        backgroundColor: "white",
-                        height: "40px",
-                        width: "30px",
-                        fontSize: "1em"
-                      }}
-                      inputFocusStyle={{
-                        border: "3px solid #CFB539"
-                      }}
-                      ref={n => (this.pinInput = n)}
-                    />
-                  </div>
-                </Slide>
-              </div>
-
-              <div className={classes.contentItem}>
-                <Slide right collapse when={stepIndex === 1}>
-                  <p className={classes.title}>
-                    Input the 6 alphanumeric <br />
-                    code from your ticket
-                  </p>
-
-                  {/* <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end"
-              }}
-            >
-              <Button
-                size="small"
-                color="primary"
-                onClick={() => this.pinInput.clear()}
-              >
-                Clear
-              </Button>
-            </div> */}
-
-                  <div style={{ margin: "0.8em 0" }}>
-                    <PinInput
-                      length={6}
-                      initialValue=""
-                      secret
-                      focus
-                      onChange={(value, index) => {
-                        this.setState({ voteToken: value });
-                      }}
-                      type="custom"
-                      style={{ padding: "10px" }}
-                      inputStyle={{
-                        margin: "0.25em",
-                        border: "1px solid black",
-                        borderRadius: "5px",
-                        backgroundColor: "white",
-                        height: "40px",
-                        width: "30px",
-                        fontSize: "1em"
-                      }}
-                      inputFocusStyle={{
-                        border: "3px solid #CFB539"
-                      }}
-                      ref={n => (this.pinInput = n)}
-                    />
-                  </div>
-                </Slide>
-              </div>
-            </div>
-
-            <div style={{ textAlign: "center" }}>
-              <button
-                className="btn btn-grad-4"
-                onClick={
-                  stepIndex === 0
-                    ? () =>
-                        this.setState(state => ({
-                          stepIndex: state.stepIndex + 1
-                        }))
-                    : () =>
-                        this.setState(state => ({
-                          stepIndex: state.stepIndex - 1
-                        }))
-                  // :this.onSubmit
-                }
-                disabled={submitStatus === SUBMITTING}
-              >
-                {submitStatus === SUBMITTING ? (
-                  <CircularProgress size={24} />
-                ) : (
-                  "NEXT"
                 )}
-              </button>
-            </div>
+              </div>
+
+              <div style={{ textAlign: "center", marginTop: "1.5em" }}>
+                <button
+                  className="btn btn-grad-4"
+                  style={{ width: "6em", fontFamily: "Perpetua" }}
+                  onClick={() => this.setState({ stepIndex: 0 })}
+                >
+                  BACK
+                </button>
+                <button
+                  className="btn btn-grad-4"
+                  style={{
+                    width: "6em",
+                    marginLeft: "1.5em",
+                    fontFamily: "Perpetua"
+                  }}
+                  onClick={this.handleSecondSubmit}
+                  disabled={submitStatus === SUBMITTING}
+                >
+                  {submitStatus === SUBMITTING ? (
+                    <CircularProgress size={14} />
+                  ) : (
+                    "SUBMIT"
+                  )}
+                </button>
+              </div>
+            </Slide>
+
+            <Fade bottom collapse when={stepIndex === 0}>
+              <div className={classes.contentBox}>
+                <p className={classes.title}>
+                  INPUT THE 6 ALPHANUMERIC <br />
+                  CODE FROM YOUR TICKET
+                </p>
+
+                <div style={{ marginTop: "1.2em" }}>
+                  <PinInput
+                    length={6}
+                    initialValue=""
+                    focus
+                    onChange={(value, index) => {
+                      this.setState({ tokenValue: value });
+                    }}
+                    type="custom"
+                    style={{ padding: "10px" }}
+                    inputStyle={{
+                      textTransform: "uppercase",
+                      margin: "0.25em",
+                      border: "1px solid black",
+                      borderRadius: "5px",
+                      backgroundColor: "white",
+                      height: "40px",
+                      width: "30px",
+                      fontSize: "1em"
+                    }}
+                    inputFocusStyle={{
+                      border: "3px solid #CFB539"
+                    }}
+                    ref={n => (this.pinInput = n)}
+                  />
+                </div>
+
+                {tokenValueError && (
+                  <p className={classes.tokenValueErrorMsg}>
+                    {tokenValueError}
+                  </p>
+                )}
+              </div>
+
+              <div style={{ textAlign: "center" }}>
+                <button
+                  className="btn btn-grad-4"
+                  style={{ width: "6em", fontFamily: "Perpetua" }}
+                  onClick={this.onClose}
+                >
+                  CANCEL
+                </button>
+                <button
+                  className="btn btn-grad-4"
+                  style={{
+                    width: "6em",
+                    marginLeft: "1.5em",
+                    fontFamily: "Perpetua"
+                  }}
+                  onClick={this.handleFirstSubmit}
+                  disabled={submitStatus === SUBMITTING}
+                >
+                  NEXT
+                </button>
+              </div>
+            </Fade>
 
             <div className={classes.circleContainer}>
               {_.range(2).map(index => (
@@ -306,4 +371,4 @@ export default compose(
     { ...voteTokenActions, ...snackbarActions }
   ),
   withRouter
-)(DeleteCandidateDialog);
+)(ConfirmDialog);

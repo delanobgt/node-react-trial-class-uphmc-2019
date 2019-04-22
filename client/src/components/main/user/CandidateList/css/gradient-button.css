@@ -55,12 +55,13 @@
 }
 
 .btn-grad-4 {
-  background-image: linear-gradient(
+  /* background-image: linear-gradient(
     to right,
     #c9c48f 0%,
     #b5a847 20%,
     #a9971b 100%
-  );
+  ); */
+  background: #cfb539;
 }
 .btn-grad-4:hover {
   background-position: right center;

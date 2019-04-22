@@ -48,11 +48,13 @@ export const getVoteTokenById = id => async dispatch => {
 };
 
 export const updateVoteTokenByValue = ({
-  value,
+  tokenValue,
+  captchaValue,
   candidateId
 }) => async dispatch => {
   const response = await votingApi().put(`/voteTokens`, {
-    value,
+    tokenValue,
+    captchaValue,
     candidateId
   });
   const payload = { voteToken: response.data };

@@ -65,7 +65,7 @@ const styles = theme => ({
     overflowX: "scroll",
     height: "100vh",
     width: "100vw",
-    backgroundColor: "#1b1a17",
+
     "&::-webkit-scrollbar": {
       display: "none"
     },
@@ -283,7 +283,7 @@ class CandidateListIndex extends React.Component {
           </div>
 
           <div className={classes.imageWrapper}>
-            <Lotus size={50} />
+            <Lotus size={35} />
             <Hexagon
               key={d.orderNumber}
               id={d.orderNumber}
@@ -295,7 +295,7 @@ class CandidateListIndex extends React.Component {
                 "https://via.placeholder.com/300"
               )}
             />
-            <Lotus size={50} />
+            <Lotus size={35} />
           </div>
 
           <div>
@@ -318,6 +318,7 @@ class CandidateListIndex extends React.Component {
 
           <button
             className="btn btn-grad-4"
+            style={{ marginTop: "1.2em" }}
             onClick={() => this.toggleDialog("ConfirmDialog")(d)}
           >
             VOTE
@@ -332,11 +333,14 @@ class CandidateListIndex extends React.Component {
           {splashContent}
           {mainContent}
         </Grid>
-        <ConfirmDialog
-          name="ConfirmDialog"
-          state={this.state}
-          toggleDialog={this.toggleDialog}
-        />
+
+        {this.state["ConfirmDialog"] && (
+          <ConfirmDialog
+            name="ConfirmDialog"
+            state={this.state}
+            toggleDialog={this.toggleDialog}
+          />
+        )}
       </Fragment>
     );
   }
