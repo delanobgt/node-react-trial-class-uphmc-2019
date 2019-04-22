@@ -16,7 +16,7 @@ const localLogin = new LocalStrategy(
       if (!foundUser) return done("Invalid email or password!", false);
       if (!foundUser.password) return done("Password not set.", false);
       if (foundUser.banned) return done("Account is banned!", false);
-      if (!foundUser.comparePassword(password))
+      if (!(await foundUser.comparePassword(password)))
         return done("Invalid email or password!", false);
       return done(null, foundUser);
     } catch (error) {

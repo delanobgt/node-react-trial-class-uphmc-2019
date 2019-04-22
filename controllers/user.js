@@ -1,6 +1,6 @@
 const _ = require("lodash");
 const db = require("../models");
-const bcrypt = require("bcrypt-nodejs");
+const bcrypt = require("../modules/bcrypt");
 const crypto = require("crypto");
 const moment = require("moment");
 const mailer = require("../services/mailer");
@@ -21,9 +21,9 @@ function minifyUser(user) {
     .value();
 }
 
-function hashPassword(password) {
-  const salt = bcrypt.genSaltSync(10);
-  const passwordHash = bcrypt.hashSync(password, salt);
+async function hashPassword(password) {
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(password, salt);
   return passwordHash;
 }
 
@@ -58,8 +58,8 @@ exports.updateSelfPassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   try {
     const user = await db.User.findById(userId);
-    if (user.comparePassword(oldPassword)) {
-      user.password = hashPassword(newPassword);
+    if (await user.comparePassword(oldPassword)) {
+      user.password = await hashPassword(newPassword);
       await user.save();
       res.json(minifyUser(user));
     } else {
@@ -110,7 +110,7 @@ exports.updateUserPasswordById = async (req, res) => {
   const { newPassword } = req.body;
   try {
     const user = await db.User.findById(userId);
-    user.password = hashPassword(newPassword);
+    user.password = await hashPassword(newPassword);
     user.resetPasswordToken = null;
     await user.save();
     res.json({ success: true });

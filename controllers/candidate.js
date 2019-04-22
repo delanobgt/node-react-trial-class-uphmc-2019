@@ -51,9 +51,11 @@ exports.createCandidate = async (req, res) => {
 
   const { orderNumber, fullname, major } = req.body;
   let uploadResult = null;
-  let session = await db.Candidate.startSession();
-  session.startTransaction();
+  let session = null;
   try {
+    session = await db.Candidate.startSession();
+    session.startTransaction();
+
     emitProgress("Saving image..");
     const adjustedFilePath = await adjustImage(req.file.path, {
       format: "jpeg"
@@ -84,7 +86,7 @@ exports.createCandidate = async (req, res) => {
     Socket.globalSocket.emit("CANDIDATE_GET_BY_ID", { id: candidate._id });
   } catch (error) {
     console.log({ error });
-    await session.abortTransaction();
+    if (session) await session.abortTransaction();
     if (uploadResult !== null) {
       try {
         await cloudinary.v2.uploader.destroy(uploadResult.public_id);
@@ -94,7 +96,7 @@ exports.createCandidate = async (req, res) => {
     }
     res.status(500).json({ error: { msg: "Please try again!" } });
   } finally {
-    session.endSession();
+    if (session) session.endSession();
   }
 };
 
@@ -136,9 +138,11 @@ exports.updateCandidateById = async (req, res) => {
 
   const { candidateId } = req.params;
   const { orderNumber, fullname, major } = req.body;
-  let session = await db.Candidate.startSession();
-  session.startTransaction();
+  let session = null;
   try {
+    session = await db.Candidate.startSession();
+    session.startTransaction();
+
     const candidate = await db.Candidate.findById(candidateId);
 
     emitProgress("Updating candidate..");
@@ -175,10 +179,10 @@ exports.updateCandidateById = async (req, res) => {
     Socket.globalSocket.emit("CANDIDATE_GET_BY_ID", { id: candidate._id });
   } catch (error) {
     console.log({ error });
-    await session.abortTransaction();
+    if (session) await session.abortTransaction();
     res.status(500).json({ error: { msg: "Please try again!" } });
   } finally {
-    session.endSession();
+    if (session) session.endSession();
   }
 };
 
