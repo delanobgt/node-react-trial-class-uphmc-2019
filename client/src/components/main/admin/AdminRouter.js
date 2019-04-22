@@ -33,7 +33,7 @@ class App extends Component {
         <TokenExpirationWatch />
         <Nav />
 
-        <Grid container justify="center">
+        {/* <Grid container justify="center">
           <Grid item xs={11}>
             <Paper
               style={{
@@ -42,27 +42,22 @@ class App extends Component {
                 display: "flex"
               }}
             >
-              {/* {breadcrumb.paths.map((path, index) => (
-                        <Fragment key={path.to || path}>
-                          {index === 0 && (
-                            <HomeIcon
-                              fontSize="small"
-                              style={{ marginRight: "0em" }}
-                            />
-                          )}
-                          <NavigateNextIcon fontSize="small" />
-                          {path.to ? (
-                            <BreadcrumbLink to={path.to}>
-                              {path.text}
-                            </BreadcrumbLink>
-                          ) : (
-                            <Typography color="textPrimary">{path}</Typography>
-                          )}
-                        </Fragment>
-                      ))} */}
+              {breadcrumb.paths.map((path, index) => (
+                <Fragment key={path.to || path}>
+                  {index === 0 && (
+                    <HomeIcon fontSize="small" style={{ marginRight: "0em" }} />
+                  )}
+                  <NavigateNextIcon fontSize="small" />
+                  {path.to ? (
+                    <BreadcrumbLink to={path.to}>{path.text}</BreadcrumbLink>
+                  ) : (
+                    <Typography color="textPrimary">{path}</Typography>
+                  )}
+                </Fragment>
+              ))}
             </Paper>
           </Grid>
-        </Grid>
+        </Grid> */}
 
         <Switch>
           <Route path="/admin/result" component={Result} />

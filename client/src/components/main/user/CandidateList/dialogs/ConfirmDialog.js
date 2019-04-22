@@ -12,7 +12,10 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
+import classNames from "classnames";
 import PinInput from "react-pin-input";
+import Slide from "react-reveal/Slide";
+import Fade from "react-reveal/Fade";
 
 import * as voteTokenActions from "../../../../../actions/voteToken";
 import * as snackbarActions from "../../../../../actions/snackbar";
@@ -29,6 +32,58 @@ const styles = theme => ({
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     display: "inline-block"
+  },
+  dialogBackground: {
+    position: "absolute",
+    top: "0",
+    left: "0",
+    width: "100vw",
+    height: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(0, 0, 0, 0.6)"
+  },
+  dialogBox: {
+    backgroundColor: "black",
+    borderRadius: "24px",
+    border: "2px solid #CFB539",
+    padding: "2em 0.8em",
+    paddingBottom: "0.8em",
+    overflow: "hidden",
+    width: "250px"
+  },
+  title: {
+    color: "white",
+    fontSize: "1.2em",
+    textAlign: "center"
+  },
+
+  circleContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: "1em"
+  },
+  circle: {
+    width: "0.35em",
+    height: "0.35em",
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
+    borderRadius: "100%",
+    margin: "0 0.2em"
+  },
+  circleActive: {
+    backgroundColor: "white"
+  },
+
+  contentBox: {
+    display: "flex",
+    flexWrap: "nowrap",
+    overflowX: "scroll",
+    height: "180px"
+  },
+  contentItem: {
+    flex: "0 0 auto"
   }
 });
 
@@ -37,7 +92,8 @@ const SUBMITTING = "SUBMITTING",
 
 const INITIAL_STATE = {
   submitStatus: IDLE,
-  voteToken: ""
+  voteToken: "",
+  stepIndex: 0
 };
 
 class DeleteCandidateDialog extends React.Component {
@@ -86,94 +142,159 @@ class DeleteCandidateDialog extends React.Component {
 
   render() {
     const { state, name, classes } = this.props;
-    const { submitStatus } = this.state;
+    const { submitStatus, stepIndex } = this.state;
     const candidate = state[name];
 
-    if (!candidate) return null;
+    // if (!candidate) return null;
 
     return (
-      <div>
-        <Dialog open={Boolean(candidate)} aria-labelledby="form-dialog-title">
-          <Fragment>
-            {/* <div style={{ position: "relative", height: "75px" }}>
-              <div
-                className={classes.picture}
-                style={{
-                  backgroundImage: `url(${_.get(
-                    candidate,
-                    "image.secureUrl",
-                    null
-                  ) || "https://via.placeholder.com/300"})`,
-                  position: "fixed",
-                  top: "50px"
-                }}
-              />
+      Boolean(true || candidate) && (
+        <div className={classes.dialogBackground}>
+          <div className={classes.dialogBox}>
+            <div className={classes.contentBox}>
+              <div className={classes.contentItem}>
+                <Slide left collapse when={stepIndex === 0}>
+                  <p className={classes.title}>
+                    Input the 6 alphanumeric <br />
+                    code from your ticket
+                  </p>
+
+                  {/* <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end"
+              }}
+            >
+              <Button
+                size="small"
+                color="primary"
+                onClick={() => this.pinInput.clear()}
+              >
+                Clear
+              </Button>
             </div> */}
 
-            <DialogContent>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between"
-                }}
-              >
-                <Typography variant="subtitle1">
-                  Vote for {candidate.fullname}?
-                </Typography>
-                <Button
-                  size="small"
-                  color="primary"
-                  onClick={() => this.pinInput.clear()}
-                >
-                  Clear
-                </Button>
+                  <div style={{ margin: "0.8em 0" }}>
+                    <PinInput
+                      length={6}
+                      initialValue=""
+                      secret
+                      focus
+                      onChange={(value, index) => {
+                        this.setState({ voteToken: value });
+                      }}
+                      type="custom"
+                      style={{ padding: "10px" }}
+                      inputStyle={{
+                        margin: "0.25em",
+                        border: "1px solid black",
+                        borderRadius: "5px",
+                        backgroundColor: "white",
+                        height: "40px",
+                        width: "30px",
+                        fontSize: "1em"
+                      }}
+                      inputFocusStyle={{
+                        border: "3px solid #CFB539"
+                      }}
+                      ref={n => (this.pinInput = n)}
+                    />
+                  </div>
+                </Slide>
               </div>
-              <PinInput
-                length={8}
-                initialValue=""
-                secret
-                focus
-                onChange={(value, index) => {
-                  this.setState({ voteToken: value });
-                }}
-                type="custom"
-                style={{ padding: "10px" }}
-                inputStyle={{
-                  border: "1px solid lightgray",
-                  borderBottom: "2px solid lightgray",
-                  height: "30px",
-                  width: "20px"
-                }}
-                inputFocusStyle={{
-                  borderBottom: "2px solid blue"
-                }}
-                ref={n => (this.pinInput = n)}
-              />
-            </DialogContent>
-            <DialogActions>
+
+              <div className={classes.contentItem}>
+                <Slide right collapse when={stepIndex === 1}>
+                  <p className={classes.title}>
+                    Input the 6 alphanumeric <br />
+                    code from your ticket
+                  </p>
+
+                  {/* <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end"
+              }}
+            >
               <Button
-                onClick={this.onClose}
+                size="small"
                 color="primary"
-                disabled={submitStatus === SUBMITTING}
+                onClick={() => this.pinInput.clear()}
               >
-                No
+                Clear
               </Button>
-              <Button
-                onClick={this.onSubmit}
-                color="primary"
+            </div> */}
+
+                  <div style={{ margin: "0.8em 0" }}>
+                    <PinInput
+                      length={6}
+                      initialValue=""
+                      secret
+                      focus
+                      onChange={(value, index) => {
+                        this.setState({ voteToken: value });
+                      }}
+                      type="custom"
+                      style={{ padding: "10px" }}
+                      inputStyle={{
+                        margin: "0.25em",
+                        border: "1px solid black",
+                        borderRadius: "5px",
+                        backgroundColor: "white",
+                        height: "40px",
+                        width: "30px",
+                        fontSize: "1em"
+                      }}
+                      inputFocusStyle={{
+                        border: "3px solid #CFB539"
+                      }}
+                      ref={n => (this.pinInput = n)}
+                    />
+                  </div>
+                </Slide>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <button
+                className="btn btn-grad-4"
+                onClick={
+                  stepIndex === 0
+                    ? () =>
+                        this.setState(state => ({
+                          stepIndex: state.stepIndex + 1
+                        }))
+                    : () =>
+                        this.setState(state => ({
+                          stepIndex: state.stepIndex - 1
+                        }))
+                  // :this.onSubmit
+                }
                 disabled={submitStatus === SUBMITTING}
               >
                 {submitStatus === SUBMITTING ? (
                   <CircularProgress size={24} />
                 ) : (
-                  "Yes"
+                  "NEXT"
                 )}
-              </Button>
-            </DialogActions>
-          </Fragment>
-        </Dialog>
-      </div>
+              </button>
+            </div>
+
+            <div className={classes.circleContainer}>
+              {_.range(2).map(index => (
+                <div
+                  key={index}
+                  className={classNames(classes.circle, {
+                    [classes.circleActive]: index === stepIndex
+                  })}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )
     );
   }
 }

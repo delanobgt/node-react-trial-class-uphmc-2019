@@ -19,17 +19,12 @@ export const createVoteTokens = ({
   voteTokenCount,
   onUploadProgress,
   socketId
-}) => async dispatch => {
+}) => async () => {
   const response = await votingApi({ onUploadProgress }).post(`/voteTokens`, {
     voteTokenCount,
     socketId
   });
-  const payload = { voteTokens: response.data };
-  dispatch({
-    type: VOTE_TOKENS_CREATE,
-    payload
-  });
-  return payload;
+  return response.data;
 };
 
 export const getVoteTokens = () => async dispatch => {

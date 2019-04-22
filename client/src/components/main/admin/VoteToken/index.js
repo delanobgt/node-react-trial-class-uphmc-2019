@@ -153,8 +153,8 @@ class CandidateListIndex extends React.Component {
       },
       { Header: "No", accessor: d => d.orderNo },
       {
-        Header: "Value",
-        accessor: d => d.value
+        Header: "Value Hash",
+        accessor: d => d.valueHash
       },
       {
         Header: "Candidate Name",
@@ -172,7 +172,7 @@ class CandidateListIndex extends React.Component {
           d.usedAt ? moment(d.usedAt).format("D MMMM YYYY (HH:mm:ss)") : "-"
       },
       {
-        Header: "Candidate Name",
+        Header: "Status",
         accessor: d => d.candidateId || "-",
         Cell: ({ original: d }) => (
           <Chip

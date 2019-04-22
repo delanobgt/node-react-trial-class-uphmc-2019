@@ -2,13 +2,13 @@ import "react-table/react-table.css";
 import "./css/gradient-button.css";
 import "./css/splash.css";
 import _ from "lodash";
-import scrollSnapPolyfill from "css-scroll-snap-polyfill";
 import classNames from "classnames";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
+import scrollSnapPolyfill from "css-scroll-snap-polyfill";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { withStyles } from "@material-ui/core/styles";
@@ -69,8 +69,10 @@ const styles = theme => ({
     "&::-webkit-scrollbar": {
       display: "none"
     },
-    "scroll-snap-type": "mandatory" /* Firefox */,
+    "-ms-overflow-style": "none", // IE 10+
+    "scrollbar-width": "none",
     "scroll-snap-type": "x mandatory" /* Chrome Canary */,
+    "-moz-scroll-snap-type": "mandatory" /* Firefox */,
     "-ms-scroll-snap-type": "mandatory" /* IE/Edge */,
     "-webkit-scroll-snap-type": "mandatory" /* Safari */,
     "scroll-snap-points-x": "repeat(100vw)",
@@ -85,6 +87,7 @@ const styles = theme => ({
     width: "100%",
     padding: "1em",
     "scroll-snap-align": "center" /* latest (Chrome 69+) */,
+    "-moz-scroll-snap-align": "center" /* latest (Chrome 69+) */,
     "scroll-snap-coordinate": "50% 50%" /* older (Firefox/IE) */,
     "-webkit-scroll-snap-coordinate": "50% 50%" /* older (Safari) */
   },
@@ -129,7 +132,7 @@ const styles = theme => ({
     width: "100px",
     height: "1px",
     backgroundColor: "#CFB539",
-    margin: "0.25em 0"
+    margin: "0.6em 0"
   },
   majorParagraph: {
     fontSize: "1em",
@@ -194,10 +197,11 @@ class CandidateListIndex extends React.Component {
 
   componentDidMount() {
     this.fetchData();
-    scrollSnapPolyfill();
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    scrollSnapPolyfill();
+  }
 
   render() {
     const { classes, candidates } = this.props;
@@ -283,7 +287,7 @@ class CandidateListIndex extends React.Component {
             <Hexagon
               key={d.orderNumber}
               id={d.orderNumber}
-              style={{ margin: "0 1.5em" }}
+              style={{ margin: "0 1.25em" }}
               size={145}
               imgUrl={_.get(
                 d,
@@ -295,7 +299,10 @@ class CandidateListIndex extends React.Component {
           </div>
 
           <div>
-            <Lotus size={20} style={{ margin: "0.5em 0" }} />
+            <Lotus
+              size={20}
+              style={{ marginTop: "0.1em", marginBottom: "0.65em" }}
+            />
           </div>
 
           <p className={classes.fullnameParagraph}>{d.fullname}</p>

@@ -16,6 +16,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import LinearProgress from "@material-ui/core/LinearProgress";
+import { ExportToCsv } from "export-to-csv";
 
 import * as candidateActions from "../../../../../actions/candidate";
 import * as voteTokenActions from "../../../../../actions/voteToken";
@@ -82,16 +83,28 @@ class CreateVoteTokenDialog extends React.Component {
     socket.on("ready", async () => {
       try {
         this.setState({ submitStatus: SUBMITTING });
-        const { voteTokens } = await createVoteTokens({
+        const voteTokens = await createVoteTokens({
           voteTokenCount,
           onUploadProgress: this.onUploadProgress,
           socketId: socket.id
         });
+
+        const options = {
+          fieldSeparator: ",",
+          quoteStrings: '"',
+          decimalSeparator: ".",
+          showLabels: true,
+          title: "Tokens",
+          filename: "Tokens",
+          useTextFile: false,
+          useBom: true,
+          headers: ["Token"]
+        };
+        const csvExporter = new ExportToCsv(options);
+        csvExporter.generateCsv(voteTokens);
+
         this.onClose();
-        infoSnackbar(
-          `Success: ${voteTokens.length}, Fail: ${Number(voteTokenCount) -
-            voteTokens.length}`
-        );
+        infoSnackbar(`Operation finished`);
       } catch (error) {
         console.log({ error });
         errorSnackbar(
