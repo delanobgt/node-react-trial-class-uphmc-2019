@@ -5,11 +5,11 @@ module.exports.generateCaptchaImagePngStream = captcha => {
   const W = captcha.value.length * CHAR_W;
   const H = 75;
 
-  const canvas = createCanvas(W + 20, H + 10);
+  const canvas = createCanvas(W + 20, H);
   const ctx = canvas.getContext("2d");
 
   ctx.fillStyle = "#CFB539";
-  ctx.fillRect(0, 0, W + 20, H + 10);
+  ctx.fillRect(0, 0, W + 20, H);
   ctx.translate(10, 5);
 
   ctx.fillStyle = "#1b1a17";
@@ -23,9 +23,7 @@ module.exports.generateCaptchaImagePngStream = captcha => {
       CHAR_W * i + (CHAR_W - chMeasure.width) / 2,
       (H - fontSizePixel) / 2
     );
-    ctx.rotate(
-      (Math.PI / 3.5) * Math.random() * (Math.random() > 0.5 ? 1 : -1)
-    );
+    ctx.rotate((Math.PI / 4) * Math.random() * (Math.random() > 0.5 ? 1 : -1));
     ctx.fillText(ch, 0, (H - fontSizePixel) / 2.5);
     ctx.restore();
   }

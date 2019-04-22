@@ -24,7 +24,7 @@ async function newCaptcha(ip) {
       .replace(/O/g, "Z"),
     remainingTry: 3,
     validUntil: moment()
-      .add(10, "minutes")
+      .add(6, "minutes")
       .valueOf()
   });
 }
@@ -37,7 +37,7 @@ async function renewCaptcha(captcha) {
     .replace(/O/g, "Z");
   captcha.remainingTry = 3;
   captcha.validUntil = moment()
-    .add(10, "minutes")
+    .add(6, "minutes")
     .valueOf();
   return captcha;
 }
@@ -138,32 +138,20 @@ exports.updateVoteTokenByValue = async (req, res) => {
     captchaSession = await db.Captcha.startSession();
     captchaSession.startTransaction();
 
-    const voteToken = await db.VoteToken.findOne({
-      valueHash: await bcrypt.hash(tokenValue.toUpperCase())
-    });
-    if (!voteToken) {
-      return res
-        .status(422)
-        .json({ error: { msg: "Vote Token / Captcha is wrong!" } });
-    } else if (voteToken.candidateId) {
-      return res
-        .status(422)
-        .json({ error: { msg: "Vote Token has been used!" } });
-    }
+    let captcha = await db.Captcha.findOne({ ip });
 
-    const captcha = await db.Captcha.findOne({ ip });
     if (!captcha) {
       captcha = await newCaptcha(ip);
       await captcha.save();
-      return res
-        .status(422)
-        .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
+      res.status(422).json({
+        error: { msg: "Vote Token / Captcha is wrong!", expired: true }
+      });
     } else if (captcha.validUntil < moment().valueOf()) {
       captcha = await renewCaptcha(captcha);
       await captcha.save();
-      return res
-        .status(422)
-        .json({ error: { msg: "Captcha expired!", expired } });
+      return res.status(422).json({
+        error: { msg: "Captcha expired, please retry!", expired: true }
+      });
     } else if (captcha.value !== captchaValue.toUpperCase()) {
       captcha.remainingTry -= 1;
       let expired = false;
@@ -176,8 +164,24 @@ exports.updateVoteTokenByValue = async (req, res) => {
         .status(422)
         .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
     }
-    captcha.validUntil = -1;
-    await captcha.save();
+
+    const voteToken = await db.VoteToken.findOne({
+      valueHash: await bcrypt.hash(tokenValue.toUpperCase())
+    });
+    if (!voteToken) {
+      captcha.remainingTry -= 1;
+      let expired = false;
+      if (captcha.remainingTry === 0) {
+        expired = true;
+        captcha = await renewCaptcha(captcha);
+      }
+      await captcha.save();
+      res
+        .status(422)
+        .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
+    } else if (voteToken.candidateId) {
+      res.status(422).json({ error: { msg: "Vote Token has been used!" } });
+    }
 
     const candidate = await db.Candidate.findById(candidateId);
     if (!candidate) {
@@ -186,6 +190,8 @@ exports.updateVoteTokenByValue = async (req, res) => {
         .json({ error: { msg: "Candidate doesn't exist!" } });
     }
 
+    captcha.validUntil = -1;
+    await captcha.save();
     voteToken.candidateId = candidateId;
     voteToken.usedAt = moment().toDate();
     await voteToken.save();
