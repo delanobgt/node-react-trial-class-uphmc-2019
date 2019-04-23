@@ -25,6 +25,7 @@
     "react-export-excel": "^0.5.3",
     "react-https-redirect": "^1.1.0",
     "react-loadable": "^5.5.0",
+    "react-p5-wrapper": "0.0.4",
     "react-pin-input": "^0.9.0",
     "react-qr-reader": "^2.2.1",
     "react-redux": "^5.0.7",

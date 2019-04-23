@@ -2,10 +2,6 @@ import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import { compose } from "redux";
-import {
-  Home as HomeIcon,
-  NavigateNext as NavigateNextIcon
-} from "@material-ui/icons";
 
 import Snackbar from "./misc/Snackbar";
 import Socket from "./main/admin/Socket";
@@ -18,6 +14,7 @@ import CandidateList from "./main/user/CandidateList/Loadable";
 import ThankYou from "./main/user/ThankYou/Loadable";
 
 import Background from "./Background";
+import Canvas from "./main/user/Canvas";
 import AdminRouter from "./main/admin/AdminRouter";
 
 class App extends Component {
@@ -34,6 +31,7 @@ class App extends Component {
             {!this.props.token ? (
               <Fragment>
                 <Background />
+                <Canvas />
                 <Switch>
                   <Route path="/candidateList" component={CandidateList} />
                   <Route path="/thankYou" component={ThankYou} />

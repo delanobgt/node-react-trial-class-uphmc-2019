@@ -41,7 +41,6 @@ const styles = theme => ({
   },
 
   splashItem: {
-    scrollSnapAlign: "start",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -146,6 +145,10 @@ const styles = theme => ({
     padding: "0.35em",
     color: "white",
     marginTop: "1em"
+  },
+
+  direction: {
+    textAlign: "center"
   }
 });
 
@@ -178,7 +181,7 @@ class CandidateListIndex extends React.Component {
       await Promise.all([getCandidates(), getConfiguration()]);
       this.setState({ loadingStatus: DONE });
     } catch (error) {
-      console.log({ error });
+      console.log("sudah error", { error });
       this.setState({ loadingStatus: ERROR });
     }
   };
@@ -203,17 +206,18 @@ class CandidateListIndex extends React.Component {
     this.fetchData();
 
     this.configInterval = setInterval(() => {
-      const { openMoment, closeMoment, onAir } = this.props;
+      const { openMoment, closeMoment, onAir, classes } = this.props;
       const { loadingStatus } = this.state;
       const currentMoment = moment();
+
       if (loadingStatus === DONE) {
         if (!onAir) {
           this.setState({
             scrollable: false,
             message: (
-              <Fragment>
-                <p>Sorry, the voting is currently closed</p>
-              </Fragment>
+              <p className={classes.direction}>
+                Sorry, the voting is currently closed
+              </p>
             )
           });
         } else if (currentMoment.valueOf() < openMoment.valueOf()) {
@@ -228,8 +232,8 @@ class CandidateListIndex extends React.Component {
                   flexDirection: "column"
                 }}
               >
-                <p>The voting still closed</p>
-                <p>
+                <p className={classes.direction}>The voting still closed</p>
+                <p className={classes.direction}>
                   {moment
                     .utc(openMoment.diff(currentMoment))
                     .format("HH:mm:ss")}
@@ -241,9 +245,7 @@ class CandidateListIndex extends React.Component {
           this.setState({
             scrollable: false,
             message: (
-              <Fragment>
-                <p>The voting has been closed</p>
-              </Fragment>
+              <p className={classes.direction}>The voting has been closed</p>
             )
           });
         } else {
@@ -261,9 +263,9 @@ class CandidateListIndex extends React.Component {
         this.setState({
           scrollable: false,
           message: (
-            <Fragment>
-              <p>Error occured. Please kindly refresh this page.</p>
-            </Fragment>
+            <p className={classes.direction}>
+              Error occured. Please kindly refresh this page.
+            </p>
           )
         });
       }
@@ -318,7 +320,8 @@ class CandidateListIndex extends React.Component {
         <div
           className={classNames(
             "splash-direction",
-            animationStatus >= 2 && loadingStatus === DONE
+            animationStatus >= 2 &&
+              (loadingStatus === DONE || loadingStatus === ERROR)
               ? "splash-direction-2"
               : "splash-direction-1"
           )}
