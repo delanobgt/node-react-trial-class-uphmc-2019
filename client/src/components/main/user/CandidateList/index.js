@@ -2,6 +2,7 @@ import "react-table/react-table.css";
 import "./css/gradient-button.css";
 import "./css/splash.css";
 import _ from "lodash";
+import moment from "moment";
 import classNames from "classnames";
 import React, { Fragment } from "react";
 import { compose } from "redux";
@@ -9,12 +10,11 @@ import { connect } from "react-redux";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import scrollSnapPolyfill from "css-scroll-snap-polyfill";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
 import { withStyles } from "@material-ui/core/styles";
 import { ArrowRightAlt as ArrowRightAltIcon } from "@material-ui/icons";
 
 import * as candidateActions from "../../../../actions/candidate";
+import * as configurationActions from "../../../../actions/configuration";
 import ConfirmDialog from "./dialogs/ConfirmDialog";
 import Hexagon from "./svg/Hexagon";
 import Lotus from "./svg/Lotus";
@@ -164,14 +164,18 @@ const paragraphClassNames = [
 class CandidateListIndex extends React.Component {
   state = {
     loadingStatus: LOADING,
-    animationStatus: 0
+    animationStatus: 0,
+    scrollable: false,
+    message: null
   };
 
+  configInterval = null;
+
   fetchData = async () => {
-    const { getCandidates } = this.props;
+    const { getCandidates, getConfiguration } = this.props;
     try {
       this.setState({ loadingStatus: LOADING });
-      await getCandidates();
+      await Promise.all([getCandidates(), getConfiguration()]);
       this.setState({ loadingStatus: DONE });
     } catch (error) {
       console.log({ error });
@@ -195,17 +199,87 @@ class CandidateListIndex extends React.Component {
     }, 1000);
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     this.fetchData();
+
+    this.configInterval = setInterval(() => {
+      const { openMoment, closeMoment, onAir } = this.props;
+      const { loadingStatus } = this.state;
+      const currentMoment = moment();
+      if (loadingStatus === DONE) {
+        if (!onAir) {
+          this.setState({
+            scrollable: false,
+            message: (
+              <Fragment>
+                <p>Sorry, the voting is currently closed</p>
+              </Fragment>
+            )
+          });
+        } else if (currentMoment.valueOf() < openMoment.valueOf()) {
+          this.setState({
+            scrollable: false,
+            message: (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column"
+                }}
+              >
+                <p>The voting still closed</p>
+                <p>
+                  {moment
+                    .utc(openMoment.diff(currentMoment))
+                    .format("HH:mm:ss")}
+                </p>
+              </div>
+            )
+          });
+        } else if (currentMoment.valueOf() > closeMoment.valueOf()) {
+          this.setState({
+            scrollable: false,
+            message: (
+              <Fragment>
+                <p>The voting has been closed</p>
+              </Fragment>
+            )
+          });
+        } else {
+          this.setState({
+            scrollable: true,
+            message: (
+              <Fragment>
+                <p>Swipe to see candidates</p>
+                <ArrowRightAltIcon style={{ color: "#cfb539" }} />
+              </Fragment>
+            )
+          });
+        }
+      } else if (loadingStatus === ERROR) {
+        this.setState({
+          scrollable: false,
+          message: (
+            <Fragment>
+              <p>Error occured. Please kindly refresh this page.</p>
+            </Fragment>
+          )
+        });
+      }
+    }, 1000);
   }
 
   componentWillUnmount() {
     scrollSnapPolyfill();
+    if (this.configInterval !== null) {
+      clearInterval(this.configInterval);
+    }
   }
 
   render() {
     const { classes, candidates } = this.props;
-    const { loadingStatus, animationStatus } = this.state;
+    const { loadingStatus, animationStatus, message, scrollable } = this.state;
 
     let splashContent = null;
     let mainContent = null;
@@ -249,8 +323,7 @@ class CandidateListIndex extends React.Component {
               : "splash-direction-1"
           )}
         >
-          <p>Swipe to see candidates </p>
-          <ArrowRightAltIcon style={{ color: "#cfb539" }} />
+          {message}
         </div>
       </Grid>
     );
@@ -331,7 +404,7 @@ class CandidateListIndex extends React.Component {
       <Fragment>
         <Grid container className={classes.cardWrapper}>
           {splashContent}
-          {mainContent}
+          {scrollable ? mainContent : null}
         </Grid>
 
         {this.state["ConfirmDialog"] && (
@@ -348,7 +421,8 @@ class CandidateListIndex extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    ...state.candidate
+    ...state.candidate,
+    ...state.configuration
   };
 }
 
@@ -356,6 +430,6 @@ export default compose(
   withStyles(styles),
   connect(
     mapStateToProps,
-    { ...candidateActions }
+    { ...candidateActions, ...configurationActions }
   )
 )(CandidateListIndex);

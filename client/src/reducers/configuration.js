@@ -1,11 +1,12 @@
+import moment from "moment";
+
 export const CONFIGURATION_GET = "CONFIGURATION_GET";
 export const CONFIGURATION_UPDATE = "CONFIGURATION_UPDATE";
-export const CONFIGURATION_MODIFIED_SET = "CONFIGURATION_MODIFIED_SET";
 
 const INITIAL_STATE = {
-  dosenTidakTetapMaxTime: null,
-  leaveQuotas: [],
-  configurationModified: false
+  openMoment: moment(),
+  closeMoment: moment(),
+  onAir: false
 };
 
 export default function(state = INITIAL_STATE, action) {
@@ -15,14 +16,9 @@ export default function(state = INITIAL_STATE, action) {
       const { configuration } = action.payload;
       return {
         ...state,
-        ...configuration
-      };
-    }
-    case CONFIGURATION_MODIFIED_SET: {
-      const { configurationModified } = action.payload;
-      return {
-        ...state,
-        configurationModified
+        openMoment: moment(configuration.openTimestamp),
+        closeMoment: moment(configuration.closeTimestamp),
+        onAir: configuration.onAir
       };
     }
     default: {

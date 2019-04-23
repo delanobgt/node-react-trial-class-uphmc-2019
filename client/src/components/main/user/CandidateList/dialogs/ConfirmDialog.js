@@ -1,17 +1,12 @@
+import "../css/dialog.css";
 import _ from "lodash";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { withStyles } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Typography from "@material-ui/core/Typography";
+import Grid from "@material-ui/core/Grid";
 import classNames from "classnames";
 import PinInput from "react-pin-input";
 import Slide from "react-reveal/Slide";
@@ -45,9 +40,26 @@ const styles = theme => ({
     backgroundColor: "black",
     borderRadius: "24px",
     border: "2px solid #CFB539",
-    padding: "2em 0.8em",
+    padding: "2em 0.6em",
     paddingBottom: "0.8em",
-    overflow: "hidden"
+    width: "80vw",
+    maxWidth: "300px"
+  },
+  scrollBox: {
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "nowrap",
+    overflowX: "scroll",
+    "&::-webkit-scrollbar": {
+      display: "none"
+    }
+  },
+  contentBox: {
+    flex: "0 0 auto",
+    width: "100%",
+    overflow: "hidden",
+    height: "230px"
   },
   title: {
     color: "white",
@@ -64,7 +76,7 @@ const styles = theme => ({
     letterSpacing: "0.1em",
     wordSpacing: "0.15em",
     lineHeight: "1.7em",
-    marginBottom: "0.5em"
+    marginBottom: "0.4em"
   },
 
   circleContainer: {
@@ -84,12 +96,8 @@ const styles = theme => ({
     backgroundColor: "white"
   },
 
-  contentBox: {
-    height: "200px"
-  },
-
   captcha: {
-    marginTop: "1em",
+    marginTop: "0.7em",
     borderRadius: "12px",
     width: "150px"
   },
@@ -105,12 +113,13 @@ const styles = theme => ({
   tokenValueErrorMsg: {
     textAlign: "center",
     color: "red",
-    marginTop: "0.75em"
+    marginTop: "0.4em",
+    marginBottom: "0.65em"
   },
   captchaValueErrorMsg: {
     textAlign: "center",
     color: "red",
-    marginTop: "0.75em"
+    marginTop: "0.3em"
   }
 });
 
@@ -127,11 +136,11 @@ function getNewCaptchaUrl() {
 const INITIAL_STATE = {
   submitStatus: IDLE,
   tokenValue: "",
-  tokenValueError: "",
   stepIndex: 0,
   captchaUrl: getNewCaptchaUrl(),
   captchaValue: "",
-  captchaValueError: ""
+  tokenValueError: <span>&nbsp;</span>,
+  captchaValueError: <span>&nbsp;</span>
 };
 
 class ConfirmDialog extends React.Component {
@@ -146,7 +155,7 @@ class ConfirmDialog extends React.Component {
     } else {
       this.setState(state => ({
         stepIndex: state.stepIndex + 1,
-        tokenValueError: ""
+        tokenValueError: <span>&nbsp;</span>
       }));
     }
   };
@@ -157,10 +166,18 @@ class ConfirmDialog extends React.Component {
     const { tokenValue, captchaValue } = this.state;
 
     try {
-      this.setState({ submitStatus: SUBMITTING, captchaValueError: "" });
+      if (!captchaValue) {
+        return this.setState({
+          captchaValueError: "Please type the letters!"
+        });
+      }
+      this.setState({
+        submitStatus: SUBMITTING,
+        captchaValueError: <span>&nbsp;</span>
+      });
       await updateVoteTokenByValue({
-        tokenValue,
-        captchaValue,
+        tokenValue: tokenValue.toUpperCase(),
+        captchaValue: captchaValue.toUpperCase(),
         candidateId: candidate._id
       });
       this.onClose();
@@ -168,6 +185,7 @@ class ConfirmDialog extends React.Component {
     } catch (error) {
       console.log({ error });
       this.setState({
+        captchaValue: "",
         captchaValueError: _.get(
           error,
           "response.data.error.msg",
@@ -214,138 +232,175 @@ class ConfirmDialog extends React.Component {
     } = this.state;
     const candidate = state[name];
 
-    // if (!candidate) return null;
+    if (!candidate) return null;
 
     return (
-      Boolean(true || candidate) && (
+      Boolean(candidate) && (
         <div className={classes.dialogBackground}>
-          <div className={classes.dialogBox}>
-            <Slide right collapse when={stepIndex === 1}>
-              <div className={classes.contentBox}>
-                <p className={classes.secondTitle}>
-                  PLEASE TYPE THE TEXT BELOW
-                </p>
+          <div
+            className={classNames(
+              classes.dialogBox,
+              candidate ? "box-2" : "box-1"
+            )}
+          >
+            <Grid container className={classes.scrollBox}>
+              <Grid
+                item
+                xs={12}
+                className={classNames(
+                  classes.contentBox,
+                  stepIndex == 0 ? "first-item-1" : "first-item-2"
+                )}
+              >
+                <div>
+                  <p className={classes.title}>
+                    INPUT THE 6 ALPHANUMERIC <br />
+                    CODE FROM YOUR TICKET
+                  </p>
+
+                  <div
+                    style={{
+                      marginTop: "1.2em",
+                      display: "flex",
+                      justifyContent: "center"
+                    }}
+                  >
+                    <PinInput
+                      length={6}
+                      initialValue=""
+                      focus
+                      onChange={(value, index) => {
+                        this.setState({ tokenValue: value });
+                      }}
+                      type="custom"
+                      style={{ padding: "10px" }}
+                      inputStyle={{
+                        textTransform: "uppercase",
+                        margin: "0.2em",
+                        border: "1px solid black",
+                        borderRadius: "4px",
+                        backgroundColor: "white",
+                        height: "36px",
+                        width: "28px",
+                        fontSize: "1em"
+                      }}
+                      inputFocusStyle={{
+                        border: "3px solid #CFB539"
+                      }}
+                      ref={n => (this.pinInput = n)}
+                    />
+                  </div>
+
+                  {tokenValueError && (
+                    <p className={classes.tokenValueErrorMsg}>
+                      {tokenValueError}
+                    </p>
+                  )}
+                </div>
 
                 <div style={{ textAlign: "center" }}>
-                  <img
-                    alt=""
-                    className={classes.captcha}
-                    src={captchaUrl}
-                    onLoad={this.handleCaptchaLoad}
-                    onLoadStart={this.handleCaptchaLoadStart}
-                    onLoadStartCapture={this.handleCaptchaLoadStart}
-                  />
+                  <button
+                    className={classNames("btn", "btn-grad-4", {
+                      "btn-disabled": submitStatus === SUBMITTING
+                    })}
+                    style={{ width: "6em", fontFamily: "Perpetua" }}
+                    onClick={this.onClose}
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    className={classNames("btn", "btn-grad-4", {
+                      "btn-disabled": submitStatus === SUBMITTING
+                    })}
+                    style={{
+                      width: "6em",
+                      marginLeft: "1.5em",
+                      fontFamily: "Perpetua"
+                    }}
+                    onClick={this.handleFirstSubmit}
+                    disabled={submitStatus === SUBMITTING}
+                  >
+                    NEXT
+                  </button>
                 </div>
+              </Grid>
 
-                <div style={{ textAlign: "center", margin: "0.8em 0" }}>
-                  <input
-                    type="text"
-                    placeholder="Type here"
-                    value={captchaValue}
-                    onChange={this.handleCaptchaValueChange}
-                    className={classes.textField}
-                    autoComplete="off"
-                    autoFocus
-                    required
-                  />
-                </div>
-                {captchaValueError && (
-                  <p className={classes.captchaValueErrorMsg}>
-                    {captchaValueError}
-                  </p>
+              <Grid
+                item
+                xs={12}
+                className={classNames(
+                  classes.contentBox,
+                  stepIndex === 1 ? "second-item-1" : "second-item-2"
                 )}
-              </div>
+              >
+                <div>
+                  <p className={classes.secondTitle}>
+                    PLEASE TYPE THE TEXT BELOW
+                  </p>
 
-              <div style={{ textAlign: "center", marginTop: "1.5em" }}>
-                <button
-                  className="btn btn-grad-4"
-                  style={{ width: "6em", fontFamily: "Perpetua" }}
-                  onClick={() => this.setState({ stepIndex: 0 })}
-                >
-                  BACK
-                </button>
-                <button
-                  className="btn btn-grad-4"
-                  style={{
-                    width: "6em",
-                    marginLeft: "1.5em",
-                    fontFamily: "Perpetua"
-                  }}
-                  onClick={this.handleSecondSubmit}
-                  disabled={submitStatus === SUBMITTING}
-                >
-                  {submitStatus === SUBMITTING ? (
-                    <CircularProgress size={14} />
-                  ) : (
-                    "SUBMIT"
+                  <div style={{ textAlign: "center" }}>
+                    <img
+                      alt=""
+                      className={classes.captcha}
+                      src={captchaUrl}
+                      onLoad={this.handleCaptchaLoad}
+                      onLoadStart={this.handleCaptchaLoadStart}
+                      onLoadStartCapture={this.handleCaptchaLoadStart}
+                    />
+                  </div>
+
+                  <div style={{ textAlign: "center", margin: "0.8em 0" }}>
+                    <input
+                      type="text"
+                      placeholder="Type here"
+                      value={captchaValue}
+                      onChange={this.handleCaptchaValueChange}
+                      className={classes.textField}
+                      autoComplete="off"
+                      disabled={submitStatus === SUBMITTING}
+                      autoFocus
+                      required
+                    />
+                  </div>
+                  {captchaValueError && (
+                    <p className={classes.captchaValueErrorMsg}>
+                      {captchaValueError}
+                    </p>
                   )}
-                </button>
-              </div>
-            </Slide>
-
-            <Fade bottom collapse when={stepIndex === 0}>
-              <div className={classes.contentBox}>
-                <p className={classes.title}>
-                  INPUT THE 6 ALPHANUMERIC <br />
-                  CODE FROM YOUR TICKET
-                </p>
-
-                <div style={{ marginTop: "1.2em" }}>
-                  <PinInput
-                    length={6}
-                    initialValue=""
-                    focus
-                    onChange={(value, index) => {
-                      this.setState({ tokenValue: value });
-                    }}
-                    type="custom"
-                    style={{ padding: "10px" }}
-                    inputStyle={{
-                      textTransform: "uppercase",
-                      margin: "0.25em",
-                      border: "1px solid black",
-                      borderRadius: "5px",
-                      backgroundColor: "white",
-                      height: "40px",
-                      width: "30px",
-                      fontSize: "1em"
-                    }}
-                    inputFocusStyle={{
-                      border: "3px solid #CFB539"
-                    }}
-                    ref={n => (this.pinInput = n)}
-                  />
                 </div>
 
-                {tokenValueError && (
-                  <p className={classes.tokenValueErrorMsg}>
-                    {tokenValueError}
-                  </p>
-                )}
-              </div>
-
-              <div style={{ textAlign: "center" }}>
-                <button
-                  className="btn btn-grad-4"
-                  style={{ width: "6em", fontFamily: "Perpetua" }}
-                  onClick={this.onClose}
-                >
-                  CANCEL
-                </button>
-                <button
-                  className="btn btn-grad-4"
-                  style={{
-                    width: "6em",
-                    marginLeft: "1.5em",
-                    fontFamily: "Perpetua"
-                  }}
-                  onClick={this.handleFirstSubmit}
-                  disabled={submitStatus === SUBMITTING}
-                >
-                  NEXT
-                </button>
-              </div>
-            </Fade>
+                <div style={{ textAlign: "center", marginTop: "0.8em" }}>
+                  <button
+                    className={classNames("btn", "btn-grad-4", {
+                      "btn-disabled": submitStatus === SUBMITTING
+                    })}
+                    style={{ width: "6em", fontFamily: "Perpetua" }}
+                    onClick={() => this.setState({ stepIndex: 0 })}
+                    disabled={submitStatus === SUBMITTING}
+                  >
+                    BACK
+                  </button>
+                  <button
+                    className={classNames("btn", "btn-grad-4", {
+                      "btn-disabled": submitStatus === SUBMITTING
+                    })}
+                    style={{
+                      width: "6em",
+                      marginLeft: "1.5em",
+                      fontFamily: "Perpetua"
+                    }}
+                    onClick={this.handleSecondSubmit}
+                    disabled={submitStatus === SUBMITTING}
+                  >
+                    {submitStatus === SUBMITTING ? (
+                      <CircularProgress size={14} />
+                    ) : (
+                      "SUBMIT"
+                    )}
+                  </button>
+                </div>
+              </Grid>
+            </Grid>
 
             <div className={classes.circleContainer}>
               {_.range(2).map(index => (

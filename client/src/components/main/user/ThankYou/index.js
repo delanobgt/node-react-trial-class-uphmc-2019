@@ -5,6 +5,7 @@ import { compose } from "redux";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
 import { withStyles } from "@material-ui/core/styles";
+import Fade from "react-reveal/Fade";
 
 import Lotus from "../CandidateList/svg/Lotus";
 
@@ -50,27 +51,29 @@ class CandidateListIndex extends React.Component {
         <Grid container justify="center">
           <Grid item xs={12}>
             <div className={classes.wrapper}>
-              <img
-                src={require("../../../../res/images/logo.png")}
-                alt=""
-                className={classes.logo}
-              />
+              <Fade bottom>
+                <img
+                  src={require("../../../../res/images/logo.png")}
+                  alt=""
+                  className={classes.logo}
+                />
 
-              <p className={classes.title}>THANK YOU FOR YOUR VOTE!</p>
+                <p className={classes.title}>THANK YOU FOR YOUR VOTE!</p>
 
-              <Lotus size={50} className={classes.lotus} />
+                <Lotus size={50} className={classes.lotus} />
 
-              {/* <div>
+                {/* <div>
                 <Button onClick={() => history.push("/candidateList")}>
                   Back to Candidate List
                 </Button>
               </div> */}
 
-              <img
-                src={require("../../../../res/images/footer.png")}
-                alt=""
-                className={classes.footer}
-              />
+                <img
+                  src={require("../../../../res/images/footer.png")}
+                  alt=""
+                  className={classes.footer}
+                />
+              </Fade>
             </div>
           </Grid>
         </Grid>

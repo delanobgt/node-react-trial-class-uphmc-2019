@@ -14,7 +14,7 @@ import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
-import { Delete as DeleteIcon, Search as SearchIcon } from "@material-ui/icons";
+import { Delete as DeleteIcon } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
 import {
   PieChart,

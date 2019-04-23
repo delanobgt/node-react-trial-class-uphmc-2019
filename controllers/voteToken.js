@@ -1,10 +1,16 @@
 const _ = require("lodash");
 const moment = require("moment");
 const crypto = require("crypto");
-const bcrypt = require("../modules/bcrypt");
 const db = require("../models");
 const Socket = require("../services/socket");
 const canvas = require("../modules/canvas");
+const { SHA3 } = require("sha3");
+
+function hash(value) {
+  const instance = new SHA3(512);
+  instance.update(value);
+  return instance.digest("hex");
+}
 
 function encapsulateVoteToken(voteToken, user) {
   if (user.role === "SUPER_ADMIN") return voteToken;
@@ -67,7 +73,7 @@ exports.createVoteTokens = async (req, res) => {
         .replace(/0/g, "Y")
         .replace(/O/g, "Z");
       const voteToken = new db.VoteToken({
-        valueHash: await bcrypt.hash(value)
+        valueHash: hash(value)
       });
       await voteToken.save();
       voteTokens.push({ value });
@@ -130,29 +136,34 @@ exports.updateVoteTokenByValue = async (req, res) => {
   const { tokenValue, candidateId, captchaValue } = req.body;
   const { ip } = req;
 
-  let candidateSession = null,
+  let voteTokenSession = null,
     captchaSession = null;
   try {
-    candidateSession = await db.Candidate.startSession();
-    candidateSession.startTransaction();
+    voteTokenSession = await db.VoteToken.startSession();
+    voteTokenSession.startTransaction();
     captchaSession = await db.Captcha.startSession();
     captchaSession.startTransaction();
 
     let captcha = await db.Captcha.findOne({ ip });
 
     if (!captcha) {
+      console.log("tidak ada captcha!");
       captcha = await newCaptcha(ip);
       await captcha.save();
-      res.status(422).json({
+      await captchaSession.commitTransaction();
+      return res.status(422).json({
         error: { msg: "Vote Token / Captcha is wrong!", expired: true }
       });
     } else if (captcha.validUntil < moment().valueOf()) {
+      console.log("captcha expired!");
       captcha = await renewCaptcha(captcha);
       await captcha.save();
+      await captchaSession.commitTransaction();
       return res.status(422).json({
         error: { msg: "Captcha expired, please retry!", expired: true }
       });
     } else if (captcha.value !== captchaValue.toUpperCase()) {
+      console.log("captcha mismatch!");
       captcha.remainingTry -= 1;
       let expired = false;
       if (captcha.remainingTry === 0) {
@@ -160,15 +171,17 @@ exports.updateVoteTokenByValue = async (req, res) => {
         captcha = await renewCaptcha(captcha);
       }
       await captcha.save();
+      await captchaSession.commitTransaction();
       return res
         .status(422)
         .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
     }
 
     const voteToken = await db.VoteToken.findOne({
-      valueHash: await bcrypt.hash(tokenValue.toUpperCase())
+      valueHash: hash(tokenValue.toUpperCase())
     });
     if (!voteToken) {
+      console.log("tidak ada voteToken!");
       captcha.remainingTry -= 1;
       let expired = false;
       if (captcha.remainingTry === 0) {
@@ -176,39 +189,53 @@ exports.updateVoteTokenByValue = async (req, res) => {
         captcha = await renewCaptcha(captcha);
       }
       await captcha.save();
-      res
+      await captchaSession.commitTransaction();
+      return res
         .status(422)
         .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
     } else if (voteToken.candidateId) {
-      res.status(422).json({ error: { msg: "Vote Token has been used!" } });
+      console.log("voteToken sudah dipake!");
+      return res
+        .status(422)
+        .json({ error: { msg: "Vote Token has been used!" } });
     }
 
     const candidate = await db.Candidate.findById(candidateId);
     if (!candidate) {
+      console.log("tidak ada candidate!");
+      captcha.remainingTry -= 1;
+      let expired = false;
+      if (captcha.remainingTry === 0) {
+        expired = true;
+        captcha = await renewCaptcha(captcha);
+      }
+      await captcha.save();
+      await captchaSession.commitTransaction();
       return res
         .status(422)
-        .json({ error: { msg: "Candidate doesn't exist!" } });
+        .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
     }
 
+    console.log("semua aman");
     captcha.validUntil = -1;
     await captcha.save();
     voteToken.candidateId = candidateId;
     voteToken.usedAt = moment().toDate();
     await voteToken.save();
 
-    await candidateSession.commitTransaction();
+    await voteTokenSession.commitTransaction();
     await captchaSession.commitTransaction();
 
     res.json({ success: true });
     Socket.globalSocket.emit("VOTE_TOKEN_GET_BY_ID", { id: voteToken._id });
   } catch (error) {
     console.log({ error });
-    if (candidateSession) await candidateSession.abortTransaction();
+    if (voteTokenSession) await voteTokenSession.abortTransaction();
     if (captchaSession) await captchaSession.abortTransaction();
     res.status(500).json({ error: { msg: "Please try again!" } });
   } finally {
-    if (candidateSession) candidateSession.endSession();
-    if (captchaSession) await captchaSession.abortTransaction();
+    if (voteTokenSession) voteTokenSession.endSession();
+    if (captchaSession) await captchaSession.endSession();
 
     db.Captcha.remove({
       validUntil: { $lt: moment().valueOf() }

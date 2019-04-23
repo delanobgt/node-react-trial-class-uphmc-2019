@@ -44,7 +44,8 @@ exports.updateConfiguration = async (req, res) => {
     if (closeTimestamp)
       configuration.closeTimestamp = moment(closeTimestamp).toDate();
 
-    if (onAir) configuration.onAir = Boolean(onAir);
+    if (onAir !== undefined && onAir !== null)
+      configuration.onAir = Boolean(onAir);
 
     await configuration.save();
     res.json(configuration);
