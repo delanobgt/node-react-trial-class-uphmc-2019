@@ -30,7 +30,7 @@ async function newCaptcha(ip) {
       .replace(/O/g, "Z"),
     remainingTry: 3,
     validUntil: moment()
-      .add(6, "minutes")
+      .add(10, "minutes")
       .valueOf()
   });
 }
@@ -43,7 +43,7 @@ async function renewCaptcha(captcha) {
     .replace(/O/g, "Z");
   captcha.remainingTry = 3;
   captcha.validUntil = moment()
-    .add(6, "minutes")
+    .add(10, "minutes")
     .valueOf();
   return captcha;
 }
@@ -170,7 +170,7 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captcha.save();
       await captchaSession.commitTransaction();
       return res.status(422).json({
-        error: { msg: "Vote Token / Captcha is wrong!", expired: true }
+        error: { msg: "Captcha is wrong!", expired: true }
       });
     } else if (captcha.validUntil < moment().valueOf()) {
       console.log("captcha expired!");
@@ -192,7 +192,7 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captchaSession.commitTransaction();
       return res
         .status(422)
-        .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
+        .json({ error: { msg: "Captcha is wrong!", expired } });
     }
 
     const voteToken = await db.VoteToken.findOne({
@@ -210,12 +210,10 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captchaSession.commitTransaction();
       return res
         .status(422)
-        .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
+        .json({ error: { msg: "Token is wrong!", expired } });
     } else if (voteToken.candidateId) {
       console.log("voteToken sudah dipake!");
-      return res
-        .status(422)
-        .json({ error: { msg: "Vote Token has been used!" } });
+      return res.status(422).json({ error: { msg: "Token has been used!" } });
     }
 
     const candidate = await db.Candidate.findById(candidateId);
@@ -231,7 +229,7 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captchaSession.commitTransaction();
       return res
         .status(422)
-        .json({ error: { msg: "Vote Token / Captcha is wrong!", expired } });
+        .json({ error: { msg: "Token / Captcha is wrong!", expired } });
     }
 
     console.log("semua aman");

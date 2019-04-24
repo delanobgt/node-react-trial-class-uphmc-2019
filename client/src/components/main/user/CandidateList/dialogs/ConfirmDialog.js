@@ -145,6 +145,10 @@ class ConfirmDialog extends React.Component {
   state = INITIAL_STATE;
   pinInput = null;
 
+  componentDidMount() {
+    if (this.pinInput) this.pinInput.focus();
+  }
+
   handleFirstSubmit = async () => {
     const { tokenValue } = this.state;
 
@@ -174,8 +178,8 @@ class ConfirmDialog extends React.Component {
         captchaValueError: <span>&nbsp;</span>
       });
       await updateVoteTokenByValue({
-        tokenValue: tokenValue.toUpperCase(),
-        captchaValue: captchaValue.toUpperCase(),
+        tokenValue: tokenValue.toUpperCase().replace(/ /g, ""),
+        captchaValue: captchaValue.toUpperCase().replace(/ /g, ""),
         candidateId: candidate._id
       });
       this.onClose();
@@ -253,7 +257,7 @@ class ConfirmDialog extends React.Component {
                 <div>
                   <p className={classes.title}>
                     INPUT THE 6 ALPHANUMERIC <br />
-                    CODE FROM YOUR TICKET
+                    TOKEN FROM YOUR TICKET
                   </p>
 
                   <div
@@ -296,7 +300,7 @@ class ConfirmDialog extends React.Component {
                   )}
                 </div>
 
-                <div style={{ textAlign: "center" }}>
+                <div style={{ textAlign: "center", marginTop: "1em" }}>
                   <button
                     className={classNames("btn", "btn-grad-4", {
                       "btn-disabled": submitStatus === SUBMITTING
@@ -333,7 +337,7 @@ class ConfirmDialog extends React.Component {
               >
                 <div>
                   <p className={classes.secondTitle}>
-                    PLEASE TYPE THE TEXT BELOW
+                    TYPE THE CAPTCHA TEXT BELOW
                   </p>
 
                   <div style={{ textAlign: "center" }}>
