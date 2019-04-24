@@ -1,6 +1,5 @@
 import votingApi from "../apis/voting";
 import {
-  VOTE_TOKENS_CREATE,
   VOTE_TOKENS_GET,
   VOTE_TOKEN_GET_BY_ID,
   VOTE_TOKEN_UPDATE_BY_VALUE,

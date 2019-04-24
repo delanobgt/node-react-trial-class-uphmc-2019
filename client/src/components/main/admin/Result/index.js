@@ -1,5 +1,6 @@
 import "react-table/react-table.css";
 import _ from "lodash";
+import classNames from "classnames";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -7,27 +8,14 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import Paper from "@material-ui/core/Paper";
-import Dialog from "@material-ui/core/Dialog";
-import DialogContent from "@material-ui/core/DialogContent";
-import { Close as CloseIcon } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
-import Slide from "@material-ui/core/Slide";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend
-} from "recharts";
 
 import * as candidateActions from "../../../../actions/candidate";
 import * as voteTokenActions from "../../../../actions/voteToken";
+import Background from "../../../Background";
+import Hexagon from "./svg/Hexagon";
+import Lotus from "./svg/Lotus";
+import QuestionMark from "../../../../res/images/question_mark.png";
 
 const styles = theme => ({
   retryText: {
@@ -61,29 +49,114 @@ const styles = theme => ({
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
     display: "inline-block"
+  },
+
+  secondRunnerUpParagraph: {
+    textAlign: "center",
+    fontSize: "4.5em",
+    fontWeight: "bold",
+    marginBottom: "0.5em",
+    background: "-webkit-linear-gradient(#f4e488, #9b3524)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent"
+  },
+  firstRunnerUpParagraph: {
+    textAlign: "center",
+    fontSize: "4.5em",
+    fontWeight: "bold",
+    marginBottom: "0.5em",
+    background: "-webkit-linear-gradient(#dde0e3, #6f6e6c)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent"
+  },
+  winnerParagraph: {
+    textAlign: "center",
+    fontSize: "5.5em",
+    fontWeight: "bold",
+    marginBottom: "0.5em",
+    background: "-webkit-linear-gradient(#fff, #f3d528)",
+    "-webkit-background-clip": "text",
+    "-webkit-text-fill-color": "transparent"
+  },
+
+  orderNumberPart: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "1em"
+  },
+  orderNumber: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "100%",
+    color: "white",
+    border: "1.5px solid #CFB539",
+    width: "1.7em",
+    height: "1.7em",
+    margin: "0 0.5em",
+    fontSize: "1.25em",
+    padding: "2px"
+  },
+  shortBar: {
+    width: "22px",
+    height: "1px",
+    backgroundColor: "#CFB539"
+  },
+
+  fullnameParagraph: {
+    fontSize: "2.8em",
+    color: "white"
+  },
+  longBar: {
+    width: "200px",
+    height: "1.5px",
+    backgroundColor: "#CFB539",
+    margin: "1.2em 0"
+  },
+  majorParagraph: {
+    fontSize: "1.25em",
+    color: "white"
+  },
+
+  dotContainer: {
+    display: "flex",
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    color: "gray"
+  },
+  slash: {
+    margin: "0 1em"
+  },
+  dot: {
+    width: "6px",
+    height: "6px",
+    borderRadius: "100%",
+    marginLeft: "2px",
+    border: "1px solid gray"
+  },
+  activeDot: {
+    background: "gray"
   }
 });
 
 const LOADING = "LOADING",
   ERROR = "ERROR",
-  IDLE = "IDLE",
-  REVEALING = "REVEALING",
-  REVEALED = "REVEALED";
+  IDLE = "IDLE";
 
-function Transition(props) {
-  return <Slide direction="up" {...props} />;
+function pad2(value) {
+  return value <= 9 ? "0" + value : value;
 }
-class CandidateListIndex extends React.Component {
+
+class ResultIndex extends React.Component {
   state = {
     loadingStatus: LOADING,
-    winnerCandidate: null,
-    randomImageUrl: null,
-    winnerImageUrl: null,
-    chartShow: false
-  };
-
-  toggleChartShow = () => {
-    this.setState({ chartShow: !this.state.chartShow });
+    top3Candidates: [],
+    allCandidates: [],
+    candidateIndex: 0,
+    stepIndex: 0
   };
 
   fetchData = async () => {
@@ -94,165 +167,238 @@ class CandidateListIndex extends React.Component {
       const { voteTokens } = await getVoteTokens();
 
       const voteTokensPerCandidate = _.groupBy(voteTokens, "candidateId");
-      const winnerCandidate = _.chain(candidates)
-        .maxBy(cand => (voteTokensPerCandidate[cand._id] || []).length)
+      const top3Candidates = _.chain(candidates)
+        .sortBy(cand => -(voteTokensPerCandidate[cand._id] || []).length)
+        .slice(0, 3)
+        .reverse()
         .value();
 
       this.setState({
         loadingStatus: IDLE,
-        winnerCandidate,
-        winnerImageUrl: winnerCandidate.image.secureUrl
+        top3Candidates,
+        allCandidates: _.values(candidates),
+        stepIndex: 0
       });
+      setTimeout(this.mainLoop, 1000);
     } catch (error) {
       console.log({ error });
       this.setState({ loadingStatus: ERROR });
     }
   };
 
-  randomImage = () => {
-    this.setState({ loadingStatus: REVEALING });
+  speeds = [1000, 50, 200, 500, 1000];
 
-    const candidates = _.values(this.props.candidates);
+  mainLoop = () => {
+    const {
+      candidateIndex,
+      allCandidates,
+      top3Candidates,
+      stepIndex
+    } = this.state;
 
-    const recur = (delay, pos) => {
-      setTimeout(() => {
-        if (this.state.loadingStatus === REVEALED) return;
-        this.setState(state => ({
-          randomImageUrl: candidates[pos].image.secureUrl
-        }));
-        recur(delay + 5, (pos + 1) % candidates.length);
-      }, delay);
-    };
-    recur(100, 0);
+    if (stepIndex % 5 === 0) {
+    } else if (stepIndex % 5 === 4) {
+      const candidate = allCandidates[candidateIndex];
+      if (candidate._id !== top3Candidates[Math.floor(stepIndex / 5)]._id) {
+        const newCandidateIndex = (candidateIndex + 1) % allCandidates.length;
+        this.setState({ candidateIndex: newCandidateIndex });
+      }
+    } else {
+      const newCandidateIndex = (candidateIndex + 1) % allCandidates.length;
+      this.setState({ candidateIndex: newCandidateIndex });
+    }
 
     setTimeout(() => {
-      this.setState({ loadingStatus: REVEALED });
-    }, 10000);
+      this.mainLoop();
+    }, this.speeds[stepIndex % 5]);
+  };
+
+  handleKeyDown = event => {
+    const { stepIndex } = this.state;
+    switch (event.keyCode) {
+      case 37: // left arrow key
+        if ((stepIndex - 1 + 5) % 5 !== 4)
+          this.setState({
+            stepIndex: stepIndex - 1
+          });
+        break;
+      case 39: // right arrow key
+        if (stepIndex + 1 < 15)
+          this.setState({
+            stepIndex: stepIndex + 1
+          });
+        break;
+      default:
+        break;
+    }
   };
 
   async componentDidMount() {
     await this.fetchData();
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown);
   }
 
   render() {
-    const { classes, candidates, voteTokens } = this.props;
+    const { classes } = this.props;
     const {
       loadingStatus,
-      randomImageUrl,
-      winnerImageUrl,
-      chartShow
+      candidateIndex,
+      allCandidates,
+      top3Candidates,
+      stepIndex
     } = this.state;
+    const candidate = allCandidates[candidateIndex];
+    const sectionIndex = Math.floor(stepIndex / 5);
 
-    let mainContent = null;
-    if (loadingStatus === ERROR) {
-      mainContent = (
-        <Fragment>
-          <Typography variant="subtitle1" className={classes.retryText}>
-            Cannot fetch data.
-          </Typography>
-          <Button
-            color="primary"
-            className={classes.retryButton}
-            onClick={this.fetchData}
-          >
-            Retry
-          </Button>
-        </Fragment>
-      );
-    } else if (loadingStatus === LOADING) {
-      mainContent = (
-        <div style={{ textAlign: "center" }}>
-          <CircularProgress size={50} />
-        </div>
-      );
-    } else if (loadingStatus === IDLE) {
-      mainContent = (
-        <div>
-          <Button onClick={() => this.randomImage()}>Reveal Winner</Button>
-        </div>
-      );
-    } else if (loadingStatus === REVEALING) {
-      mainContent = (
-        <div style={{ textAlign: "center" }}>
-          <div
-            className={classes.picture}
-            style={{
-              backgroundImage: `url(${randomImageUrl})`
-            }}
-          />
-        </div>
-      );
-    } else {
-      mainContent = (
-        <div style={{ textAlign: "center" }}>
-          <div
-            className={classes.picture}
-            style={{
-              backgroundImage: `url(${winnerImageUrl})`
-            }}
-          />
-          <br />
-          <Button onClick={this.toggleChartShow}>Show chart</Button>
-        </div>
-      );
-    }
-
-    const candidateDict = _.mapKeys(candidates, "_id");
-    const chartData = _.chain(voteTokens)
-      .pickBy(voteToken => voteToken.candidateId)
-      .groupBy(voteToken => voteToken.candidateId)
-      .map((voteTokens, candidateId) => ({
-        name: candidateDict[candidateId].fullname,
-        value: voteTokens.length
-      }))
-      .value();
+    const infoEnabled =
+      stepIndex % 5 === 4 &&
+      candidate._id === top3Candidates[Math.floor(stepIndex / 5)]._id;
 
     return (
       <Fragment>
-        <Grid container justify="center">
-          <Grid item xs={11}>
-            <Paper className={classes.paper} elevation={3}>
-              <Typography variant="h5" gutterBottom>
-                Result
-              </Typography>
-              <br />
-              {mainContent}
-            </Paper>
-          </Grid>
-        </Grid>
+        <Background />
 
-        <Dialog fullScreen open={chartShow} TransitionComponent={Transition}>
-          <DialogContent>
-            <div>
-              <IconButton
-                color="inherit"
-                onClick={this.toggleChartShow}
-                aria-label="Close"
-              >
-                <CloseIcon />
-              </IconButton>
-            </div>
-            <ResponsiveContainer width="100%" height={500}>
-              <BarChart
-                // width={500}
-                // height={300}
-                data={chartData}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5
-                }}
-              >
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="value" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </DialogContent>
-        </Dialog>
+        <div className={classes.dotContainer}>
+          {_.range(0, 5).map(index => (
+            <div
+              className={classNames(classes.dot, {
+                [classes.activeDot]: index <= stepIndex
+              })}
+            />
+          ))}
+          <span className={classes.slash}>/</span>
+          {_.range(5, 10).map(index => (
+            <div
+              className={classNames(classes.dot, {
+                [classes.activeDot]: index <= stepIndex
+              })}
+            />
+          ))}
+          <span className={classes.slash}>/</span>
+          {_.range(10, 15).map(index => (
+            <div
+              className={classNames(classes.dot, {
+                [classes.activeDot]: index <= stepIndex
+              })}
+            />
+          ))}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            width: "100vw",
+            height: "100vh",
+            alignItems: "center"
+          }}
+        >
+          <Grid container justify="center">
+            <Grid
+              item
+              xs={12}
+              style={{ textAlign: "center", marginTop: "3em" }}
+            >
+              <img
+                src={require("../../../../res/images/logo.png")}
+                alt=""
+                style={{ width: "250px" }}
+                className={classes.logo}
+              />
+            </Grid>
+
+            {loadingStatus === ERROR ? (
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" className={classes.retryText}>
+                  Cannot fetch data
+                </Typography>
+                <Button
+                  color="primary"
+                  className={classes.retryButton}
+                  onClick={this.fetchData}
+                >
+                  Retry
+                </Button>
+              </Grid>
+            ) : loadingStatus === LOADING ? (
+              <Grid item xs={12} style={{ textAlign: "center" }}>
+                <CircularProgress size={50} />
+              </Grid>
+            ) : (
+              <Fragment>
+                <Grid item xs={12}>
+                  {sectionIndex === 0 ? (
+                    <p className={classes.secondRunnerUpParagraph}>
+                      2<sup>nd</sup> RUNNER UP
+                    </p>
+                  ) : sectionIndex === 1 ? (
+                    <p className={classes.firstRunnerUpParagraph}>
+                      1<sup>st</sup> RUNNER UP
+                    </p>
+                  ) : (
+                    <p className={classes.winnerParagraph}>WINNER</p>
+                  )}
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <div style={{ marginRight: "2.5em" }}>
+                    <Hexagon
+                      size={240}
+                      imgUrl={
+                        stepIndex % 5 === 0
+                          ? QuestionMark
+                          : candidate.image.secureUrl
+                      }
+                    />
+                  </div>
+                  <div
+                    xs={3}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginLeft: "2.5em"
+                    }}
+                  >
+                    <div className={classes.orderNumberPart}>
+                      <div className={classes.shortBar} />
+                      <div className={classes.orderNumber}>
+                        {infoEnabled ? pad2(candidate.orderNumber) : ""}
+                      </div>
+                      <div className={classes.shortBar} />
+                    </div>
+
+                    <div>
+                      <Lotus
+                        size={25}
+                        style={{ marginTop: "0.3em", marginBottom: "0.65em" }}
+                      />
+                    </div>
+
+                    <p className={classes.fullnameParagraph}>
+                      {infoEnabled ? pad2(candidate.fullname) : "-----"}
+                    </p>
+                    <div className={classes.longBar} />
+                    <p className={classes.majorParagraph}>
+                      {infoEnabled ? pad2(candidate.major) : "---"}
+                    </p>
+                  </div>
+                </Grid>
+              </Fragment>
+            )}
+          </Grid>
+        </div>
       </Fragment>
     );
   }
@@ -271,4 +417,4 @@ export default compose(
     mapStateToProps,
     { ...candidateActions, ...voteTokenActions }
   )
-)(CandidateListIndex);
+)(ResultIndex);

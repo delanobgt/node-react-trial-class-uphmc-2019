@@ -32,7 +32,19 @@ export default ({ props }) => {
     {
       icon: <InfoIcon />,
       label: "Result",
-      link: "/admin/result"
+      subMenus: [
+        {
+          icon: <DoneIcon />,
+          label: "Display Result",
+          link: "/result",
+          target: "_blank"
+        },
+        {
+          icon: <BarChartIcon />,
+          label: "Chart",
+          link: "/admin/chart"
+        }
+      ]
     },
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,

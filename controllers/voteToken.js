@@ -144,6 +144,24 @@ exports.updateVoteTokenByValue = async (req, res) => {
     captchaSession = await db.Captcha.startSession();
     captchaSession.startTransaction();
 
+    const configuration = await db.Configuration.findOne({});
+    if (!configuration.onAir) {
+      return res.status(422).json({
+        error: { msg: "The voting is currently closed!" }
+      });
+    } else {
+      const currentTime = moment().valueOf();
+      if (currentTime < moment(configuration.openTimestamp).valueOf()) {
+        return res.status(422).json({
+          error: { msg: "The voting is still closed!" }
+        });
+      } else if (currentTime > moment(configuration.closeTimestamp).valueOf()) {
+        return res.status(422).json({
+          error: { msg: "The voting is over!" }
+        });
+      }
+    }
+
     let captcha = await db.Captcha.findOne({ ip });
 
     if (!captcha) {

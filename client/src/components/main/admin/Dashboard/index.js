@@ -82,6 +82,9 @@ class Welcome extends Component {
     const { openMoment, closeMoment, onAir } = this.state;
     try {
       this.setState({ submitStatus: SUBMITTING });
+      if (openMoment.valueOf() > closeMoment.valueOf()) {
+        return errorSnackbar("Invalid date range!");
+      }
       await updateConfiguration({
         openTimestamp: openMoment.toDate(),
         closeTimestamp: closeMoment.toDate(),

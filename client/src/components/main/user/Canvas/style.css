@@ -1,7 +1,0 @@
-canvas {
-  display: block;
-}
-
-canvas:focus {
-  outline: 0;
-}

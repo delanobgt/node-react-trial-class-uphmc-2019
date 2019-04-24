@@ -1,5 +1,4 @@
 import "react-table/react-table.css";
-import _ from "lodash";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import Grid from "@material-ui/core/Grid";
@@ -62,11 +61,15 @@ class CandidateListIndex extends React.Component {
 
                 <Lotus size={50} className={classes.lotus} />
 
-                {/* <div>
-                <Button onClick={() => history.push("/candidateList")}>
-                  Back to Candidate List
-                </Button>
-              </div> */}
+                <div style={{ marginTop: "0.5em" }}>
+                  <Button
+                    style={{ color: "#CFB539", border: "1px solid #CFB539" }}
+                    onClick={() => history.push("/candidateList")}
+                    size="small"
+                  >
+                    Back to Candidate List
+                  </Button>
+                </div>
 
                 <img
                   src={require("../../../../res/images/footer.png")}

@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import { compose } from "redux";
 
 import Snackbar from "./misc/Snackbar";
-import Socket from "./main/admin/Socket";
+import Result from "./main/admin/Result/Loadable";
 
 import SignIn from "./main/admin/Auth/SignIn/Loadable";
 import ForgetPassword from "./main/admin/Auth/ForgetPassword/Loadable";
@@ -14,7 +14,6 @@ import CandidateList from "./main/user/CandidateList/Loadable";
 import ThankYou from "./main/user/ThankYou/Loadable";
 
 import Background from "./Background";
-import Canvas from "./main/user/Canvas";
 import AdminRouter from "./main/admin/AdminRouter";
 
 class App extends Component {
@@ -31,7 +30,7 @@ class App extends Component {
             {!this.props.token ? (
               <Fragment>
                 <Background />
-                <Canvas />
+                {/* <Canvas /> */}
                 <Switch>
                   <Route path="/candidateList" component={CandidateList} />
                   <Route path="/thankYou" component={ThankYou} />
@@ -45,8 +44,8 @@ class App extends Component {
               </Fragment>
             ) : (
               <Fragment>
-                <Socket />
                 <Switch>
+                  <Route path="/result" component={Result} />
                   <Route path="/admin" component={AdminRouter} />
                   <Route path="*" component={() => <Redirect to="/admin" />} />
                 </Switch>

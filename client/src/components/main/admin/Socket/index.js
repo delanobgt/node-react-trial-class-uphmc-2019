@@ -10,7 +10,6 @@ import * as voteTokenActions from "../../../../actions/voteToken";
 import * as snackbarActions from "../../../../actions/snackbar";
 import requireAuth from "../../../hoc/requireAuth";
 import StickyLoading from "./small-components/StickyLoading";
-import voteToken from "../../../../reducers/voteToken";
 
 class SocketIndex extends React.Component {
   state = { msg: null, socket: null };

@@ -203,9 +203,9 @@ class CandidateListIndex extends React.Component {
   };
 
   async componentDidMount() {
-    this.fetchData();
+    await this.fetchData();
 
-    this.configInterval = setInterval(() => {
+    (() => {
       const { openMoment, closeMoment, onAir, classes } = this.props;
       const { loadingStatus } = this.state;
       const currentMoment = moment();
@@ -232,12 +232,7 @@ class CandidateListIndex extends React.Component {
                   flexDirection: "column"
                 }}
               >
-                <p className={classes.direction}>The voting still closed</p>
-                <p className={classes.direction}>
-                  {moment
-                    .utc(openMoment.diff(currentMoment))
-                    .format("HH:mm:ss")}
-                </p>
+                <p className={classes.direction}>The voting is still closed</p>
               </div>
             )
           });
@@ -269,7 +264,7 @@ class CandidateListIndex extends React.Component {
           )
         });
       }
-    }, 1000);
+    })();
   }
 
   componentWillUnmount() {

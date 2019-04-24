@@ -1,6 +1,6 @@
 import "../css/dialog.css";
 import _ from "lodash";
-import React, { Fragment } from "react";
+import React from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
@@ -9,8 +9,6 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import classNames from "classnames";
 import PinInput from "react-pin-input";
-import Slide from "react-reveal/Slide";
-import Fade from "react-reveal/Fade";
 
 import * as voteTokenActions from "../../../../../actions/voteToken";
 import * as snackbarActions from "../../../../../actions/snackbar";
@@ -249,7 +247,7 @@ class ConfirmDialog extends React.Component {
                 xs={12}
                 className={classNames(
                   classes.contentBox,
-                  stepIndex == 0 ? "first-item-1" : "first-item-2"
+                  stepIndex === 0 ? "first-item-1" : "first-item-2"
                 )}
               >
                 <div>
