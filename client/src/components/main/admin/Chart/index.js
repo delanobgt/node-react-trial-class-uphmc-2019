@@ -116,7 +116,7 @@ class Chart extends React.Component {
           <Typography variant="subtitle1" style={{ marginBottom: "1em" }}>
             Last updated at{" "}
             <span style={{ color: "blue" }}>
-              {moment().format("DD MMM YYYY, HH:mm:ss")}
+              {moment().format("D MMMM YYYY, HH:mm:ss")}
             </span>
           </Typography>
           <ResponsiveContainer width="100%" height={500}>

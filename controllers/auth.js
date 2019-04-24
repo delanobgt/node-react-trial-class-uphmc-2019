@@ -17,7 +17,7 @@ exports.signIn = async (req, res) => {
     user.authToken = {
       value: (await crypto.randomBytes(48)).toString("hex"),
       expiresAt: moment()
-        .add(3, "hours")
+        .add(6, "hours")
         .toDate()
         .getTime(),
       issuedAt: new Date().getTime()
