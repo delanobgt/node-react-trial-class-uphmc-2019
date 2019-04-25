@@ -186,7 +186,7 @@ class ResultIndex extends React.Component {
         allCandidates: _.values(candidates),
         stepIndex: 0
       });
-      setTimeout(this.mainLoop, 1000);
+      setTimeout(this.mainLoop, 200);
     } catch (error) {
       console.log({ error });
       this.setState({ loadingStatus: ERROR });

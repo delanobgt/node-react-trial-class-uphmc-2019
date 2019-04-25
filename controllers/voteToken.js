@@ -67,11 +67,14 @@ exports.createVoteTokens = async (req, res) => {
   for (let i = 0; i < voteTokenCount; i++) {
     try {
       emitProgress();
-      const value = (await crypto.randomBytes(3))
-        .toString("hex")
-        .toUpperCase()
-        .replace(/0/g, "Y")
-        .replace(/O/g, "Z");
+      let value = null;
+      do {
+        value = (await crypto.randomBytes(3))
+          .toString("hex")
+          .toUpperCase()
+          .replace(/0/g, "Y")
+          .replace(/O/g, "Z");
+      } while (!isNaN(Number(value)));
       const voteToken = new db.VoteToken({
         valueHash: hash(value)
       });

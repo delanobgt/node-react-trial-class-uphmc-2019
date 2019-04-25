@@ -13,8 +13,8 @@ import DyingDialog from "./Auth/DyingDialog";
 import TokenExpirationWatch from "./Auth/TokenExpirationWatch";
 import Socket from "./Socket";
 
-import Candidate from "./Candidate/Loadable";
-import VoteToken from "./VoteToken/Loadable";
+import Candidate from "./Candidate";
+import VoteToken from "./VoteToken";
 import Chart from "./Chart/Loadable";
 import User from "./User/Loadable";
 
