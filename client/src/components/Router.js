@@ -4,7 +4,10 @@ import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import { compose } from "redux";
 
 import Snackbar from "./misc/Snackbar";
-import Result from "./main/admin/Result/Loadable";
+import Result from "./main/admin/Result";
+import FirstResult from "./main/admin/Result/First";
+import SecondResult from "./main/admin/Result/Second";
+import ThirdResult from "./main/admin/Result/Third";
 
 import SignIn from "./main/admin/Auth/SignIn/Loadable";
 import ForgetPassword from "./main/admin/Auth/ForgetPassword/Loadable";
@@ -13,7 +16,7 @@ import ResetPassword from "./main/admin/Auth/ResetPassword/Loadable";
 import CandidateList from "./main/user/CandidateList/Loadable";
 import ThankYou from "./main/user/ThankYou/Loadable";
 
-import Background from "./Background";
+import Background from "./misc/Background";
 import AdminRouter from "./main/admin/AdminRouter";
 
 class App extends Component {
@@ -29,7 +32,7 @@ class App extends Component {
             />
             {!this.props.token ? (
               <Fragment>
-                <Background />
+                <Background opacity={0.7} />
                 {/* <Canvas /> */}
                 <Switch>
                   <Route path="/candidateList" component={CandidateList} />
@@ -45,7 +48,11 @@ class App extends Component {
             ) : (
               <Fragment>
                 <Switch>
+                  <Route path="/result/first" component={FirstResult} />
+                  <Route path="/result/second" component={SecondResult} />
+                  <Route path="/result/third" component={ThirdResult} />
                   <Route path="/result" component={Result} />
+
                   <Route path="/admin" component={AdminRouter} />
                   <Route path="*" component={() => <Redirect to="/admin" />} />
                 </Switch>

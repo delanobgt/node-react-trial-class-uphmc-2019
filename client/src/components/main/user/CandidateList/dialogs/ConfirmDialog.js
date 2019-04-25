@@ -110,13 +110,13 @@ const styles = theme => ({
   },
   tokenValueErrorMsg: {
     textAlign: "center",
-    color: "red",
+    color: "crimson",
     marginTop: "0.4em",
     marginBottom: "0.65em"
   },
   captchaValueErrorMsg: {
     textAlign: "center",
-    color: "red",
+    color: "crimson",
     marginTop: "0.3em"
   }
 });
@@ -152,8 +152,8 @@ class ConfirmDialog extends React.Component {
   handleFirstSubmit = async () => {
     const { tokenValue } = this.state;
 
-    if (tokenValue.length !== 6) {
-      this.setState({ tokenValueError: "Please input missing code" });
+    if (!tokenValue || tokenValue.replace(/ /g, "").length !== 6) {
+      this.setState({ tokenValueError: "Please input missing character(s)" });
     } else {
       this.setState(state => ({
         stepIndex: state.stepIndex + 1,
@@ -170,7 +170,11 @@ class ConfirmDialog extends React.Component {
     try {
       if (!captchaValue) {
         return this.setState({
-          captchaValueError: "Please type the letters!"
+          captchaValueError: "Please type the text above!"
+        });
+      } else if (captchaValue.replace(/ /g, "").length !== 4) {
+        return this.setState({
+          captchaValueError: "Please check your typing!"
         });
       }
       this.setState({
@@ -305,7 +309,7 @@ class ConfirmDialog extends React.Component {
                     className={classNames("btn", "btn-grad-4", {
                       "btn-disabled": submitStatus === SUBMITTING
                     })}
-                    style={{ width: "6em", fontFamily: "Perpetua" }}
+                    style={{ width: "7em", fontFamily: "Perpetua" }}
                     onClick={this.onClose}
                   >
                     CANCEL
@@ -315,7 +319,7 @@ class ConfirmDialog extends React.Component {
                       "btn-disabled": submitStatus === SUBMITTING
                     })}
                     style={{
-                      width: "6em",
+                      width: "7em",
                       marginLeft: "1.5em",
                       fontFamily: "Perpetua"
                     }}
@@ -376,7 +380,7 @@ class ConfirmDialog extends React.Component {
                     className={classNames("btn", "btn-grad-4", {
                       "btn-disabled": submitStatus === SUBMITTING
                     })}
-                    style={{ width: "6em", fontFamily: "Perpetua" }}
+                    style={{ width: "7em", fontFamily: "Perpetua" }}
                     onClick={() => this.setState({ stepIndex: 0 })}
                     disabled={submitStatus === SUBMITTING}
                   >
@@ -387,7 +391,7 @@ class ConfirmDialog extends React.Component {
                       "btn-disabled": submitStatus === SUBMITTING
                     })}
                     style={{
-                      width: "6em",
+                      width: "7em",
                       marginLeft: "1.5em",
                       fontFamily: "Perpetua"
                     }}

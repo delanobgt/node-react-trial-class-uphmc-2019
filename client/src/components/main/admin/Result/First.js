@@ -130,7 +130,8 @@ const styles = theme => ({
     bottom: 0,
     left: 0,
     color: "gray",
-    width: "100vw"
+    width: "100vw",
+    marginBottom: "1em"
   },
   slash: {
     margin: "0 1em"
@@ -161,7 +162,7 @@ class ResultIndex extends React.Component {
     top3Candidates: [],
     allCandidates: [],
     candidateIndex: 0,
-    stepIndex: 0
+    stepIndex: 10
   };
 
   alive = false;
@@ -183,8 +184,7 @@ class ResultIndex extends React.Component {
       this.setState({
         loadingStatus: IDLE,
         top3Candidates,
-        allCandidates: _.values(candidates),
-        stepIndex: 0
+        allCandidates: _.values(candidates)
       });
       setTimeout(this.mainLoop, 1000);
     } catch (error) {
@@ -275,22 +275,6 @@ class ResultIndex extends React.Component {
         <BackgroundBig opacity={opacities[sectionIndex]} />
 
         <div className={classes.dotContainer}>
-          {_.range(0, 5).map(index => (
-            <div
-              className={classNames(classes.dot, {
-                [classes.activeDot]: index <= stepIndex
-              })}
-            />
-          ))}
-          <span className={classes.slash}>/</span>
-          {_.range(5, 10).map(index => (
-            <div
-              className={classNames(classes.dot, {
-                [classes.activeDot]: index <= stepIndex
-              })}
-            />
-          ))}
-          <span className={classes.slash}>/</span>
           {_.range(10, 15).map(index => (
             <div
               className={classNames(classes.dot, {

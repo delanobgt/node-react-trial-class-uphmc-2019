@@ -40,6 +40,30 @@ export default ({ props }) => {
           target: "_blank"
         },
         {
+          icon: <DoneIcon />,
+          label: "First Place",
+          link: "/result/first",
+          target: "_blank"
+        },
+        {
+          icon: <DoneIcon />,
+          label: "Second Place",
+          link: "/result/second",
+          target: "_blank"
+        },
+        {
+          icon: <DoneIcon />,
+          label: "Third Place",
+          link: "/result/third",
+          target: "_blank"
+        },
+        {
+          icon: <DoneIcon />,
+          label: "Display Result",
+          link: "/result",
+          target: "_blank"
+        },
+        {
           icon: <BarChartIcon />,
           label: "Chart",
           link: "/admin/chart"

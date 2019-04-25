@@ -372,7 +372,7 @@ class CandidateListIndex extends React.Component {
           <div>
             <Lotus
               size={20}
-              style={{ marginTop: "0.1em", marginBottom: "0.65em" }}
+              style={{ marginTop: "0.5em", marginBottom: "0.65em" }}
             />
           </div>
 
@@ -389,7 +389,12 @@ class CandidateListIndex extends React.Component {
 
           <button
             className="btn btn-grad-4"
-            style={{ marginTop: "1.2em" }}
+            style={{
+              marginTop: "2em",
+              fontFamily: "Perpetua",
+              border: "2px solid #9c7d2d",
+              borderRadius: "8px"
+            }}
             onClick={() => this.toggleDialog("ConfirmDialog")(d)}
           >
             VOTE

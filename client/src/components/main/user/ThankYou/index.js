@@ -7,6 +7,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Fade from "react-reveal/Fade";
 
 import Lotus from "../CandidateList/svg/Lotus";
+import ThankYou from "../../../../res/images/thankYou.png";
 
 const styles = theme => ({
   picture: {
@@ -28,17 +29,22 @@ const styles = theme => ({
     width: "50%",
     maxWidth: "300px"
   },
+  titleWrapper: {
+    marginTop: "1.8em",
+    marginBottom: "0.8em",
+    textAlign: "center"
+  },
   title: {
     color: "#CFB539",
-    margin: "0 1.2em",
-    marginTop: "1.25em",
-    fontSize: "2.75em",
-    textAlign: "center"
+    width: "70%",
+    maxWidth: "500px",
+    display: "block",
+    margin: "auto"
   },
   lotus: {
     width: "2em"
   },
-  footer: { marginTop: "3.5em", width: "75%", maxWidth: "500px" }
+  footer: { marginTop: "2.5em", width: "75%", maxWidth: "500px" }
 });
 
 class CandidateListIndex extends React.Component {
@@ -57,13 +63,21 @@ class CandidateListIndex extends React.Component {
                   className={classes.logo}
                 />
 
-                <p className={classes.title}>THANK YOU FOR YOUR VOTE!</p>
+                <div className={classes.titleWrapper}>
+                  <img alt="" src={ThankYou} className={classes.title} />
+                </div>
 
                 <Lotus size={50} className={classes.lotus} />
 
                 <div style={{ marginTop: "0.5em" }}>
                   <Button
-                    style={{ color: "#CFB539", border: "1px solid #CFB539" }}
+                    style={{
+                      color: "white",
+                      background: "#CFB539",
+                      padding: "5px 12px",
+                      fontFamily: "Perpetua",
+                      borderRadius: "8px"
+                    }}
                     onClick={() => history.push("/candidateList")}
                     size="small"
                   >

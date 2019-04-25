@@ -182,6 +182,16 @@ class CandidateListIndex extends React.Component {
         )
       },
       {
+        Header: "Created At",
+        accessor: d => (d.createdAt ? moment(d.createdAt).valueOf() : null),
+        plain: dateMs =>
+          dateMs ? moment(dateMs).format("D MMMM YYYY (HH:mm:ss)") : "-",
+        Cell: ({ original: d }) =>
+          d.createdAt
+            ? moment(d.createdAt).format("D MMMM YYYY (HH:mm:ss)")
+            : "-"
+      },
+      {
         Header: "Actions",
         accessor: () => "",
         Cell: ({ original: d }) => (

@@ -8,7 +8,7 @@
 
 .first-item-1 {
   transition-property: opacity, width;
-  transition-duration: 3s, 0.5s;
+  transition-duration: 4s, 0.5s;
 
   opacity: 1;
 }
@@ -19,7 +19,7 @@
 
 .second-item-1 {
   transition-property: opacity, width;
-  transition-duration: 2.5s, 0.5s;
+  transition-duration: 3.5s, 0.5s;
 
   opacity: 1;
 }

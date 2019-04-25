@@ -157,7 +157,7 @@ exports.updateVoteTokenByValue = async (req, res) => {
         });
       } else if (currentTime > moment(configuration.closeTimestamp).valueOf()) {
         return res.status(422).json({
-          error: { msg: "The voting is over!" }
+          error: { msg: "The voting is already over!" }
         });
       }
     }
@@ -170,9 +170,9 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captcha.save();
       await captchaSession.commitTransaction();
       return res.status(422).json({
-        error: { msg: "Captcha is wrong!", expired: true }
+        error: { msg: "Captcha is wrong! Please retype.", expired: true }
       });
-    } else if (captcha.validUntil < moment().valueOf()) {
+    } else if (false && captcha.validUntil < moment().valueOf()) {
       console.log("captcha expired!");
       captcha = await renewCaptcha(captcha);
       await captcha.save();
@@ -190,9 +190,9 @@ exports.updateVoteTokenByValue = async (req, res) => {
       }
       await captcha.save();
       await captchaSession.commitTransaction();
-      return res
-        .status(422)
-        .json({ error: { msg: "Captcha is wrong!", expired } });
+      return res.status(422).json({
+        error: { msg: "Captcha is wrong! Please retype.", expired: true }
+      });
     }
 
     const voteToken = await db.VoteToken.findOne({
@@ -210,7 +210,7 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captchaSession.commitTransaction();
       return res
         .status(422)
-        .json({ error: { msg: "Token is wrong!", expired } });
+        .json({ error: { msg: "Token doesn't exist!", expired } });
     } else if (voteToken.candidateId) {
       console.log("voteToken sudah dipake!");
       return res.status(422).json({ error: { msg: "Token has been used!" } });
@@ -229,7 +229,7 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captchaSession.commitTransaction();
       return res
         .status(422)
-        .json({ error: { msg: "Token / Captcha is wrong!", expired } });
+        .json({ error: { msg: "Candidate doesn't exist!", expired } });
     }
 
     console.log("semua aman");
