@@ -13,8 +13,8 @@ import SignIn from "./main/admin/Auth/SignIn/Loadable";
 import ForgetPassword from "./main/admin/Auth/ForgetPassword/Loadable";
 import ResetPassword from "./main/admin/Auth/ResetPassword/Loadable";
 
-import CandidateList from "./main/user/CandidateList/Loadable";
-import ThankYou from "./main/user/ThankYou/Loadable";
+import CandidateList from "./main/user/CandidateList";
+import ThankYou from "./main/user/ThankYou";
 
 import Background from "./misc/Background";
 import AdminRouter from "./main/admin/AdminRouter";
