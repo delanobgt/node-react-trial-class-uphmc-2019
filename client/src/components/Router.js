@@ -33,7 +33,6 @@ class App extends Component {
             {!this.props.token ? (
               <Fragment>
                 <Background opacity={0.7} />
-                {/* <Canvas /> */}
                 <Switch>
                   <Route path="/candidateList" component={CandidateList} />
                   <Route path="/thankYou" component={ThankYou} />

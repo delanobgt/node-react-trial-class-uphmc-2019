@@ -97,7 +97,6 @@ const styles = theme => ({
     flexGrow: 1,
     display: "flex",
     alignItems: "center",
-    // justifyContent: "center",
     flexDirection: "column"
   },
   orderNumberPart: {
@@ -105,6 +104,7 @@ const styles = theme => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    marginTop: "1.5em",
     marginBottom: "0.7em"
   },
   orderNumber: {
@@ -155,8 +155,7 @@ const styles = theme => ({
   topDiv: {
     width: "100%",
     textAlign: "center",
-    paddingTop: "1em",
-    paddingBottom: "2em"
+    paddingTop: "1em"
   },
   topDivFixed: {
     position: "fixed",
@@ -174,8 +173,7 @@ const styles = theme => ({
     visibility: "hidden",
     width: "100vw",
     textAlign: "center",
-    paddingTop: "1em",
-    paddingBottom: "2em"
+    paddingTop: "1em"
   }
 });
 
