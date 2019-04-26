@@ -194,7 +194,7 @@ exports.updateVoteTokenByValue = async (req, res) => {
       await captcha.save();
       await captchaSession.commitTransaction();
       return res.status(422).json({
-        error: { msg: "Captcha is wrong! Please retype.", expired: true }
+        error: { msg: "Captcha is wrong! Please retype.", expired }
       });
     }
 

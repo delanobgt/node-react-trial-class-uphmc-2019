@@ -277,7 +277,11 @@ class ConfirmDialog extends React.Component {
                       initialValue=""
                       focus
                       onChange={(value, index) => {
-                        this.setState({ tokenValue: value });
+                        if (value && value.length === 6 && index === 5) {
+                          this.setState({ tokenValue: value, stepIndex: 1 });
+                        } else {
+                          this.setState({ tokenValue: value });
+                        }
                       }}
                       type="custom"
                       style={{ padding: "10px" }}

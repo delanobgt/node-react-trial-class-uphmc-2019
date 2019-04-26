@@ -25,6 +25,7 @@ import {
   Legend
 } from "recharts";
 
+import hasRole from "../../../hoc/hasRole";
 import * as candidateActions from "../../../../actions/candidate";
 import * as voteTokenActions from "../../../../actions/voteToken";
 import requireAuth from "../../../hoc/requireAuth";
@@ -457,6 +458,7 @@ function mapStateToProps(state) {
 }
 
 export default compose(
+  hasRole("SUPER_ADMIN"),
   withStyles(styles),
   connect(
     mapStateToProps,

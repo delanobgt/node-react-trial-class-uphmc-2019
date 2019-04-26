@@ -21,7 +21,7 @@ import {
 
 import * as navActions from "../../../../actions/nav";
 import makeMenuList from "./makeMenuList";
-import UPHLogo from "../../../../res/images/uph_medan_campus.jpeg";
+import UPHLogo from "../../../../res/images/uph_medan_campus.png";
 import CleanLink from "../../../misc/CleanLink";
 
 const styles = theme => ({

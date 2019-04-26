@@ -189,10 +189,10 @@ function mapStateToProps(state) {
 }
 
 export default compose(
+  hasRole("SUPER_ADMIN"),
   withStyles(styles),
   connect(
     mapStateToProps,
     { ...userActions, ...snackbarActions }
-  ),
-  hasRole("SUPER_ADMIN")
+  )
 )(UserIndex);

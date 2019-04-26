@@ -19,57 +19,57 @@ export default ({ props }) => {
 
   return _.chain([
     { icon: <DashboardIcon />, label: "Dashboard", link: "/admin/dashboard" },
-    {
+    requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,
       label: "Candidates",
       link: "/admin/candidates"
-    },
-    {
+    }),
+    requireRoleMenuItem("SUPER_ADMIN")({
       icon: <LocalOfferIcon />,
       label: "Vote Tokens",
       link: "/admin/voteTokens"
-    },
-    {
+    }),
+    requireRoleMenuItem("SUPER_ADMIN")({
       icon: <InfoIcon />,
       label: "Result",
       subMenus: [
-        {
-          icon: <DoneIcon />,
-          label: "Display Result",
-          link: "/result",
-          target: "_blank"
-        },
+        // {
+        //   icon: <DoneIcon />,
+        //   label: "Display Result",
+        //   link: "/result",
+        //   target: "_blank"
+        // },
         {
           icon: <DoneIcon />,
           label: "First Place",
           link: "/result/first",
           target: "_blank"
         },
-        {
-          icon: <DoneIcon />,
-          label: "Second Place",
-          link: "/result/second",
-          target: "_blank"
-        },
-        {
-          icon: <DoneIcon />,
-          label: "Third Place",
-          link: "/result/third",
-          target: "_blank"
-        },
-        {
-          icon: <DoneIcon />,
-          label: "Display Result",
-          link: "/result",
-          target: "_blank"
-        },
+        // {
+        //   icon: <DoneIcon />,
+        //   label: "Second Place",
+        //   link: "/result/second",
+        //   target: "_blank"
+        // },
+        // {
+        //   icon: <DoneIcon />,
+        //   label: "Third Place",
+        //   link: "/result/third",
+        //   target: "_blank"
+        // },
+        // {
+        //   icon: <DoneIcon />,
+        //   label: "Display Result",
+        //   link: "/result",
+        //   target: "_blank"
+        // },
         {
           icon: <BarChartIcon />,
           label: "Chart",
           link: "/admin/chart"
         }
       ]
-    },
+    }),
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,
       label: "Users",

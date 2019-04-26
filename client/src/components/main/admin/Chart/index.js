@@ -133,7 +133,7 @@ class Chart extends React.Component {
             >
               <XAxis
                 dataKey="name"
-                tickFormatter={name => name.slice(0, 10) + ".."}
+                tickFormatter={name => name.split(" - ")[0]}
               />
               <YAxis />
               <Tooltip />
