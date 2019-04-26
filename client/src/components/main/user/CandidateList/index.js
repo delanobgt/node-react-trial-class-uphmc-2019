@@ -83,22 +83,22 @@ const styles = theme => ({
   },
   card: {
     flex: "0 0 auto",
-    width: "100vw",
-    height: "100vh",
+    width: "100%",
     display: "flex",
     alignItems: "center",
+    justifyContent: "center",
     flexDirection: "column",
     "scroll-snap-align": "center" /* latest (Chrome 69+) */,
     "-moz-scroll-snap-align": "center" /* latest (Chrome 69+) */,
     "scroll-snap-coordinate": "50% 50%" /* older (Firefox/IE) */,
     "-webkit-scroll-snap-coordinate": "50% 50%" /* older (Safari) */
   },
-  cardContent: {
-    flexGrow: 1,
-    display: "flex",
-    alignItems: "center",
-    flexDirection: "column"
-  },
+  // cardContent: {
+  //   flexGrow: 1,
+  //   display: "flex",
+  //   alignItems: "center",
+  //   flexDirection: "column"
+  // },
   orderNumberPart: {
     display: "flex",
     flexDirection: "row",
@@ -154,8 +154,7 @@ const styles = theme => ({
 
   topDiv: {
     width: "100%",
-    textAlign: "center",
-    paddingTop: "1em"
+    textAlign: "center"
   },
   topDivFixed: {
     position: "fixed",
@@ -171,9 +170,11 @@ const styles = theme => ({
     backgroundSize: "3.5em, 3.5em, 100%",
     zIndex: 10,
     visibility: "hidden",
+    display: "flex",
+    justifyContent: "flex-end",
+    flexDirection: "column",
     width: "100vw",
-    textAlign: "center",
-    paddingTop: "1em"
+    textAlign: "center"
   }
 });
 
@@ -228,6 +229,7 @@ class CandidateListIndex extends React.Component {
   };
 
   async componentDidMount() {
+    scrollSnapPolyfill();
     await this.fetchData();
 
     (() => {
@@ -293,14 +295,19 @@ class CandidateListIndex extends React.Component {
 
     $(".card-wrapper").on("scroll", function() {
       const $firstCard = $(".first-card");
+      const $firstCardOri = $(".first-card-ori");
+      console.log($firstCardOri.offset().top, $firstCardOri.outerHeight());
+      const height = $firstCardOri.offset().top + $firstCardOri.outerHeight();
       if ($firstCard.length) {
         if (this.scrollLeft >= window.innerWidth) {
           $firstCard.css({
-            visibility: "visible"
+            visibility: "visible",
+            height
           });
         } else {
           $firstCard.css({
-            visibility: "hidden"
+            visibility: "hidden",
+            height
           });
         }
       }
@@ -308,7 +315,6 @@ class CandidateListIndex extends React.Component {
   }
 
   componentWillUnmount() {
-    scrollSnapPolyfill();
     if (this.configInterval !== null) {
       clearInterval(this.configInterval);
     }
@@ -393,13 +399,17 @@ class CandidateListIndex extends React.Component {
           key={d.orderNumber}
           className={classes.card}
         >
-          <div className={classNames(classes.topDiv)}>
+          <div
+            className={classNames(classes.topDiv, {
+              "first-card-ori": index === 0
+            })}
+          >
             <div style={{ textAlign: "center" }}>
               <img
                 src={Logo}
                 alt=""
                 style={{
-                  width: "50%",
+                  width: "40%",
                   maxWidth: "250px",
                   marginBottom: "0.5em"
                 }}
@@ -414,57 +424,59 @@ class CandidateListIndex extends React.Component {
             </div>
           </div>
 
-          <div className={classes.cardContent}>
-            <div className={classes.orderNumberPart}>
-              <div className={classes.shortBar} />
-              <div className={classes.orderNumber}>{d.orderNumber}</div>
-              <div className={classes.shortBar} />
-            </div>
-            <div className={classes.imageWrapper}>
-              <Lotus size={35} />
-              <Hexagon
-                key={d.orderNumber}
-                id={d.orderNumber}
-                style={{ margin: "0 1.25em" }}
-                size={145}
-                imgUrl={_.get(
-                  d,
-                  "image.secureUrl",
-                  "https://via.placeholder.com/300"
-                )}
-              />
-              <Lotus size={35} />
-            </div>
-            <div>
-              <Lotus
-                size={20}
-                style={{
-                  display: "block",
-                  margin: "auto",
-                  marginTop: "0.5em",
-                  marginBottom: "0.65em"
-                }}
-              />
-            </div>
-            <p className={classes.fullnameParagraph}>{d.fullname}</p>
-            <div>
-              <div className={classes.longBar} />
-            </div>
-            <p className={classes.majorParagraph}>{d.major}</p>
-            <div style={{ textAlign: "center" }}>
-              <button
-                className="btn btn-grad-4"
-                style={{
-                  marginTop: "1.5em",
-                  fontFamily: "Perpetua",
-                  border: "2px solid #9c7d2d",
-                  borderRadius: "8px"
-                }}
-                onClick={() => this.toggleDialog("ConfirmDialog")(d)}
-              >
-                VOTE
-              </button>
-            </div>
+          <div className={classes.orderNumberPart}>
+            <div className={classes.shortBar} />
+            <div className={classes.orderNumber}>{d.orderNumber}</div>
+            <div className={classes.shortBar} />
+          </div>
+
+          <div className={classes.imageWrapper}>
+            <Lotus size={35} />
+            <Hexagon
+              key={d.orderNumber}
+              id={d.orderNumber}
+              style={{ margin: "0 1.25em" }}
+              size={145}
+              imgUrl={_.get(
+                d,
+                "image.secureUrl",
+                "https://via.placeholder.com/300"
+              )}
+            />
+            <Lotus size={35} />
+          </div>
+
+          <div>
+            <Lotus
+              size={20}
+              style={{
+                display: "block",
+                margin: "auto",
+                marginTop: "0.5em",
+                marginBottom: "0.65em"
+              }}
+            />
+          </div>
+
+          <p className={classes.fullnameParagraph}>{d.fullname}</p>
+          <div>
+            <div className={classes.longBar} />
+          </div>
+          <p className={classes.majorParagraph}>{d.major}</p>
+
+          <div style={{ textAlign: "center" }}>
+            <button
+              className="btn btn-grad-4"
+              style={{
+                marginTop: "1.5em",
+                fontFamily: "Perpetua",
+                border: "2px solid #9c7d2d",
+                borderRadius: "8px"
+              }}
+              onClick={() => this.toggleDialog("ConfirmDialog")(d)}
+            >
+              VOTE
+            </button>
           </div>
         </Grid>
       ));
@@ -476,7 +488,7 @@ class CandidateListIndex extends React.Component {
           <img
             src={Logo}
             alt=""
-            style={{ width: "50%", maxWidth: "250px", marginBottom: "0.5em" }}
+            style={{ width: "40%", maxWidth: "250px", marginBottom: "0.5em" }}
           />
         </div>
         <div style={{ textAlign: "center" }}>
