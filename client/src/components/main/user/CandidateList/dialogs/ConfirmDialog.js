@@ -32,7 +32,8 @@ const styles = theme => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "rgba(0, 0, 0, 0.6)"
+    background: "rgba(0, 0, 0, 0.6)",
+    zIndex: 100
   },
   dialogBox: {
     backgroundColor: "black",

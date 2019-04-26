@@ -83,8 +83,8 @@ const styles = theme => ({
   },
   card: {
     flex: "0 0 auto",
-    width: "100%",
-    padding: "1em",
+    width: "100vw",
+    height: "100vh",
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
@@ -93,13 +93,19 @@ const styles = theme => ({
     "scroll-snap-coordinate": "50% 50%" /* older (Firefox/IE) */,
     "-webkit-scroll-snap-coordinate": "50% 50%" /* older (Safari) */
   },
-
+  cardContent: {
+    flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    // justifyContent: "center",
+    flexDirection: "column"
+  },
   orderNumberPart: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "1em"
+    marginBottom: "0.7em"
   },
   orderNumber: {
     display: "flex",
@@ -149,15 +155,27 @@ const styles = theme => ({
   topDiv: {
     width: "100%",
     textAlign: "center",
-    marginBottom: "2em"
+    paddingTop: "1em",
+    paddingBottom: "2em"
   },
   topDivFixed: {
     position: "fixed",
     top: 0,
     left: 0,
-    backgroundColor: "#1b1a17",
+    backgroundImage: `
+      url(${require("../../../../res/images/top_left_trans.png")}),
+      url(${require("../../../../res/images/top_right_trans.png")}),
+      linear-gradient(to right, #1b1a17, #1b1a17)
+    `,
+    backgroundRepeat: "no-repeat, no-repeat",
+    backgroundPosition: "left 0 top 0, right 0 top 0",
+    backgroundSize: "3.5em, 3.5em, 100%",
     zIndex: 10,
-    visibility: "hidden"
+    visibility: "hidden",
+    width: "100vw",
+    textAlign: "center",
+    paddingTop: "1em",
+    paddingBottom: "2em"
   }
 });
 
@@ -277,18 +295,17 @@ class CandidateListIndex extends React.Component {
 
     $(".card-wrapper").on("scroll", function() {
       const $firstCard = $(".first-card");
-      // if ($firstCard.length) {
-      //   console.log("masuk");
-      //   if (this.scrollLeft >= window.innerWidth) {
-      //     $firstCard.css({
-      //       visibility: "visible"
-      //     });
-      //   } else {
-      //     $firstCard.css({
-      //       visibility: "hidden"
-      //     });
-      //   }
-      // }
+      if ($firstCard.length) {
+        if (this.scrollLeft >= window.innerWidth) {
+          $firstCard.css({
+            visibility: "visible"
+          });
+        } else {
+          $firstCard.css({
+            visibility: "hidden"
+          });
+        }
+      }
     });
   }
 
@@ -379,141 +396,98 @@ class CandidateListIndex extends React.Component {
           className={classes.card}
         >
           <div className={classNames(classes.topDiv)}>
-            <img
-              src={Logo}
-              alt=""
-              style={{ width: "50%", maxWidth: "250px", marginBottom: "1em" }}
-            />
-            <img
-              src={VoteForYour}
-              alt=""
-              style={{ width: "70%", maxWidth: "300px", marginBottom: "0.2em" }}
-            />
+            <div style={{ textAlign: "center" }}>
+              <img
+                src={Logo}
+                alt=""
+                style={{
+                  width: "50%",
+                  maxWidth: "250px",
+                  marginBottom: "0.5em"
+                }}
+              />
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <img
+                src={VoteForYour}
+                alt=""
+                style={{ width: "70%", maxWidth: "300px" }}
+              />
+            </div>
           </div>
 
-          <div className={classes.orderNumberPart}>
-            <div className={classes.shortBar} />
-            <div className={classes.orderNumber}>{d.orderNumber}</div>
-            <div className={classes.shortBar} />
-          </div>
-          <div className={classes.imageWrapper}>
-            <Lotus size={35} />
-            <Hexagon
-              key={d.orderNumber}
-              id={d.orderNumber}
-              style={{ margin: "0 1.25em" }}
-              size={145}
-              imgUrl={_.get(
-                d,
-                "image.secureUrl",
-                "https://via.placeholder.com/300"
-              )}
-            />
-            <Lotus size={35} />
-          </div>
-          <div>
-            <Lotus
-              size={20}
-              style={{
-                display: "block",
-                margin: "auto",
-                marginTop: "0.5em",
-                marginBottom: "0.65em"
-              }}
-            />
-          </div>
-          <p className={classes.fullnameParagraph}>{d.fullname}</p>
-          <div>
-            <div className={classes.longBar} />
-          </div>
-          <p className={classes.majorParagraph}>{d.major}</p>
-          <div style={{ textAlign: "center" }}>
-            <button
-              className="btn btn-grad-4"
-              style={{
-                marginTop: "2em",
-                fontFamily: "Perpetua",
-                border: "2px solid #9c7d2d",
-                borderRadius: "8px"
-              }}
-              onClick={() => this.toggleDialog("ConfirmDialog")(d)}
-            >
-              VOTE
-            </button>
+          <div className={classes.cardContent}>
+            <div className={classes.orderNumberPart}>
+              <div className={classes.shortBar} />
+              <div className={classes.orderNumber}>{d.orderNumber}</div>
+              <div className={classes.shortBar} />
+            </div>
+            <div className={classes.imageWrapper}>
+              <Lotus size={35} />
+              <Hexagon
+                key={d.orderNumber}
+                id={d.orderNumber}
+                style={{ margin: "0 1.25em" }}
+                size={145}
+                imgUrl={_.get(
+                  d,
+                  "image.secureUrl",
+                  "https://via.placeholder.com/300"
+                )}
+              />
+              <Lotus size={35} />
+            </div>
+            <div>
+              <Lotus
+                size={20}
+                style={{
+                  display: "block",
+                  margin: "auto",
+                  marginTop: "0.5em",
+                  marginBottom: "0.65em"
+                }}
+              />
+            </div>
+            <p className={classes.fullnameParagraph}>{d.fullname}</p>
+            <div>
+              <div className={classes.longBar} />
+            </div>
+            <p className={classes.majorParagraph}>{d.major}</p>
+            <div style={{ textAlign: "center" }}>
+              <button
+                className="btn btn-grad-4"
+                style={{
+                  marginTop: "1.5em",
+                  fontFamily: "Perpetua",
+                  border: "2px solid #9c7d2d",
+                  borderRadius: "8px"
+                }}
+                onClick={() => this.toggleDialog("ConfirmDialog")(d)}
+              >
+                VOTE
+              </button>
+            </div>
           </div>
         </Grid>
       ));
     }
 
     const fixedContent = (
-      <div
-        item
-        xs={12}
-        sm={6}
-        md={4}
-        lg={3}
-        className={classNames(classes.card, classes.topDivFixed, "first-card")}
-      >
-        <div className={classNames(classes.topDiv)}>
+      <div className={classNames(classes.topDivFixed, "first-card")}>
+        <div style={{ textAlign: "center" }}>
           <img
             src={Logo}
             alt=""
-            style={{ width: "50%", maxWidth: "250px", marginBottom: "1em" }}
+            style={{ width: "50%", maxWidth: "250px", marginBottom: "0.5em" }}
           />
+        </div>
+        <div style={{ textAlign: "center" }}>
           <img
             src={VoteForYour}
             alt=""
             style={{ width: "70%", maxWidth: "300px" }}
           />
         </div>
-
-        <div
-          className={classes.orderNumberPart}
-          style={{ visibility: "hidden" }}
-        >
-          <div className={classes.shortBar} />
-          <div className={classes.orderNumber}>---</div>
-          <div className={classes.shortBar} />
-        </div>
-        <div className={classes.imageWrapper} style={{ visibility: "hidden" }}>
-          <Lotus size={35} />
-          <Hexagon
-            key={999}
-            id={999}
-            style={{ margin: "0 1.25em" }}
-            size={145}
-            imgUrl={"https://via.placeholder.com/300"}
-          />
-          <Lotus size={35} />
-        </div>
-        <div style={{ visibility: "hidden" }}>
-          <Lotus
-            size={20}
-            style={{ marginTop: "0.5em", marginBottom: "0.65em" }}
-          />
-        </div>
-        <p
-          className={classes.fullnameParagraph}
-          style={{ visibility: "hidden" }}
-        >
-          ---
-        </p>
-        <div className={classes.longBar} style={{ visibility: "hidden" }} />
-        <p className={classes.majorParagraph} style={{ visibility: "hidden" }}>
-          ---
-        </p>
-        <button
-          className="btn btn-grad-4"
-          style={{
-            marginTop: "2em",
-            fontFamily: "Perpetua",
-            border: "2px solid #9c7d2d",
-            borderRadius: "8px",
-            visibility: "hidden"
-          }}
-        >
-          VOTE
-        </button>
       </div>
     );
 
