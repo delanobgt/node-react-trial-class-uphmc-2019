@@ -29,7 +29,7 @@ export default ({ props }) => {
       label: "Vote Tokens",
       link: "/admin/voteTokens"
     }),
-    requireRoleMenuItem("SUPER_ADMIN")({
+    {
       icon: <InfoIcon />,
       label: "Result",
       subMenus: [
@@ -69,7 +69,7 @@ export default ({ props }) => {
           link: "/admin/chart"
         }
       ]
-    }),
+    },
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,
       label: "Users",

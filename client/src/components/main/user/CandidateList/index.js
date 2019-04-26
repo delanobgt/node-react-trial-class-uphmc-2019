@@ -157,7 +157,7 @@ const styles = theme => ({
     textAlign: "center"
   },
   topDivFixed: {
-    position: "fixed",
+    position: "absolute",
     top: 0,
     left: 0,
     backgroundImage: `
@@ -471,7 +471,9 @@ class CandidateListIndex extends React.Component {
                 marginTop: "1.5em",
                 fontFamily: "Perpetua",
                 border: "2px solid #9c7d2d",
-                borderRadius: "8px"
+                borderRadius: "8px",
+                fontSize: "17px",
+                padding: "10px 24px"
               }}
               onClick={() => this.toggleDialog("ConfirmDialog")(d)}
             >
