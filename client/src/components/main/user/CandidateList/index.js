@@ -294,9 +294,14 @@ class CandidateListIndex extends React.Component {
     })();
 
     $(".card-wrapper").on("scroll", function() {
+      $(".card-wrapper").css({
+        backgroundColor: ["red", "green", "blue", "yellow", "purple"][
+          Math.floor(Math.random() * 5)
+        ]
+      });
       const $firstCard = $(".first-card");
       const $firstCardOri = $(".first-card-ori");
-      console.log($firstCardOri.offset().top, $firstCardOri.outerHeight());
+      // console.log($firstCardOri.offset().top, $firstCardOri.outerHeight());
       const height = $firstCardOri.offset().top + $firstCardOri.outerHeight();
       if ($firstCard.length) {
         if (this.scrollLeft >= window.innerWidth) {
@@ -304,10 +309,16 @@ class CandidateListIndex extends React.Component {
             visibility: "visible",
             height
           });
+          $(".ori-card").css({
+            visibility: "hidden"
+          });
         } else {
           $firstCard.css({
             visibility: "hidden",
             height
+          });
+          $(".ori-card").css({
+            visibility: "visible"
           });
         }
       }
@@ -397,12 +408,16 @@ class CandidateListIndex extends React.Component {
           md={4}
           lg={3}
           key={d.orderNumber}
-          className={classes.card}
+          className={classNames(classes.card)}
         >
           <div
-            className={classNames(classes.topDiv, {
-              "first-card-ori": index === 0
-            })}
+            className={classNames(
+              classes.topDiv,
+              {
+                "first-card-ori": index === 0
+              },
+              "ori-card"
+            )}
           >
             <div style={{ textAlign: "center" }}>
               <img
