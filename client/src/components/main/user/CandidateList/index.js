@@ -2,6 +2,7 @@ import "react-table/react-table.css";
 import "./css/gradient-button.css";
 import "./css/splash.css";
 import _ from "lodash";
+import $ from "jquery";
 import moment from "moment";
 import classNames from "classnames";
 import React, { Fragment } from "react";
@@ -18,6 +19,9 @@ import * as configurationActions from "../../../../actions/configuration";
 import ConfirmDialog from "./dialogs/ConfirmDialog";
 import Hexagon from "./svg/Hexagon";
 import Lotus from "./svg/Lotus";
+import AmbasVotingSystem from "../../../../res/images/ambas_voting_system.png";
+import VoteForYour from "../../../../res/images/vote_for_your.png";
+import Logo from "../../../../res/images/logo.png";
 
 const styles = theme => ({
   retryText: {
@@ -59,12 +63,11 @@ const styles = theme => ({
 
   cardWrapper: {
     display: "flex",
-    alignItems: "center",
     flexWrap: "nowrap",
     overflowX: "scroll",
     height: "100vh",
     width: "100vw",
-
+    alignItems: "center",
     "&::-webkit-scrollbar": {
       display: "none"
     },
@@ -80,11 +83,11 @@ const styles = theme => ({
   },
   card: {
     flex: "0 0 auto",
+    width: "100%",
+    padding: "1em",
     display: "flex",
     alignItems: "center",
     flexDirection: "column",
-    width: "100%",
-    padding: "1em",
     "scroll-snap-align": "center" /* latest (Chrome 69+) */,
     "-moz-scroll-snap-align": "center" /* latest (Chrome 69+) */,
     "scroll-snap-coordinate": "50% 50%" /* older (Firefox/IE) */,
@@ -125,30 +128,36 @@ const styles = theme => ({
 
   fullnameParagraph: {
     fontSize: "1.5em",
+    textAlign: "center",
     color: "white"
   },
   longBar: {
     width: "100px",
     height: "1px",
     backgroundColor: "#CFB539",
-    margin: "0.6em 0"
+    margin: "0.6em auto"
   },
   majorParagraph: {
     fontSize: "1em",
+    textAlign: "center",
     color: "white"
   },
-
-  voteButton: {
-    border: "3px solid #896528",
-    backgroundColor: "#D5AF34",
-    borderRadius: "9px",
-    padding: "0.35em",
-    color: "white",
-    marginTop: "1em"
-  },
-
   direction: {
     textAlign: "center"
+  },
+
+  topDiv: {
+    width: "100%",
+    textAlign: "center",
+    marginBottom: "2em"
+  },
+  topDivFixed: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    backgroundColor: "#1b1a17",
+    zIndex: 10,
+    visibility: "hidden"
   }
 });
 
@@ -249,7 +258,7 @@ class CandidateListIndex extends React.Component {
             message: (
               <Fragment>
                 <p>Swipe to see candidates</p>
-                <ArrowRightAltIcon style={{ color: "#cfb539" }} />
+                <ArrowRightAltIcon style={{ color: "white" }} />
               </Fragment>
             )
           });
@@ -265,6 +274,22 @@ class CandidateListIndex extends React.Component {
         });
       }
     })();
+
+    $(".card-wrapper").on("scroll", function() {
+      const $firstCard = $(".first-card");
+      // if ($firstCard.length) {
+      //   console.log("masuk");
+      //   if (this.scrollLeft >= window.innerWidth) {
+      //     $firstCard.css({
+      //       visibility: "visible"
+      //     });
+      //   } else {
+      //     $firstCard.css({
+      //       visibility: "hidden"
+      //     });
+      //   }
+      // }
+    });
   }
 
   componentWillUnmount() {
@@ -272,6 +297,8 @@ class CandidateListIndex extends React.Component {
     if (this.configInterval !== null) {
       clearInterval(this.configInterval);
     }
+
+    $(".card-wrapper").off("scroll");
   }
 
   render() {
@@ -292,14 +319,18 @@ class CandidateListIndex extends React.Component {
             animationClassNames[animationStatus]
           )}
         />
-        <p
+        <div
           className={classNames(
             "splash-paragraph",
             paragraphClassNames[animationStatus]
           )}
         >
-          Vote for your favourite candidate!
-        </p>
+          <img
+            alt=""
+            src={AmbasVotingSystem}
+            style={{ width: "70%", maxWidth: "300px" }}
+          />
+        </div>
 
         <div
           className={classNames(
@@ -337,7 +368,7 @@ class CandidateListIndex extends React.Component {
         }))
         .value();
 
-      mainContent = data.map(d => (
+      mainContent = data.map((d, index) => (
         <Grid
           item
           xs={12}
@@ -347,12 +378,24 @@ class CandidateListIndex extends React.Component {
           key={d.orderNumber}
           className={classes.card}
         >
+          <div className={classNames(classes.topDiv)}>
+            <img
+              src={Logo}
+              alt=""
+              style={{ width: "50%", maxWidth: "250px", marginBottom: "1em" }}
+            />
+            <img
+              src={VoteForYour}
+              alt=""
+              style={{ width: "70%", maxWidth: "300px", marginBottom: "0.2em" }}
+            />
+          </div>
+
           <div className={classes.orderNumberPart}>
             <div className={classes.shortBar} />
             <div className={classes.orderNumber}>{d.orderNumber}</div>
             <div className={classes.shortBar} />
           </div>
-
           <div className={classes.imageWrapper}>
             <Lotus size={35} />
             <Hexagon
@@ -368,44 +411,119 @@ class CandidateListIndex extends React.Component {
             />
             <Lotus size={35} />
           </div>
-
           <div>
             <Lotus
               size={20}
-              style={{ marginTop: "0.5em", marginBottom: "0.65em" }}
+              style={{
+                display: "block",
+                margin: "auto",
+                marginTop: "0.5em",
+                marginBottom: "0.65em"
+              }}
             />
           </div>
-
           <p className={classes.fullnameParagraph}>{d.fullname}</p>
-          <div className={classes.longBar} />
+          <div>
+            <div className={classes.longBar} />
+          </div>
           <p className={classes.majorParagraph}>{d.major}</p>
-
-          {/* <button
-            className={classes.voteButton}
-            onClick={() => this.toggleDialog("ConfirmDialog")(d)}
-          >
-            VOTE
-          </button> */}
-
-          <button
-            className="btn btn-grad-4"
-            style={{
-              marginTop: "2em",
-              fontFamily: "Perpetua",
-              border: "2px solid #9c7d2d",
-              borderRadius: "8px"
-            }}
-            onClick={() => this.toggleDialog("ConfirmDialog")(d)}
-          >
-            VOTE
-          </button>
+          <div style={{ textAlign: "center" }}>
+            <button
+              className="btn btn-grad-4"
+              style={{
+                marginTop: "2em",
+                fontFamily: "Perpetua",
+                border: "2px solid #9c7d2d",
+                borderRadius: "8px"
+              }}
+              onClick={() => this.toggleDialog("ConfirmDialog")(d)}
+            >
+              VOTE
+            </button>
+          </div>
         </Grid>
       ));
     }
 
+    const fixedContent = (
+      <div
+        item
+        xs={12}
+        sm={6}
+        md={4}
+        lg={3}
+        className={classNames(classes.card, classes.topDivFixed, "first-card")}
+      >
+        <div className={classNames(classes.topDiv)}>
+          <img
+            src={Logo}
+            alt=""
+            style={{ width: "50%", maxWidth: "250px", marginBottom: "1em" }}
+          />
+          <img
+            src={VoteForYour}
+            alt=""
+            style={{ width: "70%", maxWidth: "300px" }}
+          />
+        </div>
+
+        <div
+          className={classes.orderNumberPart}
+          style={{ visibility: "hidden" }}
+        >
+          <div className={classes.shortBar} />
+          <div className={classes.orderNumber}>---</div>
+          <div className={classes.shortBar} />
+        </div>
+        <div className={classes.imageWrapper} style={{ visibility: "hidden" }}>
+          <Lotus size={35} />
+          <Hexagon
+            key={999}
+            id={999}
+            style={{ margin: "0 1.25em" }}
+            size={145}
+            imgUrl={"https://via.placeholder.com/300"}
+          />
+          <Lotus size={35} />
+        </div>
+        <div style={{ visibility: "hidden" }}>
+          <Lotus
+            size={20}
+            style={{ marginTop: "0.5em", marginBottom: "0.65em" }}
+          />
+        </div>
+        <p
+          className={classes.fullnameParagraph}
+          style={{ visibility: "hidden" }}
+        >
+          ---
+        </p>
+        <div className={classes.longBar} style={{ visibility: "hidden" }} />
+        <p className={classes.majorParagraph} style={{ visibility: "hidden" }}>
+          ---
+        </p>
+        <button
+          className="btn btn-grad-4"
+          style={{
+            marginTop: "2em",
+            fontFamily: "Perpetua",
+            border: "2px solid #9c7d2d",
+            borderRadius: "8px",
+            visibility: "hidden"
+          }}
+        >
+          VOTE
+        </button>
+      </div>
+    );
+
     return (
       <Fragment>
-        <Grid container className={classes.cardWrapper}>
+        <Grid
+          container
+          className={classNames(classes.cardWrapper, "card-wrapper")}
+        >
+          {fixedContent}
           {splashContent}
           {scrollable ? mainContent : null}
         </Grid>
