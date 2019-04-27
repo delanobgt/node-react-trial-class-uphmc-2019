@@ -295,36 +295,36 @@ class CandidateListIndex extends React.Component {
       }
     })();
 
-    $(".card-wrapper").on("scroll", function() {
-      // jQuery support test
-      // $(".card-wrapper").css({
-      //   backgroundColor: ["red", "green", "blue", "yellow", "purple"][
-      //     Math.floor(Math.random() * 5)
-      //   ]
-      // });
-      const $firstCard = $(".first-card");
-      const $firstCardOri = $(".first-card-ori");
-      if ($firstCard.length) {
-        const height = $firstCardOri.offset().top + $firstCardOri.outerHeight();
-        if (this.scrollLeft >= window.innerWidth) {
-          $firstCard.css({
-            visibility: "visible",
-            height
-          });
-          $(".ori-card").css({
-            visibility: "hidden"
-          });
-        } else {
-          $firstCard.css({
-            visibility: "hidden",
-            height
-          });
-          $(".ori-card").css({
-            visibility: "visible"
-          });
-        }
-      }
-    });
+    // $(".card-wrapper").on("scroll", function() {
+    //   // jQuery support test
+    //   // $(".card-wrapper").css({
+    //   //   backgroundColor: ["red", "green", "blue", "yellow", "purple"][
+    //   //     Math.floor(Math.random() * 5)
+    //   //   ]
+    //   // });
+    //   const $firstCard = $(".first-card");
+    //   const $firstCardOri = $(".first-card-ori");
+    //   if ($firstCard.length) {
+    //     const height = $firstCardOri.offset().top + $firstCardOri.outerHeight();
+    //     if (this.scrollLeft >= window.innerWidth) {
+    //       $firstCard.css({
+    //         visibility: "visible",
+    //         height
+    //       });
+    //       $(".ori-card").css({
+    //         visibility: "hidden"
+    //       });
+    //     } else {
+    //       $firstCard.css({
+    //         visibility: "hidden",
+    //         height
+    //       });
+    //       $(".ori-card").css({
+    //         visibility: "visible"
+    //       });
+    //     }
+    //   }
+    // });
   }
 
   componentWillUnmount() {
@@ -412,7 +412,7 @@ class CandidateListIndex extends React.Component {
           key={d.orderNumber}
           className={classNames(classes.card)}
         >
-          <div
+          {/* <div
             className={classNames(
               classes.topDiv,
               {
@@ -439,7 +439,7 @@ class CandidateListIndex extends React.Component {
                 style={{ width: "70%", maxWidth: "300px" }}
               />
             </div>
-          </div>
+          </div> */}
 
           <div className={classes.orderNumberPart}>
             <div className={classes.shortBar} />
@@ -501,32 +501,12 @@ class CandidateListIndex extends React.Component {
       ));
     }
 
-    const fixedContent = (
-      <div className={classNames(classes.topDivFixed, "first-card")}>
-        <div style={{ textAlign: "center" }}>
-          <img
-            src={Logo}
-            alt=""
-            style={{ width: "40%", maxWidth: "250px", marginBottom: "0.5em" }}
-          />
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <img
-            src={VoteForYour}
-            alt=""
-            style={{ width: "70%", maxWidth: "300px" }}
-          />
-        </div>
-      </div>
-    );
-
     return (
-      <div style={{ position: "relative" }}>
+      <div style={{}}>
         <Grid
           container
           className={classNames(classes.cardWrapper, "card-wrapper")}
         >
-          {fixedContent}
           {splashContent}
           {scrollable ? mainContent : null}
         </Grid>
