@@ -104,6 +104,42 @@ exports.getVoteTokenById = async (req, res) => {
   }
 };
 
+exports.getVoteTokenByValue = async (req, res) => {
+  const { voteTokenValue } = req.params;
+  try {
+    const voteToken = await db.VoteToken.findOne({
+      valueHash: hash(voteTokenValue.toUpperCase())
+    });
+    if (!voteToken) {
+      return res.status(422).json({ error: { msg: "Token doesn't exist!" } });
+    }
+    res.json(encapsulateVoteToken(voteToken, req.user));
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: { msg: "Please try again!" } });
+  }
+};
+
+exports.replaceVoteTokenById = async (req, res) => {
+  const { voteTokenId } = req.params;
+  try {
+    const voteToken = await db.VoteToken.findById(voteTokenId);
+    const value = (await crypto.randomBytes(3))
+      .toString("hex")
+      .toUpperCase()
+      .replace(/0/g, "Y")
+      .replace(/O/g, "Z");
+    voteToken.valueHash = hash(value);
+    voteToken.usedAt = null;
+    voteToken.candidateId = null;
+    await voteToken.save();
+    res.json({ value });
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: { msg: "Please try again!" } });
+  }
+};
+
 exports.getVoteTokenCaptchaImageByIp = async (req, res) => {
   const { myOwnUniqueId } = req.query;
   console.log("get capthca", myOwnUniqueId);

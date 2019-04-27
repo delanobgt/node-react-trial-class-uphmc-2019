@@ -15,6 +15,7 @@ import Socket from "./Socket";
 
 import Candidate from "./Candidate";
 import VoteToken from "./VoteToken";
+import VoteTokenDetail from "./VoteTokenDetail";
 import Chart from "./Chart/Loadable";
 import User from "./User/Loadable";
 
@@ -30,6 +31,7 @@ class App extends Component {
         <Switch>
           <Route path="/admin/dashboard" exact component={Dashboard} />
           <Route path="/admin/candidates" component={Candidate} />
+          <Route path="/admin/voteTokens/detail" component={VoteTokenDetail} />
           <Route path="/admin/voteTokens" component={VoteToken} />
           <Route path="/admin/chart" component={Chart} />
           <Route path="/admin/users" component={User} />

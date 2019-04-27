@@ -11,7 +11,17 @@ router.post(
 router.get("/", requireAuth, hasRole("SUPER_ADMIN"), controller.getVoteTokens);
 router.get("/captcha", controller.getVoteTokenCaptchaImageByIp);
 router.get("/:voteTokenId", requireAuth, controller.getVoteTokenById);
+router.get(
+  "/value/:voteTokenValue",
+  requireAuth,
+  controller.getVoteTokenByValue
+);
 router.put("/", controller.updateVoteTokenByValue);
+router.put(
+  "/:voteTokenId/replace",
+  requireAuth,
+  controller.replaceVoteTokenById
+);
 router.delete(
   "/:voteTokenId",
   requireAuth,

@@ -46,6 +46,14 @@ export const getVoteTokenById = id => async dispatch => {
   return payload;
 };
 
+export const getVoteTokenByValue = value => async dispatch => {
+  const response = await votingApi().get(
+    `/voteTokens/value/${value.replace(/ /g, "").toUpperCase()}`
+  );
+  const payload = { voteToken: response.data };
+  return payload;
+};
+
 export const updateVoteTokenByValue = ({
   tokenValue,
   captchaValue,
@@ -63,6 +71,12 @@ export const updateVoteTokenByValue = ({
     type: VOTE_TOKEN_UPDATE_BY_VALUE,
     payload
   });
+  return payload;
+};
+
+export const replaceVoteTokenById = id => async dispatch => {
+  const response = await votingApi().put(`/voteTokens/${id}/replace`);
+  const payload = { newVoteToken: response.data };
   return payload;
 };
 

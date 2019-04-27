@@ -8,7 +8,8 @@ import {
   LocalOffer as LocalOfferIcon,
   Info as InfoIcon,
   BarChart as BarChartIcon,
-  Done as DoneIcon
+  Done as DoneIcon,
+  Search as SearchIcon
 } from "@material-ui/icons";
 
 export default ({ props }) => {
@@ -27,7 +28,18 @@ export default ({ props }) => {
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <LocalOfferIcon />,
       label: "Vote Tokens",
-      link: "/admin/voteTokens"
+      subMenus: [
+        {
+          icon: <LocalOfferIcon />,
+          label: "All Vote Tokens",
+          link: "/admin/voteTokens"
+        },
+        {
+          icon: <SearchIcon />,
+          label: "Find Vote Token",
+          link: "/admin/voteTokens/detail"
+        }
+      ]
     }),
     {
       icon: <InfoIcon />,

@@ -275,7 +275,6 @@ class ResultIndex extends React.Component {
       loadingStatus,
       candidateIndex,
       allCandidates,
-      top3Candidates,
       stepIndex,
       sounds
     } = this.state;
