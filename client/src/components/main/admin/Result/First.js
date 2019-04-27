@@ -1,4 +1,5 @@
 import "react-table/react-table.css";
+import "./css/style.css";
 import _ from "lodash";
 import classNames from "classnames";
 import React, { Fragment } from "react";
@@ -71,15 +72,6 @@ const styles = theme => ({
     "-webkit-background-clip": "text",
     "-webkit-text-fill-color": "transparent"
   },
-  winnerParagraph: {
-    textAlign: "center",
-    fontSize: "60%",
-    fontWeight: "bold",
-    marginBottom: "0.5em",
-    background: "linear-gradient(135deg, #f4d627, #ffffff, #f7f5dd, #f4d627)",
-    "-webkit-background-clip": "text",
-    "-webkit-text-fill-color": "transparent"
-  },
 
   orderNumberPart: {
     display: "flex",
@@ -112,7 +104,7 @@ const styles = theme => ({
     color: "white"
   },
   longBar: {
-    width: "200px",
+    width: "300px",
     height: "1.5px",
     backgroundColor: "#CFB539",
     margin: "1.2em 0"
@@ -331,16 +323,24 @@ class ResultIndex extends React.Component {
                         1<sup>st</sup> RUNNER UP
                       </p>
                     ) : (
-                      <div style={{ textAlign: "center" }}>
+                      <div
+                        style={{ textAlign: "center" }}
+                        className={classNames(
+                          infoEnabled
+                            ? "winner-paragraph-show"
+                            : "winner-paragraph-hide"
+                        )}
+                      >
                         <img
                           alt=""
                           src={Winner}
-                          style={{ width: "45%", marginBottom: "1em" }}
+                          style={{ width: "45%", marginBottom: "0.5em" }}
                         />
                       </div>
                     )}
                   </div>
                 </Grid>
+
                 <Grid
                   item
                   xs={12}
@@ -350,7 +350,7 @@ class ResultIndex extends React.Component {
                     justifyContent: "center"
                   }}
                 >
-                  <div style={{ marginRight: "2.5em" }}>
+                  <div style={{}}>
                     <Hexagon
                       id={1}
                       sectionIndex={sectionIndex}
@@ -368,9 +368,9 @@ class ResultIndex extends React.Component {
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "center",
-                      alignItems: "center",
-                      marginLeft: "2.5em"
+                      alignItems: "center"
                     }}
+                    className={infoEnabled ? "info-show" : "info-hide"}
                   >
                     <div className={classes.orderNumberPart}>
                       <div className={classes.shortBar} />
@@ -395,12 +395,10 @@ class ResultIndex extends React.Component {
                     </div>
 
                     <p className={classes.fullnameParagraph}>
-                      {infoEnabled ? pad2(candidate.fullname) : "-----"}
+                      {candidate.fullname}
                     </p>
                     <div className={classes.longBar} />
-                    <p className={classes.majorParagraph}>
-                      {infoEnabled ? pad2(candidate.major) : "---"}
-                    </p>
+                    <p className={classes.majorParagraph}>{candidate.major}</p>
                   </div>
                 </Grid>
               </Fragment>

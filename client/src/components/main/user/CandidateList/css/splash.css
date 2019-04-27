@@ -4,17 +4,17 @@
 }
 .splash-logo-1 {
   width: 80%;
-  max-width: 500px;
+  max-width: 600px;
   opacity: 0;
 }
 .splash-logo-2 {
   width: 80%;
-  max-width: 500px;
+  max-width: 600px;
   opacity: 1;
 }
 .splash-logo-3 {
   width: 65%;
-  max-width: 320px;
+  max-width: 380px;
   opacity: 1;
 }
 

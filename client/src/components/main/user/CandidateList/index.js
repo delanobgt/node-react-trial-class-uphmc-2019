@@ -197,10 +197,22 @@ class CandidateListIndex extends React.Component {
     loadingStatus: LOADING,
     animationStatus: 0,
     scrollable: false,
-    message: null
+    message: null,
+    innerHeight: window.innerHeight,
+    innerWidth: window.innerWidth
   };
 
   configInterval = null;
+
+  updateDimensions = () => {
+    this.setState({
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight
+    });
+  };
+  componentWillMount() {
+    this.updateDimensions();
+  }
 
   fetchData = async () => {
     const { getCandidates, getConfiguration } = this.props;
@@ -231,6 +243,8 @@ class CandidateListIndex extends React.Component {
   };
 
   async componentDidMount() {
+    window.addEventListener("resize", this.updateDimensions);
+
     scrollSnapPolyfill();
     await this.fetchData();
 
@@ -328,6 +342,8 @@ class CandidateListIndex extends React.Component {
   }
 
   componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions);
+
     if (this.configInterval !== null) {
       clearInterval(this.configInterval);
     }
@@ -337,7 +353,14 @@ class CandidateListIndex extends React.Component {
 
   render() {
     const { classes, candidates } = this.props;
-    const { loadingStatus, animationStatus, message, scrollable } = this.state;
+    const {
+      loadingStatus,
+      animationStatus,
+      message,
+      scrollable,
+      innerWidth,
+      innerHeight
+    } = this.state;
 
     let splashContent = null;
     let mainContent = null;
@@ -362,7 +385,7 @@ class CandidateListIndex extends React.Component {
           <img
             alt=""
             src={AmbasVotingSystem}
-            style={{ width: "70%", maxWidth: "300px" }}
+            style={{ width: "70%", maxWidth: "350px" }}
           />
         </div>
 
@@ -406,13 +429,13 @@ class CandidateListIndex extends React.Component {
         <Grid
           item
           xs={12}
-          sm={6}
-          md={4}
-          lg={3}
+          sm={12}
+          md={12}
+          lg={12}
           key={d.orderNumber}
           className={classNames(classes.card)}
         >
-          {/* <div
+          <div
             className={classNames(
               classes.topDiv,
               {
@@ -439,7 +462,7 @@ class CandidateListIndex extends React.Component {
                 style={{ width: "70%", maxWidth: "300px" }}
               />
             </div>
-          </div> */}
+          </div>
 
           <div className={classes.orderNumberPart}>
             <div className={classes.shortBar} />
@@ -453,7 +476,8 @@ class CandidateListIndex extends React.Component {
               key={d.orderNumber}
               id={d.orderNumber}
               style={{ margin: "0 1.25em" }}
-              size={145}
+              // size={145}
+              size={Math.min(260, 0.4 * innerWidth)}
               imgUrl={_.get(
                 d,
                 "image.secureUrl",

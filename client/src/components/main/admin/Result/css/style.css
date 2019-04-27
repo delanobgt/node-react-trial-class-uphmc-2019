@@ -1,0 +1,23 @@
+info-hide {
+  transition: 1s;
+  visibility: hidden;
+  width: 0;
+  padding-left: 0;
+  height: 0;
+}
+info-show {
+  transition: 1s;
+  visibility: visible;
+  width: auto;
+  padding-left: 5em;
+  height: 100%;
+}
+
+winner-paragraph-hide {
+  transition: 1s;
+  visibility: hidden;
+}
+winner-paragraph-show {
+  transition: 1s;
+  visibility: visible;
+}
