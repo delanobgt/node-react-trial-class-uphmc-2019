@@ -1,5 +1,5 @@
 import "react-table/react-table.css";
-import "./css/style.css";
+import customStyles from "./css/anim.css";
 import _ from "lodash";
 import classNames from "classnames";
 import React, { Fragment } from "react";
@@ -327,8 +327,8 @@ class ResultIndex extends React.Component {
                         style={{ textAlign: "center" }}
                         className={classNames(
                           infoEnabled
-                            ? "winner-paragraph-show"
-                            : "winner-paragraph-hide"
+                            ? customStyles["winner-paragraph-show"]
+                            : customStyles["winner-paragraph-hide"]
                         )}
                       >
                         <img
@@ -370,7 +370,11 @@ class ResultIndex extends React.Component {
                       justifyContent: "center",
                       alignItems: "center"
                     }}
-                    className={infoEnabled ? "info-show" : "info-hide"}
+                    className={
+                      infoEnabled
+                        ? customStyles["info-show"]
+                        : customStyles["info-hide"]
+                    }
                   >
                     <div className={classes.orderNumberPart}>
                       <div className={classes.shortBar} />
