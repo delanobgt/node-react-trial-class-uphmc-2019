@@ -62,6 +62,7 @@ const styles = theme => ({
   },
 
   cardWrapper: {
+    // position: "relative",
     display: "flex",
     flexWrap: "nowrap",
     overflowX: "scroll",
@@ -160,6 +161,7 @@ const styles = theme => ({
     position: "absolute",
     top: 0,
     left: 0,
+    right: 0,
     backgroundImage: `
       url(${require("../../../../res/images/top_left_trans.png")}),
       url(${require("../../../../res/images/top_right_trans.png")}),
@@ -294,16 +296,16 @@ class CandidateListIndex extends React.Component {
     })();
 
     $(".card-wrapper").on("scroll", function() {
-      $(".card-wrapper").css({
-        backgroundColor: ["red", "green", "blue", "yellow", "purple"][
-          Math.floor(Math.random() * 5)
-        ]
-      });
+      // jQuery support test
+      // $(".card-wrapper").css({
+      //   backgroundColor: ["red", "green", "blue", "yellow", "purple"][
+      //     Math.floor(Math.random() * 5)
+      //   ]
+      // });
       const $firstCard = $(".first-card");
       const $firstCardOri = $(".first-card-ori");
-      // console.log($firstCardOri.offset().top, $firstCardOri.outerHeight());
-      const height = $firstCardOri.offset().top + $firstCardOri.outerHeight();
       if ($firstCard.length) {
+        const height = $firstCardOri.offset().top + $firstCardOri.outerHeight();
         if (this.scrollLeft >= window.innerWidth) {
           $firstCard.css({
             visibility: "visible",
@@ -519,7 +521,7 @@ class CandidateListIndex extends React.Component {
     );
 
     return (
-      <Fragment>
+      <div style={{ position: "relative" }}>
         <Grid
           container
           className={classNames(classes.cardWrapper, "card-wrapper")}
@@ -536,7 +538,7 @@ class CandidateListIndex extends React.Component {
             toggleDialog={this.toggleDialog}
           />
         )}
-      </Fragment>
+      </div>
     );
   }
 }

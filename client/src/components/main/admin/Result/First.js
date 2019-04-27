@@ -73,7 +73,7 @@ const styles = theme => ({
   },
   winnerParagraph: {
     textAlign: "center",
-    fontSize: "5.5em",
+    fontSize: "60%",
     fontWeight: "bold",
     marginBottom: "0.5em",
     background: "linear-gradient(135deg, #f4d627, #ffffff, #f7f5dd, #f4d627)",
@@ -292,17 +292,12 @@ class ResultIndex extends React.Component {
             alignItems: "center"
           }}
         >
-          <Grid container justify="center">
-            <Grid
-              item
-              xs={12}
-              style={{ textAlign: "center", marginTop: "3em" }}
-            >
+          <Grid container justify="center" alignItems="center">
+            <Grid item xs={12} style={{ textAlign: "center" }}>
               <img
                 src={require("../../../../res/images/logo.png")}
                 alt=""
                 style={{ width: "250px" }}
-                className={classes.logo}
               />
             </Grid>
 
@@ -326,7 +321,7 @@ class ResultIndex extends React.Component {
             ) : (
               <Fragment>
                 <Grid item xs={12}>
-                  <div style={{ marginTop: "1em" }}>
+                  <div style={{ marginTop: "0em" }}>
                     {sectionIndex === 0 ? (
                       <p className={classes.secondRunnerUpParagraph}>
                         2<sup>nd</sup> RUNNER UP
@@ -340,7 +335,7 @@ class ResultIndex extends React.Component {
                         <img
                           alt=""
                           src={Winner}
-                          style={{ width: "30%", marginBottom: "2em" }}
+                          style={{ width: "45%", marginBottom: "1em" }}
                         />
                       </div>
                     )}
@@ -359,7 +354,7 @@ class ResultIndex extends React.Component {
                     <Hexagon
                       id={1}
                       sectionIndex={sectionIndex}
-                      size={240}
+                      size={380}
                       imgUrl={
                         stepIndex % 5 === 0
                           ? QuestionMark
