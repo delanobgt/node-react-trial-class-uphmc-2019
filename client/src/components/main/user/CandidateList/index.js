@@ -358,8 +358,7 @@ class CandidateListIndex extends React.Component {
       animationStatus,
       message,
       scrollable,
-      innerWidth,
-      innerHeight
+      innerWidth
     } = this.state;
 
     let splashContent = null;

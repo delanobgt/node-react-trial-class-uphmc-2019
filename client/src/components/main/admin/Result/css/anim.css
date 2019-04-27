@@ -1,23 +1,27 @@
-info-hide {
-  transition: 1s;
+.info-hide {
+  transition: 2s;
   visibility: hidden;
+  opacity: 0;
   width: 0;
   padding-left: 0;
   height: 0;
 }
-info-show {
-  transition: 1s;
+.info-show {
+  transition: 2s;
   visibility: visible;
+  opacity: 1;
   width: auto;
   padding-left: 5em;
   height: 100%;
 }
 
-winner-paragraph-hide {
-  transition: 1s;
+.winner-paragraph-hide {
+  transition: 2s;
   visibility: hidden;
+  opacity: 0;
 }
-winner-paragraph-show {
-  transition: 1s;
+.winner-paragraph-show {
+  transition: 2s;
   visibility: visible;
+  opacity: 1;
 }

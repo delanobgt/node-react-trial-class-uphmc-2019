@@ -1,6 +1,10 @@
 import "react-table/react-table.css";
-import customStyles from "./css/anim.css";
+import "./css/anim.css";
+import TickSound from "../../../../res/songs/tick.mp3";
+import TadaSound from "../../../../res/songs/tada.mp3";
+import Sound from "react-sound";
 import _ from "lodash";
+import moment from "moment";
 import classNames from "classnames";
 import React, { Fragment } from "react";
 import { compose } from "redux";
@@ -154,10 +158,17 @@ class ResultIndex extends React.Component {
     top3Candidates: [],
     allCandidates: [],
     candidateIndex: 0,
-    stepIndex: 10
+    stepIndex: 10,
+    sounds: {}
   };
 
   alive = false;
+
+  handleSongFinishedPlaying = removedId => () => {
+    this.setState(state => ({
+      sounds: _.pickBy(state.sounds, (special, id) => id !== removedId)
+    }));
+  };
 
   fetchData = async () => {
     const { getCandidates, getVoteTokens } = this.props;
@@ -168,16 +179,19 @@ class ResultIndex extends React.Component {
 
       const voteTokensPerCandidate = _.groupBy(voteTokens, "candidateId");
       const top3Candidates = _.chain(candidates)
-        .sortBy(cand => -(voteTokensPerCandidate[cand._id] || []).length)
+        .sortBy(
+          [cand => -(voteTokensPerCandidate[cand._id] || []).length],
+          [cand => cand.orderNumber]
+        )
         .slice(0, 3)
         .reverse()
         .value();
 
-      this.setState({
+      this.setState(state => ({
         loadingStatus: IDLE,
         top3Candidates,
         allCandidates: _.values(candidates)
-      });
+      }));
       setTimeout(this.mainLoop, 200);
     } catch (error) {
       console.log({ error });
@@ -198,13 +212,25 @@ class ResultIndex extends React.Component {
     if (stepIndex % 5 === 0) {
     } else if (stepIndex % 5 === 4) {
       const candidate = allCandidates[candidateIndex];
+      const newCandidateIndex = (candidateIndex + 1) % allCandidates.length;
       if (candidate._id !== top3Candidates[Math.floor(stepIndex / 5)]._id) {
-        const newCandidateIndex = (candidateIndex + 1) % allCandidates.length;
-        this.setState({ candidateIndex: newCandidateIndex });
+        this.setState(state => ({
+          candidateIndex: newCandidateIndex,
+          sounds: { ...state.sounds, [moment().valueOf()]: false }
+        }));
+      } else {
+        this.alive = false;
+        this.setState(state => ({
+          candidateIndex: newCandidateIndex,
+          sounds: { ...state.sounds, [moment().valueOf()]: true }
+        }));
       }
     } else {
       const newCandidateIndex = (candidateIndex + 1) % allCandidates.length;
-      this.setState({ candidateIndex: newCandidateIndex });
+      this.setState(state => ({
+        candidateIndex: newCandidateIndex,
+        sounds: { ...state.sounds, [moment().valueOf()]: false }
+      }));
     }
 
     if (this.alive)
@@ -251,19 +277,32 @@ class ResultIndex extends React.Component {
       candidateIndex,
       allCandidates,
       top3Candidates,
-      stepIndex
+      stepIndex,
+      sounds
     } = this.state;
     const candidate = allCandidates[candidateIndex];
     const sectionIndex = Math.floor(stepIndex / 5);
 
-    const infoEnabled =
-      stepIndex % 5 === 4 &&
-      candidate._id === top3Candidates[Math.floor(stepIndex / 5)]._id;
+    // const infoEnabled =
+    //   stepIndex % 5 === 4 &&
+    //   candidate._id === top3Candidates[Math.floor(stepIndex / 5)]._id;
+
+    const infoEnabled = !this.alive;
 
     const opacities = [0.5, 0.75, 1];
 
     return (
       <Fragment>
+        {_.map(sounds, (special, id) => (
+          <Sound
+            key={id}
+            url={special ? TadaSound : TickSound}
+            playStatus={Sound.status.PLAYING}
+            volume={100}
+            onFinishedPlaying={this.handleSongFinishedPlaying(id)}
+          />
+        ))}
+
         <BackgroundBig opacity={opacities[sectionIndex]} />
 
         <div className={classes.dotContainer}>
@@ -327,8 +366,8 @@ class ResultIndex extends React.Component {
                         style={{ textAlign: "center" }}
                         className={classNames(
                           infoEnabled
-                            ? customStyles["winner-paragraph-show"]
-                            : customStyles["winner-paragraph-hide"]
+                            ? "winner-paragraph-show"
+                            : "winner-paragraph-hide"
                         )}
                       >
                         <img
@@ -370,11 +409,7 @@ class ResultIndex extends React.Component {
                       justifyContent: "center",
                       alignItems: "center"
                     }}
-                    className={
-                      infoEnabled
-                        ? customStyles["info-show"]
-                        : customStyles["info-hide"]
-                    }
+                    className={infoEnabled ? "info-show" : "info-hide"}
                   >
                     <div className={classes.orderNumberPart}>
                       <div className={classes.shortBar} />
