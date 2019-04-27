@@ -51,10 +51,12 @@ export const updateVoteTokenByValue = ({
   captchaValue,
   candidateId
 }) => async dispatch => {
+  console.log("myOwnUniqueId", window.myOwnUniqueId);
   const response = await votingApi().put(`/voteTokens`, {
     tokenValue,
     captchaValue,
-    candidateId
+    candidateId,
+    myOwnUniqueId: window.myOwnUniqueId
   });
   const payload = { voteToken: response.data };
   dispatch({

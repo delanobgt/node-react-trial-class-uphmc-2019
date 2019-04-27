@@ -20,18 +20,14 @@ function encapsulateVoteToken(voteToken, user) {
     };
 }
 
-async function newCaptcha(ip) {
+async function newCaptcha(myOwnUniqueId) {
   return new db.Captcha({
-    ip,
+    myOwnUniqueId,
     value: (await crypto.randomBytes(2))
       .toString("hex")
       .toUpperCase()
       .replace(/0/g, "Y")
-      .replace(/O/g, "Z"),
-    remainingTry: 3,
-    validUntil: moment()
-      .add(10, "minutes")
-      .valueOf()
+      .replace(/O/g, "Z")
   });
 }
 
@@ -41,10 +37,6 @@ async function renewCaptcha(captcha) {
     .toUpperCase()
     .replace(/0/g, "Y")
     .replace(/O/g, "Z");
-  captcha.remainingTry = 3;
-  captcha.validUntil = moment()
-    .add(10, "minutes")
-    .valueOf();
   return captcha;
 }
 
@@ -113,19 +105,14 @@ exports.getVoteTokenById = async (req, res) => {
 };
 
 exports.getVoteTokenCaptchaImageByIp = async (req, res) => {
-  const { ip } = req;
+  const { myOwnUniqueId } = req.query;
+  console.log("get capthca", myOwnUniqueId);
   try {
     let captcha = await db.Captcha.findOne({
-      ip
+      myOwnUniqueId
     });
     if (!captcha) {
-      captcha = await newCaptcha(ip);
-      await captcha.save();
-    } else if (
-      captcha.remainingTry === 0 ||
-      captcha.validUntil < moment().valueOf()
-    ) {
-      captcha = await renewCaptcha(captcha);
+      captcha = await newCaptcha(myOwnUniqueId);
       await captcha.save();
     }
     canvas.generateCaptchaImagePngStream(captcha).pipe(res);
@@ -137,7 +124,8 @@ exports.getVoteTokenCaptchaImageByIp = async (req, res) => {
 
 exports.updateVoteTokenByValue = async (req, res) => {
   const { tokenValue, candidateId, captchaValue } = req.body;
-  const { ip } = req;
+  const { myOwnUniqueId } = req.body;
+  console.log("update capthca", myOwnUniqueId);
 
   let voteTokenSession = null,
     captchaSession = null;
@@ -165,36 +153,24 @@ exports.updateVoteTokenByValue = async (req, res) => {
       }
     }
 
-    let captcha = await db.Captcha.findOne({ ip });
+    let captcha = await db.Captcha.findOne({ myOwnUniqueId });
 
     if (!captcha) {
       console.log("tidak ada captcha!");
-      captcha = await newCaptcha(ip);
+      captcha = await newCaptcha(myOwnUniqueId);
       await captcha.save();
       await captchaSession.commitTransaction();
       return res.status(422).json({
-        error: { msg: "Captcha is wrong! Please retype.", expired: true }
+        error: { msg: "Captcha is wrong! Please type again." }
       });
-    } else if (false && captcha.validUntil < moment().valueOf()) {
-      console.log("captcha expired!");
+    } else if (captcha.value !== captchaValue.toUpperCase()) {
+      console.log(captcha.value, captchaValue.toUpperCase());
+      console.log("captcha mismatch!");
       captcha = await renewCaptcha(captcha);
       await captcha.save();
       await captchaSession.commitTransaction();
       return res.status(422).json({
-        error: { msg: "Captcha expired, please retry!", expired: true }
-      });
-    } else if (captcha.value !== captchaValue.toUpperCase()) {
-      console.log("captcha mismatch!");
-      captcha.remainingTry -= 1;
-      let expired = false;
-      if (captcha.remainingTry === 0) {
-        expired = true;
-        captcha = await renewCaptcha(captcha);
-      }
-      await captcha.save();
-      await captchaSession.commitTransaction();
-      return res.status(422).json({
-        error: { msg: "Captcha is wrong! Please retype.", expired }
+        error: { msg: "Captcha is wrong! Please retype." }
       });
     }
 
@@ -203,17 +179,10 @@ exports.updateVoteTokenByValue = async (req, res) => {
     });
     if (!voteToken) {
       console.log("tidak ada voteToken!");
-      captcha.remainingTry -= 1;
-      let expired = false;
-      if (captcha.remainingTry === 0) {
-        expired = true;
-        captcha = await renewCaptcha(captcha);
-      }
+      captcha = await renewCaptcha(captcha);
       await captcha.save();
       await captchaSession.commitTransaction();
-      return res
-        .status(422)
-        .json({ error: { msg: "Token doesn't exist!", expired } });
+      return res.status(422).json({ error: { msg: "Token doesn't exist!" } });
     } else if (voteToken.candidateId) {
       console.log("voteToken sudah dipake!");
       return res.status(422).json({ error: { msg: "Token has been used!" } });
@@ -222,22 +191,16 @@ exports.updateVoteTokenByValue = async (req, res) => {
     const candidate = await db.Candidate.findById(candidateId);
     if (!candidate) {
       console.log("tidak ada candidate!");
-      captcha.remainingTry -= 1;
-      let expired = false;
-      if (captcha.remainingTry === 0) {
-        expired = true;
-        captcha = await renewCaptcha(captcha);
-      }
+      captcha = await renewCaptcha(captcha);
       await captcha.save();
       await captchaSession.commitTransaction();
       return res
         .status(422)
-        .json({ error: { msg: "Candidate doesn't exist!", expired } });
+        .json({ error: { msg: "Candidate doesn't exist!" } });
     }
 
     console.log("semua aman");
-    captcha.validUntil = -1;
-    await captcha.save();
+    await captcha.remove();
     voteToken.candidateId = candidateId;
     voteToken.usedAt = moment().toDate();
     await voteToken.save();
@@ -255,12 +218,6 @@ exports.updateVoteTokenByValue = async (req, res) => {
   } finally {
     if (voteTokenSession) voteTokenSession.endSession();
     if (captchaSession) await captchaSession.endSession();
-
-    db.Captcha.remove({
-      validUntil: { $lt: moment().valueOf() }
-    })
-      .then(() => {})
-      .catch(error => console.log({ error }));
   }
 };
 

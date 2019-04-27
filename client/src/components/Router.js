@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
@@ -20,6 +21,10 @@ import Background from "./misc/Background";
 import AdminRouter from "./main/admin/AdminRouter";
 
 class App extends Component {
+  async componentDidMount() {
+    window.myOwnUniqueId = (await crypto.randomBytes(48)).toString("hex");
+  }
+
   render() {
     return (
       <BrowserRouter>

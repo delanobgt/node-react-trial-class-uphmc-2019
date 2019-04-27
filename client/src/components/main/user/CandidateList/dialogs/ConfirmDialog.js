@@ -126,10 +126,10 @@ const SUBMITTING = "SUBMITTING",
   IDLE = "IDLE";
 
 function getNewCaptchaUrl() {
-  return (
-    `${process.env.REACT_APP_API_BASE_URL ||
-      window.location.origin}/api/voteTokens/captcha?` + new Date().getTime()
-  );
+  return `${process.env.REACT_APP_API_BASE_URL ||
+    window.location.origin}/api/voteTokens/captcha?myOwnUniqueId=${
+    window.myOwnUniqueId
+  }&${new Date().getTime()}`;
 }
 
 const INITIAL_STATE = {
@@ -148,6 +148,7 @@ class ConfirmDialog extends React.Component {
 
   componentDidMount() {
     if (this.pinInput) this.pinInput.focus();
+    this.setState({ captchaUrl: getNewCaptchaUrl() });
   }
 
   handleFirstSubmit = async () => {
@@ -197,12 +198,9 @@ class ConfirmDialog extends React.Component {
           error,
           "response.data.error.msg",
           "Please try again!"
-        )
+        ),
+        captchaUrl: getNewCaptchaUrl()
       });
-      if (_.get(error, "response.data.error.expired", false)) {
-        console.log("getNewCaptchaUrl");
-        this.setState({ captchaUrl: getNewCaptchaUrl() });
-      }
     } finally {
       this.setState({ submitStatus: IDLE });
     }
@@ -387,7 +385,12 @@ class ConfirmDialog extends React.Component {
                       "btn-disabled": submitStatus === SUBMITTING
                     })}
                     style={{ width: "7em", fontFamily: "Perpetua" }}
-                    onClick={() => this.setState({ stepIndex: 0 })}
+                    onClick={() =>
+                      this.setState({
+                        stepIndex: 0,
+                        captchaValueError: <span>&nbsp;</span>
+                      })
+                    }
                     disabled={submitStatus === SUBMITTING}
                   >
                     BACK

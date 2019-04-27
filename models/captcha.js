@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const captchaSchema = new mongoose.Schema(
   {
-    ip: {
+    myOwnUniqueId: {
       type: String,
       required: true,
       unique: true,
@@ -10,14 +10,6 @@ const captchaSchema = new mongoose.Schema(
     },
     value: {
       type: String,
-      required: true
-    },
-    remainingTry: {
-      type: Number,
-      required: true
-    },
-    validUntil: {
-      type: Number,
       required: true
     }
   },
