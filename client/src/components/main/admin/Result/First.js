@@ -212,8 +212,8 @@ class ResultIndex extends React.Component {
     if (stepIndex % 5 === 0) {
     } else if (stepIndex % 5 === 4) {
       const candidate = allCandidates[candidateIndex];
-      const newCandidateIndex = (candidateIndex + 1) % allCandidates.length;
       if (candidate._id !== top3Candidates[Math.floor(stepIndex / 5)]._id) {
+        const newCandidateIndex = (candidateIndex + 1) % allCandidates.length;
         this.setState(state => ({
           candidateIndex: newCandidateIndex,
           sounds: { ...state.sounds, [moment().valueOf()]: false }
@@ -221,7 +221,6 @@ class ResultIndex extends React.Component {
       } else {
         this.alive = false;
         this.setState(state => ({
-          candidateIndex: newCandidateIndex,
           sounds: { ...state.sounds, [moment().valueOf()]: true }
         }));
       }
