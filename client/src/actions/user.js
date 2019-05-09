@@ -1,5 +1,5 @@
 import _ from "lodash";
-import votingApi from "../apis/voting";
+import votingApi from "../apis/main";
 import {
   USER_CREATE,
   USERS_GET,

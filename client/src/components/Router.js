@@ -1,65 +1,65 @@
-import crypto from "crypto";
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { BrowserRouter, Route, Redirect, Switch } from "react-router-dom";
 import { compose } from "redux";
 
 import Snackbar from "./misc/Snackbar";
-import Result from "./main/admin/Result";
-import FirstResult from "./main/admin/Result/First";
-import SecondResult from "./main/admin/Result/Second";
-import ThirdResult from "./main/admin/Result/Third";
 
-import SignIn from "./main/admin/Auth/SignIn/Loadable";
-import ForgetPassword from "./main/admin/Auth/ForgetPassword/Loadable";
-import ResetPassword from "./main/admin/Auth/ResetPassword/Loadable";
+import SignIn from "./main/Auth/SignIn";
+import SignOut from "./main/Auth/SignOut";
+import ForgetPassword from "./main/Auth/ForgetPassword";
+import ResetPassword from "./main/Auth/ResetPassword";
 
-import CandidateList from "./main/user/CandidateList";
-import ThankYou from "./main/user/ThankYou";
+import Nav from "./main/Nav";
+import Profile from "./main/Profile";
+import DyingDialog from "./main/Auth/DyingDialog";
+import TokenExpirationWatch from "./main/Auth/TokenExpirationWatch";
+import Socket from "./main/Socket";
 
-import Background from "./misc/Background";
-import AdminRouter from "./main/admin/AdminRouter";
+import Dashboard from "./main/Dashboard";
+import Participant from "./main/Participant";
+import User from "./main/User";
 
 class App extends Component {
-  async componentDidMount() {
-    window.myOwnUniqueId = (await crypto.randomBytes(48)).toString("hex");
-  }
-
   render() {
     return (
       <BrowserRouter>
         <Fragment>
           <Snackbar />
+
           <Switch>
             <Route
-              path="/resetpassword/users/:userId/email/:email/token/:token"
+              path="/resetPassword/users/:userId/email/:email/token/:token"
               component={ResetPassword}
             />
+
             {!this.props.token ? (
               <Fragment>
-                <Background opacity={0.7} />
                 <Switch>
-                  <Route path="/candidateList" component={CandidateList} />
-                  <Route path="/thankYou" component={ThankYou} />
-                  <Route path="/openSesame" component={SignIn} />
+                  <Route path="/signIn" component={SignIn} />
                   <Route path="/forgetPassword" component={ForgetPassword} />
-                  <Route
-                    path="*"
-                    component={() => <Redirect to="/candidateList" />}
-                  />
+                  <Route path="*" component={() => <Redirect to="/signIn" />} />
                 </Switch>
               </Fragment>
             ) : (
               <Fragment>
+                <DyingDialog />
+                <TokenExpirationWatch />
+                <Socket />
+                <Nav />
                 <Switch>
-                  <Route path="/result/first" component={FirstResult} />
-                  <Route path="/result/second" component={SecondResult} />
-                  <Route path="/result/third" component={ThirdResult} />
-                  <Route path="/result" component={Result} />
-
-                  <Route path="/admin" component={AdminRouter} />
-                  <Route path="*" component={() => <Redirect to="/admin" />} />
+                  <Route path="/dashboard" component={Dashboard} />
+                  <Route path="/participants" component={Participant} />
+                  <Route path="/users" component={User} />
+                  <Route path="/profile" component={Profile} />
+                  <Route path="/signOut" component={SignOut} />
+                  <Route
+                    path="*"
+                    component={() => <Redirect to="/dashboard" />}
+                  />
                 </Switch>
+                <br />
+                <br />
               </Fragment>
             )}
           </Switch>

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import cheerio from "cheerio";
-import votingApi from "../apis/voting";
+import votingApi from "../apis/main";
 import {
   AUTH_DYING_DIALOG,
   AUTH_SIGN_IN,

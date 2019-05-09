@@ -4,9 +4,11 @@ export const CONFIGURATION_GET = "CONFIGURATION_GET";
 export const CONFIGURATION_UPDATE = "CONFIGURATION_UPDATE";
 
 const INITIAL_STATE = {
-  openMoment: moment(),
-  closeMoment: moment(),
-  onAir: false
+  managementMoment: moment(),
+  accountingMoment: moment(),
+  hospitalityMoment: moment(),
+  systechMoment: moment(),
+  lawMoment: moment()
 };
 
 export default function(state = INITIAL_STATE, action) {
@@ -16,9 +18,11 @@ export default function(state = INITIAL_STATE, action) {
       const { configuration } = action.payload;
       return {
         ...state,
-        openMoment: moment(configuration.openTimestamp),
-        closeMoment: moment(configuration.closeTimestamp),
-        onAir: configuration.onAir
+        managementMoment: moment(configuration.managementDate),
+        accountingMoment: moment(configuration.accountingDate),
+        hospitalityMoment: moment(configuration.hospitalityDate),
+        systechMoment: moment(configuration.systechDate),
+        lawMoment: moment(configuration.lawDate)
       };
     }
     default: {

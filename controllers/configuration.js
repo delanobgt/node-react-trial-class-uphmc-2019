@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const moment = require("moment");
+
 const db = require("../models");
 
 exports.ensureConfigurationExists = async (req, res, next) => {
@@ -7,11 +8,21 @@ exports.ensureConfigurationExists = async (req, res, next) => {
     const configuration = await db.Configuration.findOne({});
     if (!configuration) {
       await db.Configuration.create({
-        openTimestamp: moment().toDate(),
-        closeTimestamp: moment()
-          .add(1, "days")
+        managementDate: moment()
+          .startOf("day")
           .toDate(),
-        onAir: true
+        accountingDate: moment()
+          .startOf("day")
+          .toDate(),
+        hospitalityDate: moment()
+          .startOf("day")
+          .toDate(),
+        systechDate: moment()
+          .startOf("day")
+          .toDate(),
+        lawDate: moment()
+          .startOf("day")
+          .toDate()
       });
     }
     next();
@@ -34,18 +45,28 @@ exports.getConfiguration = async (req, res) => {
 };
 
 exports.updateConfiguration = async (req, res) => {
-  const { openTimestamp, closeTimestamp, onAir } = req.body;
+  const {
+    managementDate,
+    accountingDate,
+    hospitalityDate,
+    systechDate,
+    lawDate
+  } = req.body;
   try {
     const configuration = await db.Configuration.findOne({});
 
-    if (openTimestamp)
-      configuration.openTimestamp = moment(openTimestamp).toDate();
+    if (managementDate)
+      configuration.managementDate = moment(managementDate).toDate();
 
-    if (closeTimestamp)
-      configuration.closeTimestamp = moment(closeTimestamp).toDate();
+    if (accountingDate)
+      configuration.accountingDate = moment(accountingDate).toDate();
 
-    if (onAir !== undefined && onAir !== null)
-      configuration.onAir = Boolean(onAir);
+    if (hospitalityDate)
+      configuration.hospitalityDate = moment(hospitalityDate).toDate();
+
+    if (systechDate) configuration.systechDate = moment(systechDate).toDate();
+
+    if (lawDate) configuration.lawDate = moment(lawDate).toDate();
 
     await configuration.save();
     res.json(configuration);

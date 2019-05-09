@@ -1,11 +1,9 @@
 const router = require("express").Router();
 
 const controller = require("../controllers/auth");
-const { requireSignin } = require("../middlewares/auth");
-const { ensureConfigurationExists } = require("../controllers/configuration");
+const { requireSignIn } = require("../middlewares/auth");
 
-router.use(ensureConfigurationExists);
-router.post("/signIn", requireSignin, controller.signIn);
-router.post("/signOut", requireSignin, controller.signOut);
+router.post("/signIn", requireSignIn, controller.signIn);
+router.post("/signOut", requireSignIn, controller.signOut);
 
 module.exports = router;

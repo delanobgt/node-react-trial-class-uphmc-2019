@@ -1,5 +1,5 @@
 import _ from "lodash";
-import votingApi from "../apis/voting";
+import votingApi from "../apis/main";
 import {
   CONFIGURATION_GET,
   CONFIGURATION_UPDATE
@@ -18,7 +18,13 @@ export const getConfiguration = () => async dispatch => {
 export const updateConfiguration = params => async dispatch => {
   const response = await votingApi().put(
     `/configuration`,
-    _.pick(params, ["openTimestamp", "closeTimestamp", "onAir"])
+    _.pick(params, [
+      "managementDate",
+      "accountingDate",
+      "hospitalityDate",
+      "systechDate",
+      "lawDate"
+    ])
   );
   const payload = { configuration: response.data };
   dispatch({

@@ -2,16 +2,24 @@ const mongoose = require("mongoose");
 
 const configurationSchema = new mongoose.Schema(
   {
-    openTimestamp: {
+    managementDate: {
       type: Date,
       required: true
     },
-    closeTimestamp: {
+    accountingDate: {
       type: Date,
       required: true
     },
-    onAir: {
-      type: Boolean,
+    hospitalityDate: {
+      type: Date,
+      required: true
+    },
+    systechDate: {
+      type: Date,
+      required: true
+    },
+    lawDate: {
+      type: Date,
       required: true
     }
   },

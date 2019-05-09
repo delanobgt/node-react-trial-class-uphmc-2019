@@ -1,8 +1,8 @@
-const passportService = require("../services/passport");
+require("../services/passport");
 const passport = require("passport");
 
 exports.requireAuth = passport.authenticate("jwt", { session: false });
-exports.requireSignin = passport.authenticate("local", { session: false });
+exports.requireSignIn = passport.authenticate("local", { session: false });
 
 exports.hasRole = requiredRole => (req, res, next) => {
   const { role } = req.user;

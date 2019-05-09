@@ -30,10 +30,9 @@ app.use((req, res, next) => {
   next();
 });
 app.use("/api/auth", require("./routes/auth"));
-app.use("/api/users", require("./routes/user"));
-app.use("/api/candidates", require("./routes/candidate"));
-app.use("/api/voteTokens", require("./routes/voteToken"));
 app.use("/api/configuration", require("./routes/configuration"));
+app.use("/api/participants", require("./routes/participant"));
+app.use("/api/users", require("./routes/user"));
 
 const path = require("path");
 app.use(express.static(path.join("client", "build")));
