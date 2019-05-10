@@ -85,7 +85,10 @@ class CardToastDialog extends React.Component {
       error: (
         <CancelIcon
           style={{
-            color: error && error.type === "WARNING" ? "white" : "DarkRed",
+            color:
+              error && error.response.data.error.type === "WARNING"
+                ? "white"
+                : "DarkRed",
             fontSize: "4em"
           }}
         />
@@ -95,7 +98,10 @@ class CardToastDialog extends React.Component {
     const bgColorDict = {
       signIn: "CornflowerBlue",
       signOut: "MediumAquamarine",
-      error: error && error.type === "WARNING" ? "orange" : "Crimson"
+      error:
+        error && error.response.data.error.type === "WARNING"
+          ? "orange"
+          : "Crimson"
     };
 
     return (

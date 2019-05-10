@@ -92,7 +92,7 @@ exports.signInParticipantById = async (req, res) => {
 
     await participant.save();
     res.json({ ...participant.toObject(), todayCourse });
-    io.emit("PARTICIPANT_GET_BY_ID", { id: participant._id });
+    Socket.globalSocket.emit("PARTICIPANT_GET_BY_ID", { id: participant._id });
   } catch (error) {
     console.log({ error });
     res

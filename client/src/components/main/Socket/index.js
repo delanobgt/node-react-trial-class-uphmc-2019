@@ -74,13 +74,13 @@ class SocketIndex extends React.Component {
       removeUserById(payload.id);
     });
 
-    // candidate store update
-    const { getCandidateById, removeCandidateById } = this.props;
-    socket.on("CANDIDATE_GET_BY_ID", payload => {
-      getCandidateById(payload.id);
+    // participant store update
+    const { getParticipantById, removeParticipantById } = this.props;
+    socket.on("PARTICIPANT_GET_BY_ID", payload => {
+      getParticipantById(payload.id);
     });
-    socket.on("CANDIDATE_REMOVE_BY_ID", payload => {
-      removeCandidateById(payload.id);
+    socket.on("PARTICIPANT_REMOVE_BY_ID", payload => {
+      removeParticipantById(payload.id);
     });
   }
 

@@ -123,9 +123,9 @@ class ParticipantListIndex extends React.Component {
                 Not attended
               </span>
             ) : (
-              <span style={{ fontWeight: "bold", color: "limegreen" }}>
+              <span style={{ color: "limegreen" }}>
                 {moment(d.timestamps[_.lowerCase(course) + "Timestamp"]).format(
-                  "dddd, Do MMM YYYY"
+                  "Do MMM YYYY (HH:mm:ss)"
                 )}
               </span>
             )
@@ -229,7 +229,7 @@ class ParticipantListIndex extends React.Component {
               headers={columns.map(col => col.Header)}
               accessors={columns.map(col => col.accessor)}
               plains={columns.map(col => col.plain)}
-              filename="[Voting System] All Candidates"
+              filename="[Attendance System] All Participants"
               actionElement={
                 <Button
                   variant="outlined"

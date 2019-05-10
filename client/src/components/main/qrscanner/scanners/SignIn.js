@@ -10,12 +10,12 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
 import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { KeyboardBackspace as KeyboardBackspaceIcon } from "@material-ui/icons";
+// import Button from "@material-ui/core/Button";
+// import { KeyboardBackspace as KeyboardBackspaceIcon } from "@material-ui/icons";
 
 import * as participantActions from "../../../../actions/participant";
-import CleanLink from "../../../misc/CleanLink";
+// import CleanLink from "../../../misc/CleanLink";
 import CardToastDialog from "./dialogs/CardToastDialog";
 
 const styles = theme => ({
@@ -94,14 +94,14 @@ class QRScannerSignIn extends Component {
     const { classes } = this.props;
     const { submitStatus } = this.state;
 
-    const BackButton = () => (
-      <CleanLink to="/qrscanner/menu">
-        <Button variant="outlined" color="primary" size="small">
-          <KeyboardBackspaceIcon style={{ marginRight: "0.35em" }} />
-          back to scanner type menu
-        </Button>
-      </CleanLink>
-    );
+    // const BackButton = () => (
+    //   <CleanLink to="/qrscanner/menu">
+    //     <Button variant="outlined" color="primary" size="small">
+    //       <KeyboardBackspaceIcon style={{ marginRight: "0.35em" }} />
+    //       back to scanner type menu
+    //     </Button>
+    //   </CleanLink>
+    // );
 
     return (
       <Fragment>
@@ -112,9 +112,6 @@ class QRScannerSignIn extends Component {
         )}
         <Grid container justify="center">
           <Grid item xs={11} sm={6} md={4} lg={3}>
-            <BackButton />
-            <br />
-            <br />
             <br />
 
             <Typography variant="h3" align="center" style={{ color: "blue" }}>
