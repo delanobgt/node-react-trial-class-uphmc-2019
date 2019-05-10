@@ -111,7 +111,7 @@ class ParticipantListIndex extends React.Component {
               : !d.timestamps[_.lowerCase(course) + "Timestamp"]
               ? "Not attended"
               : moment(d.timestamps[_.lowerCase(course) + "Timestamp"]).format(
-                  "dddd, Do MMM YYYY"
+                  "Do MMM YYYY (HH:mm:ss)"
                 ),
           Cell: ({ original: d }) =>
             !d.courses.includes(course) ? (
