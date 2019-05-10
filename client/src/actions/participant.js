@@ -18,12 +18,12 @@ export const emptyParticipants = () => dispatch => {
 export const createParticipant = ({
   fullname,
   email,
-  classes
+  courses
 }) => async dispatch => {
   const response = await mainApi().post(`/participants`, {
     fullname,
     email,
-    classes
+    courses
   });
   const payload = { participant: response.data };
   dispatch({
@@ -55,12 +55,12 @@ export const getParticipantById = id => async dispatch => {
 
 export const updateParticipantById = (
   id,
-  { fullname, email, classes }
+  { fullname, email, courses }
 ) => async dispatch => {
   const response = await mainApi().put(`/participants/${id}`, {
     fullname,
     email,
-    classes
+    courses
   });
   const payload = { participant: response.data };
   dispatch({

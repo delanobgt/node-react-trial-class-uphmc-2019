@@ -1,6 +1,5 @@
 import "react-table/react-table.css";
 import _ from "lodash";
-import moment from "moment";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -18,12 +17,12 @@ import {
 } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
 
-import * as candidateActions from "../../../../actions/candidate";
-import requireAuth from "../../../hoc/requireAuth";
-import ExportToExcel from "../../../misc/ExportToExcel";
-import CreateCandidateDialog from "./dialogs/CreateCandidateDialog";
-import EditCandidateDialog from "./dialogs/EditCandidateDialog";
-import DeleteCandidateDialog from "./dialogs/DeleteCandidateDialog";
+import * as participantActions from "../../../actions/participant";
+import requireAuth from "../../hoc/requireAuth";
+import ExportToExcel from "../../misc/ExportToExcel";
+import CreateParticipantDialog from "./dialogs/CreateParticipantDialog";
+import EditParticipantDialog from "./dialogs/EditParticipantDialog";
+import DeleteParticipantDialog from "./dialogs/DeleteParticipantDialog";
 
 const styles = theme => ({
   retryText: {
@@ -62,16 +61,16 @@ const LOADING = "LOADING",
   ERROR = "ERROR",
   DONE = "DONE";
 
-class CandidateListIndex extends React.Component {
+class ParticipantListIndex extends React.Component {
   state = {
     loadingStatus: LOADING
   };
 
   fetchData = async () => {
-    const { getCandidates } = this.props;
+    const { getParticipants } = this.props;
     try {
       this.setState({ loadingStatus: LOADING });
-      await getCandidates();
+      await getParticipants();
       this.setState({ loadingStatus: DONE });
     } catch (error) {
       console.log({ error });
@@ -80,6 +79,7 @@ class CandidateListIndex extends React.Component {
   };
 
   toggleDialog = stateName => open =>
+    console.log(open) ||
     this.setState(state => ({
       [stateName]: open === undefined ? !Boolean(state[stateName]) : open
     }));
@@ -89,48 +89,28 @@ class CandidateListIndex extends React.Component {
   }
 
   render() {
-    const { classes, candidates } = this.props;
+    const { classes, participants } = this.props;
     const { loadingStatus } = this.state;
 
     const columns = [
-      { Header: "Order Number", accessor: d => d.orderNumber || -1 },
+      { Header: "Order Number", accessor: d => d.orderNumber },
       {
         Header: "Fullname",
         accessor: d => d.fullname || "-"
       },
-      { Header: "Major", accessor: d => d.major || "-" },
-      {
-        Header: "Image",
-        accessor: d => _.get(d, "image.publicId", "-"),
-        Cell: ({ original: d }) => (
-          <div
-            className={classes.picture}
-            style={{
-              backgroundImage: `url(${_.get(d, "image.secureUrl", null) ||
-                "https://via.placeholder.com/300"})`
-            }}
-          />
-        )
-      },
-      {
-        Header: "Created At",
-        accessor: d => (d.createdAt ? moment(d.createdAt).valueOf() : null),
-        plain: dateMs => (dateMs ? moment(dateMs).format("D MMMM YYYY") : "-"),
-        Cell: ({ original: d }) =>
-          d.createdAt ? moment(d.createdAt).format("D MMMM YYYY") : "-"
-      },
+      { Header: "Email", accessor: d => d.email || "-" },
       {
         Header: "Actions",
         accessor: () => "",
         Cell: ({ original: d }) => (
           <div style={{ textAlign: "center" }}>
             <IconButton
-              onClick={() => this.toggleDialog("EditCandidateDialog")(d)}
+              onClick={() => this.toggleDialog("EditParticipantDialog")(d)}
             >
               <EditIcon />
             </IconButton>
             <IconButton
-              onClick={() => this.toggleDialog("DeleteCandidateDialog")(d)}
+              onClick={() => this.toggleDialog("DeleteParticipantDialog")(d)}
             >
               <DeleteIcon />
             </IconButton>
@@ -175,9 +155,10 @@ class CandidateListIndex extends React.Component {
         </div>
       );
     } else {
-      const data = _.chain(candidates)
+      const data = _.chain(participants)
         .values()
-        .sortBy([cand => cand.orderNumber])
+        .sortBy([p => p.fullname])
+        .map((p, index) => ({ ...p, orderNumber: index + 1 }))
         .value();
 
       mainContent = (
@@ -202,7 +183,7 @@ class CandidateListIndex extends React.Component {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => this.toggleDialog("CreateCandidateDialog")(true)}
+              onClick={() => this.toggleDialog("CreateParticipantDialog")(true)}
             >
               Create New <FlareIcon style={{ marginLeft: "0.5em" }} />
             </Button>
@@ -245,25 +226,27 @@ class CandidateListIndex extends React.Component {
           <Grid item xs={11}>
             <Paper className={classes.paper} elevation={3}>
               <Typography variant="h5" gutterBottom>
-                All Candidates
+                All Participants
               </Typography>
               <br />
               {mainContent}
             </Paper>
           </Grid>
         </Grid>
-        <CreateCandidateDialog
-          name="CreateCandidateDialog"
+        <CreateParticipantDialog
+          name="CreateParticipantDialog"
           state={this.state}
           toggleDialog={this.toggleDialog}
         />
-        <EditCandidateDialog
-          name="EditCandidateDialog"
-          state={this.state}
-          toggleDialog={this.toggleDialog}
-        />
-        <DeleteCandidateDialog
-          name="DeleteCandidateDialog"
+        {this.state.EditParticipantDialog && (
+          <EditParticipantDialog
+            name="EditParticipantDialog"
+            state={this.state}
+            toggleDialog={this.toggleDialog}
+          />
+        )}
+        <DeleteParticipantDialog
+          name="DeleteParticipantDialog"
           state={this.state}
           toggleDialog={this.toggleDialog}
         />
@@ -274,15 +257,15 @@ class CandidateListIndex extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    ...state.candidate
+    ...state.participant
   };
 }
 
 export default compose(
+  requireAuth,
   withStyles(styles),
   connect(
     mapStateToProps,
-    { ...candidateActions }
-  ),
-  requireAuth
-)(CandidateListIndex);
+    { ...participantActions }
+  )
+)(ParticipantListIndex);

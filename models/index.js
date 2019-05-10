@@ -5,4 +5,5 @@ const DATABASE_URL =
 mongoose.connect(DATABASE_URL);
 
 exports.Configuration = require("./configuration");
+exports.Participant = require("./participant");
 exports.User = require("./user");

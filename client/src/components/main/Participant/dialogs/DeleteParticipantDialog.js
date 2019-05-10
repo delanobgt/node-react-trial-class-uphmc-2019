@@ -12,8 +12,8 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Typography from "@material-ui/core/Typography";
 
-import * as candidateActions from "../../../../../actions/candidate";
-import * as snackbarActions from "../../../../../actions/snackbar";
+import * as participantActions from "../../../../actions/participant";
+import * as snackbarActions from "../../../../actions/snackbar";
 
 const styles = theme => ({
   textField: {
@@ -29,24 +29,24 @@ const INITIAL_STATE = {
   submitStatus: IDLE
 };
 
-class DeleteCandidateDialog extends React.Component {
+class DeleteParticipantDialog extends React.Component {
   state = INITIAL_STATE;
 
   onSubmit = async () => {
     const {
-      deleteCandidateById,
+      deleteParticipantById,
       successSnackbar,
       errorSnackbar,
       state,
       name
     } = this.props;
-    const candidate = state[name];
+    const participant = state[name];
 
     try {
       this.setState({ submitStatus: SUBMITTING });
-      await deleteCandidateById(candidate._id);
+      await deleteParticipantById(participant._id);
       this.onClose();
-      successSnackbar(`Candidate deleted`);
+      successSnackbar(`Participant deleted`);
     } catch (error) {
       errorSnackbar(
         _.get(error, "response.data.error.msg", `Please try again!`)
@@ -65,22 +65,22 @@ class DeleteCandidateDialog extends React.Component {
   render() {
     const { state, name } = this.props;
     const { submitStatus } = this.state;
-    const candidate = state[name];
+    const participant = state[name];
 
-    if (!candidate) return null;
+    if (!participant) return null;
 
     return (
       <div>
-        <Dialog open={Boolean(candidate)} aria-labelledby="form-dialog-title">
+        <Dialog open={Boolean(participant)} aria-labelledby="form-dialog-title">
           <Fragment>
             <DialogTitle id="form-dialog-title">
-              Delete Candidate Confirmation
+              Delete Participant Confirmation
             </DialogTitle>
             <DialogContent>
               <DialogContentText>
                 <Typography variant="subtitle1">
-                  Delete candidate{" "}
-                  <span style={{ color: "blue" }}>{candidate.fullname}</span>{" "}
+                  Delete participant{" "}
+                  <span style={{ color: "blue" }}>{participant.fullname}</span>{" "}
                   permanently?
                 </Typography>
               </DialogContentText>
@@ -116,6 +116,6 @@ export default compose(
   withStyles(styles),
   connect(
     null,
-    { ...candidateActions, ...snackbarActions }
+    { ...participantActions, ...snackbarActions }
   )
-)(DeleteCandidateDialog);
+)(DeleteParticipantDialog);

@@ -18,7 +18,7 @@ const participantSchema = new mongoose.Schema(
       systechTimestamp: Date,
       lawTimestamp: Date
     },
-    classes: [
+    courses: [
       {
         type: String,
         enum: ["Management", "Accounting", "Hospitality", "Systech", "Law"]
