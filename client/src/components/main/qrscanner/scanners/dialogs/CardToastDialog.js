@@ -86,7 +86,8 @@ class CardToastDialog extends React.Component {
         <CancelIcon
           style={{
             color:
-              error && error.response.data.error.type === "WARNING"
+              error &&
+              _.get(error, "response.data.error.type", null) === "WARNING"
                 ? "white"
                 : "DarkRed",
             fontSize: "4em"
@@ -99,10 +100,12 @@ class CardToastDialog extends React.Component {
       signIn: "CornflowerBlue",
       signOut: "MediumAquamarine",
       error:
-        error && error.response.data.error.type === "WARNING"
+        error && _.get(error, "response.data.error.type", null) === "WARNING"
           ? "orange"
           : "Crimson"
     };
+
+    const todayCourse = _.get(error, "response.data.error.todayCourse", null);
 
     return (
       <Dialog open={Boolean(payload)} aria-labelledby="form-dialog-title">
@@ -120,14 +123,27 @@ class CardToastDialog extends React.Component {
             {actionTypeDict[actionType]}
           </Typography>
           {actionType === "error" ? (
-            <Typography
-              variant="subtitle1"
-              align="center"
-              gutterBottom
-              style={{ color: "white" }}
-            >
-              {_.get(error, "response.data.error.msg", "Please try again!")}
-            </Typography>
+            <Fragment>
+              <Typography
+                variant="subtitle1"
+                align="center"
+                gutterBottom
+                style={{ color: "white" }}
+              >
+                {_.get(error, "response.data.error.msg", "Please try again!")}
+              </Typography>
+
+              {todayCourse && (
+                <Typography
+                  variant="subtitle"
+                  align="center"
+                  gutterBottom
+                  style={{ color: "white" }}
+                >
+                  ({todayCourse} day)
+                </Typography>
+              )}
+            </Fragment>
           ) : (
             <Fragment>
               <Typography

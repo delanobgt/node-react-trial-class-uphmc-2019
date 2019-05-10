@@ -77,7 +77,11 @@ exports.signInParticipantById = async (req, res) => {
     }
     if (!participant.courses.includes(todayCourse)) {
       return res.status(422).json({
-        error: { type: "ERROR", msg: "Participant is not enrolled!" }
+        error: {
+          type: "ERROR",
+          todayCourse,
+          msg: "Participant is not enrolled!"
+        }
       });
     }
     if (participant.timestamps[_.lowerCase(todayCourse) + "Timestamp"]) {
