@@ -1,6 +1,7 @@
 import _ from "lodash";
 import React from "react";
 import {
+  Camera as CameraIcon,
   Dashboard as DashboardIcon,
   ExitToApp as ExitToAppIcon,
   People as PeopleIcon,
@@ -19,6 +20,11 @@ export default ({ props }) => {
       icon: <PeopleIcon />,
       label: "Participants",
       link: "/participants"
+    },
+    {
+      icon: <CameraIcon />,
+      label: "QR Scanner",
+      link: "/qrscanner/scanners/signIn"
     },
     requireRoleMenuItem("SUPER_ADMIN")({
       icon: <PeopleIcon />,

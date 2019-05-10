@@ -33,6 +33,7 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/configuration", require("./routes/configuration"));
 app.use("/api/participants", require("./routes/participant"));
 app.use("/api/users", require("./routes/user"));
+app.use("/api/qrCode", require("./routes/qrCode"));
 
 const path = require("path");
 app.use(express.static(path.join("client", "build")));

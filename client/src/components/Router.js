@@ -18,6 +18,8 @@ import Socket from "./main/Socket";
 
 import Dashboard from "./main/Dashboard";
 import Participant from "./main/Participant";
+import QRScannerMenu from "./main/qrscanner/Menu";
+import QRScannerSignIn from "./main/qrscanner/scanners/SignIn";
 import User from "./main/User";
 
 class App extends Component {
@@ -53,6 +55,16 @@ class App extends Component {
                   <Route path="/users" component={User} />
                   <Route path="/profile" component={Profile} />
                   <Route path="/signOut" component={SignOut} />
+                  <Route
+                    path="/qrscanner/menu"
+                    exact
+                    component={QRScannerMenu}
+                  />
+                  <Route
+                    path="/qrscanner/scanners/signIn"
+                    exact
+                    component={QRScannerSignIn}
+                  />
                   <Route
                     path="*"
                     component={() => <Redirect to="/dashboard" />}

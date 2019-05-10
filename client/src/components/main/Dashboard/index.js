@@ -11,7 +11,7 @@ import { withStyles } from "@material-ui/core/styles";
 import moment from "moment";
 import MomentUtils from "@date-io/moment";
 import MuiPickersUtilsProvider from "material-ui-pickers/MuiPickersUtilsProvider";
-import DateTimePicker from "material-ui-pickers/DateTimePicker";
+import DatePicker from "material-ui-pickers/DatePicker";
 
 import requireAuth from "../../hoc/requireAuth";
 import * as configurationActions from "../../../actions/configuration";
@@ -184,7 +184,7 @@ class Welcome extends Component {
                       <Typography variant="h6" gutterBottom>
                         Management Date
                       </Typography>
-                      <DateTimePicker
+                      <DatePicker
                         value={managementMoment}
                         onChange={this.handleDatetimeChange("managementMoment")}
                       />
@@ -194,7 +194,7 @@ class Welcome extends Component {
                       <Typography variant="h6" gutterBottom>
                         Accounting Date
                       </Typography>
-                      <DateTimePicker
+                      <DatePicker
                         value={accountingMoment}
                         onChange={this.handleDatetimeChange("accountingMoment")}
                       />
@@ -204,7 +204,7 @@ class Welcome extends Component {
                       <Typography variant="h6" gutterBottom>
                         Hospitality Date
                       </Typography>
-                      <DateTimePicker
+                      <DatePicker
                         value={hospitalityMoment}
                         onChange={this.handleDatetimeChange(
                           "hospitalityMoment"
@@ -216,7 +216,7 @@ class Welcome extends Component {
                       <Typography variant="h6" gutterBottom>
                         Systech Date
                       </Typography>
-                      <DateTimePicker
+                      <DatePicker
                         value={systechMoment}
                         onChange={this.handleDatetimeChange("systechMoment")}
                       />
@@ -226,7 +226,7 @@ class Welcome extends Component {
                       <Typography variant="h6" gutterBottom>
                         Law Date
                       </Typography>
-                      <DateTimePicker
+                      <DatePicker
                         value={lawMoment}
                         onChange={this.handleDatetimeChange("lawMoment")}
                       />

@@ -33,6 +33,18 @@ export const createParticipant = ({
   return payload;
 };
 
+export const signInParticipantById = id => async () => {
+  const response = await mainApi().post(`/participants/${id}/signIn`);
+  const payload = { participant: response.data };
+  return payload;
+};
+
+export const sendParticipantEmailById = id => async () => {
+  const response = await mainApi().post(`/participants/${id}/sendEmail`);
+  const payload = response.data;
+  return payload;
+};
+
 export const getParticipants = () => async dispatch => {
   const response = await mainApi().get(`/participants`);
   const payload = { participants: response.data };

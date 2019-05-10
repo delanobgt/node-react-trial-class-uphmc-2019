@@ -1,5 +1,6 @@
 import "react-table/react-table.css";
 import _ from "lodash";
+import moment from "moment";
 import React, { Fragment } from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -8,12 +9,14 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
+import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from "@material-ui/core/IconButton";
 import Paper from "@material-ui/core/Paper";
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
-  Flare as FlareIcon
+  Flare as FlareIcon,
+  Loop as LoopIcon
 } from "@material-ui/icons";
 import { withStyles } from "@material-ui/core/styles";
 
@@ -21,6 +24,7 @@ import * as participantActions from "../../../actions/participant";
 import requireAuth from "../../hoc/requireAuth";
 import ExportToExcel from "../../misc/ExportToExcel";
 import CreateParticipantDialog from "./dialogs/CreateParticipantDialog";
+import SendParticipantEmailDialog from "./dialogs/SendParticipantEmailDialog";
 import EditParticipantDialog from "./dialogs/EditParticipantDialog";
 import DeleteParticipantDialog from "./dialogs/DeleteParticipantDialog";
 
@@ -79,7 +83,6 @@ class ParticipantListIndex extends React.Component {
   };
 
   toggleDialog = stateName => open =>
-    console.log(open) ||
     this.setState(state => ({
       [stateName]: open === undefined ? !Boolean(state[stateName]) : open
     }));
@@ -99,21 +102,78 @@ class ParticipantListIndex extends React.Component {
         accessor: d => d.fullname || "-"
       },
       { Header: "Email", accessor: d => d.email || "-" },
+      ...["Management", "Accounting", "Hospitality", "Systech", "Law"].map(
+        course => ({
+          Header: course,
+          accessor: d =>
+            !d.courses.includes(course)
+              ? "Not enrolled"
+              : !d.timestamps[_.lowerCase(course) + "Timestamp"]
+              ? "Not attended"
+              : moment(d.timestamps[_.lowerCase(course) + "Timestamp"]).format(
+                  "dddd, Do MMM YYYY"
+                ),
+          Cell: ({ original: d }) =>
+            !d.courses.includes(course) ? (
+              <span style={{ fontWeight: "bold", color: "red" }}>
+                Not enrolled
+              </span>
+            ) : !d.timestamps[_.lowerCase(course) + "Timestamp"] ? (
+              <span style={{ fontWeight: "bold", color: "orange" }}>
+                Not attended
+              </span>
+            ) : (
+              <span style={{ fontWeight: "bold", color: "limegreen" }}>
+                {moment(d.timestamps[_.lowerCase(course) + "Timestamp"]).format(
+                  "dddd, Do MMM YYYY"
+                )}
+              </span>
+            )
+        })
+      ),
       {
         Header: "Actions",
         accessor: () => "",
+        width: 170,
         Cell: ({ original: d }) => (
-          <div style={{ textAlign: "center" }}>
-            <IconButton
-              onClick={() => this.toggleDialog("EditParticipantDialog")(d)}
-            >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              onClick={() => this.toggleDialog("DeleteParticipantDialog")(d)}
-            >
-              <DeleteIcon />
-            </IconButton>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <Tooltip title="Resend email">
+              <div>
+                <IconButton
+                  onClick={() =>
+                    this.toggleDialog("SendParticipantEmailDialog")(d)
+                  }
+                >
+                  <LoopIcon />
+                </IconButton>
+              </div>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <div>
+                <IconButton
+                  onClick={() => this.toggleDialog("EditParticipantDialog")(d)}
+                >
+                  <EditIcon />
+                </IconButton>
+              </div>
+            </Tooltip>
+            <Tooltip title="Delete">
+              <div>
+                <IconButton
+                  onClick={() =>
+                    this.toggleDialog("DeleteParticipantDialog")(d)
+                  }
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </div>
+            </Tooltip>
           </div>
         )
       }
@@ -235,6 +295,11 @@ class ParticipantListIndex extends React.Component {
         </Grid>
         <CreateParticipantDialog
           name="CreateParticipantDialog"
+          state={this.state}
+          toggleDialog={this.toggleDialog}
+        />
+        <SendParticipantEmailDialog
+          name="SendParticipantEmailDialog"
           state={this.state}
           toggleDialog={this.toggleDialog}
         />

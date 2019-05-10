@@ -88,3 +88,24 @@ exports.sendResetUserPasswordEmail = async ({ recipientEmail, payload }) => {
   };
   await sendEmail(mailOptions);
 };
+
+exports.sendFormStatusEmail = async ({ recipientEmail, payload }) => {
+  const { _id, fullname, courses, hostUrl } = payload;
+
+  const qrCodeLink = `${hostUrl}/api/qrCode/generate/${_id}`;
+
+  const ejsPath = path.join(__dirname, "templates", "ParticipantStatus.html");
+  const templateEjs = await readFile(ejsPath, "utf-8");
+  const renderedHtml = ejs.render(templateEjs, {
+    payload: {
+      ...payload,
+      qrCodeLink
+    }
+  });
+  const mailOptions = {
+    to: recipientEmail,
+    subject: `Trial Class 2019`,
+    html: renderedHtml
+  };
+  await sendEmail(mailOptions);
+};
