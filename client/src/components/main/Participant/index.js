@@ -223,6 +223,41 @@ class ParticipantListIndex extends React.Component {
 
       mainContent = (
         <Fragment>
+          <div>
+            {["management", "accounting", "hospitality", "systech", "law"].map(
+              course => {
+                const enrolledParticipants = _.chain(participants)
+                  .values()
+                  .filter(p => p.courses.includes(_.startCase(course)))
+                  .value();
+                const attendedParticipants = _.chain(enrolledParticipants)
+                  .filter(p => p.timestamps[course + "Timestamp"])
+                  .value();
+                return (
+                  <Typography variant="subtitle1">
+                    <span style={{ display: "inline-block", width: "7em" }}>
+                      {_.startCase(course)}
+                    </span>
+                    :{" "}
+                    <span style={{ color: "limegreen" }}>
+                      {attendedParticipants.length}
+                    </span>{" "}
+                    /{" "}
+                    <span style={{ color: "orange" }}>
+                      {enrolledParticipants.length}
+                    </span>{" "}
+                    (
+                    {Number(
+                      (attendedParticipants.length /
+                        enrolledParticipants.length) *
+                        100
+                    ).toFixed(1)}
+                    % attended)
+                  </Typography>
+                );
+              }
+            )}
+          </div>
           <div className={classes.actionDiv}>
             <ExportToExcel
               rows={data}
